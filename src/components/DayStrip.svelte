@@ -17,14 +17,14 @@
 </script>
 
 <button
-  class="w-full text-left p-4 rounded-xl bg-white border border-run-border hover:border-gray-300 transition-all cursor-pointer {expanded ? 'ring-2 ring-run-green/20 border-run-green/40' : ''}"
+  class="w-full text-left p-4 rounded-xl bg-run-card border border-run-border hover:border-run-muted/40 transition-all cursor-pointer {expanded ? 'ring-2 ring-run-green/20 border-run-green/40' : ''}"
   onclick={onToggle}
 >
   <div class="flex items-center justify-between mb-2.5">
     <div class="flex items-center gap-2">
       <span class="font-medium text-sm">{formatDayLabel(day.date)}</span>
       {#if confidence}
-        <span class="text-[10px] px-1.5 py-0.5 rounded {confidence === 'low' ? 'bg-amber-50 text-amber-600' : 'bg-gray-100 text-run-muted'}">
+        <span class="text-[10px] px-1.5 py-0.5 rounded {confidence === 'low' ? 'bg-run-amber/10 text-run-amber' : 'bg-run-border/50 text-run-muted'}">
           {confidence === 'low' ? 'Less reliable' : 'Approx.'}
         </span>
       {/if}

@@ -54,7 +54,7 @@
         bind:value={query}
         onkeydown={handleKeydown}
         placeholder="City, postcode, or place name"
-        class="w-full pl-9 pr-3 py-2.5 rounded-xl border border-run-border text-sm focus:outline-none focus:ring-2 focus:ring-run-green/30 focus:border-run-green bg-white text-run-text transition-shadow"
+        class="w-full pl-9 pr-3 py-2.5 rounded-xl border border-run-border text-sm focus:outline-none focus:ring-2 focus:ring-run-green/30 focus:border-run-green bg-run-card text-run-text transition-shadow"
         disabled={searching}
       />
     </div>
@@ -75,7 +75,7 @@
     <button
       onclick={handleGPS}
       disabled={searching}
-      class="px-3 py-2.5 bg-white border border-run-border rounded-xl text-sm hover:bg-gray-50 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed transition-all"
+      class="px-3 py-2.5 bg-run-card border border-run-border rounded-xl text-sm hover:bg-run-border/30 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed transition-all"
       title="Use my location"
     >
       <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-run-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">

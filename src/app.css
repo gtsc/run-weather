@@ -18,6 +18,16 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Dark mode overrides */
+.dark {
+  --color-run-bg: #0f172a;
+  --color-run-card: #1e293b;
+  --color-run-text: #f1f5f9;
+  --color-run-muted: #94a3b8;
+  --color-run-border: #334155;
+  --color-run-green-light: #14532d;
+}
+
 @keyframes spin {
   to { transform: rotate(360deg); }
 }

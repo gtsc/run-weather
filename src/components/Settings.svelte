@@ -16,7 +16,7 @@
 <div class="relative">
   <button
     onclick={() => open = !open}
-    class="p-2 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer"
+    class="p-2 rounded-xl hover:bg-run-border/50 transition-colors cursor-pointer"
     title="Settings"
   >
     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-run-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -26,7 +26,7 @@
   </button>
 
   {#if open}
-    <div class="absolute right-0 top-full mt-2 w-80 bg-white rounded-xl shadow-lg border border-run-border p-5 z-10">
+    <div class="absolute right-0 top-full mt-2 w-80 bg-run-card rounded-xl shadow-lg border border-run-border p-5 z-10">
       <h3 class="font-semibold text-sm mb-4">Preferences</h3>
 
       <div class="flex flex-col gap-5">
@@ -66,7 +66,7 @@
                     const val = parseInt((e.target as HTMLInputElement).value);
                     if (!isNaN(val)) updatePreferences({ tempMin: val });
                   }}
-                  class="w-full px-2.5 py-2 border border-run-border rounded-lg text-sm bg-white text-run-text focus:outline-none focus:ring-2 focus:ring-run-green/30 focus:border-run-green transition-shadow"
+                  class="w-full px-2.5 py-2 border border-run-border rounded-lg text-sm bg-run-card text-run-text focus:outline-none focus:ring-2 focus:ring-run-green/30 focus:border-run-green transition-shadow"
                 />
                 <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-run-muted pointer-events-none">°C</span>
               </div>
@@ -83,7 +83,7 @@
                     const val = parseInt((e.target as HTMLInputElement).value);
                     if (!isNaN(val)) updatePreferences({ tempMax: val });
                   }}
-                  class="w-full px-2.5 py-2 border border-run-border rounded-lg text-sm bg-white text-run-text focus:outline-none focus:ring-2 focus:ring-run-green/30 focus:border-run-green transition-shadow"
+                  class="w-full px-2.5 py-2 border border-run-border rounded-lg text-sm bg-run-card text-run-text focus:outline-none focus:ring-2 focus:ring-run-green/30 focus:border-run-green transition-shadow"
                 />
                 <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-run-muted pointer-events-none">°C</span>
               </div>
@@ -97,7 +97,7 @@
           <select
             value={prefs.durationHours}
             onchange={(e) => updatePreferences({ durationHours: parseFloat((e.target as HTMLSelectElement).value) })}
-            class="w-full px-2.5 py-2 border border-run-border rounded-lg text-sm bg-white text-run-text focus:outline-none focus:ring-2 focus:ring-run-green/30 focus:border-run-green transition-shadow"
+            class="w-full px-2.5 py-2 border border-run-border rounded-lg text-sm bg-run-card text-run-text focus:outline-none focus:ring-2 focus:ring-run-green/30 focus:border-run-green transition-shadow"
           >
             {#each durationOptions as opt}
               <option value={opt.value}>{opt.label}</option>

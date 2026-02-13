@@ -24,7 +24,7 @@
   );
 </script>
 
-<div class="flex items-center gap-3 p-3 bg-white rounded-xl border border-run-border hover:border-gray-300 transition-colors">
+<div class="flex items-center gap-3 p-3 bg-run-card rounded-xl border border-run-border hover:border-run-muted/40 transition-colors">
   <div
     class="w-11 h-11 rounded-xl flex items-center justify-center text-white font-bold text-sm shrink-0 shadow-sm"
     style="background-color: {scoreColorHex(window.score)}"

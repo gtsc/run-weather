@@ -2,10 +2,11 @@
   import LocationInput from './components/LocationInput.svelte';
   import WeekView from './components/WeekView.svelte';
   import Settings from './components/Settings.svelte';
+  import DarkModeToggle from './components/DarkModeToggle.svelte';
 </script>
 
 <div class="min-h-screen bg-run-bg text-run-text">
-  <header class="bg-white border-b border-run-border">
+  <header class="bg-run-card border-b border-run-border">
     <div class="max-w-2xl mx-auto px-4 py-5 flex items-center justify-between">
       <div class="flex items-center gap-3">
         <div class="w-9 h-9 bg-run-green rounded-xl flex items-center justify-center">
@@ -18,7 +19,10 @@
           <p class="text-run-muted text-xs">Find the best time to run</p>
         </div>
       </div>
-      <Settings />
+      <div class="flex items-center gap-1">
+        <DarkModeToggle />
+        <Settings />
+      </div>
     </div>
   </header>
 
