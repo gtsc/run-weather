@@ -26,7 +26,7 @@ interface HourlyResponse {
 }
 
 export async function fetchForecast(latitude: number, longitude: number): Promise<HourData[]> {
-  const url = `${BASE_URL}?latitude=${latitude}&longitude=${longitude}&hourly=${HOURLY_PARAMS}&forecast_days=7&timezone=Europe%2FLondon`;
+  const url = `${BASE_URL}?latitude=${latitude}&longitude=${longitude}&hourly=${HOURLY_PARAMS}&forecast_days=8&timezone=Europe%2FLondon`;
 
   const res = await fetch(url);
   if (!res.ok) throw new Error('Failed to fetch forecast');

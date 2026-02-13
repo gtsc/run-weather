@@ -1,20 +1,20 @@
 <script lang="ts">
-  import { geocodePostcode, geocodeGPS } from '../lib/api/geocoding';
+  import { geocodeLocation, geocodeGPS } from '../lib/api/geocoding';
   import { getLocation, setLocation } from '../lib/stores/location.svelte';
   import { loadForecast } from '../lib/stores/weather.svelte';
 
-  let postcode = $state('');
+  let query = $state('');
   let searching = $state(false);
   let errorMsg = $state('');
 
   const location = $derived(getLocation());
 
   async function handleSearch(): Promise<void> {
-    if (!postcode.trim()) return;
+    if (!query.trim()) return;
     searching = true;
     errorMsg = '';
     try {
-      const loc = await geocodePostcode(postcode);
+      const loc = await geocodeLocation(query);
       setLocation(loc);
       await loadForecast(loc.latitude, loc.longitude);
     } catch (e) {
@@ -51,16 +51,16 @@
       </svg>
       <input
         type="text"
-        bind:value={postcode}
+        bind:value={query}
         onkeydown={handleKeydown}
-        placeholder="UK postcode (e.g. SW1A)"
+        placeholder="City, postcode, or place name"
         class="w-full pl-9 pr-3 py-2.5 rounded-xl border border-run-border text-sm focus:outline-none focus:ring-2 focus:ring-run-green/30 focus:border-run-green bg-white text-run-text transition-shadow"
         disabled={searching}
       />
     </div>
     <button
       onclick={handleSearch}
-      disabled={searching || !postcode.trim()}
+      disabled={searching || !query.trim()}
       class="px-5 py-2.5 bg-run-green text-white rounded-xl text-sm font-medium hover:bg-run-green/90 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed transition-all"
     >
       {#if searching}

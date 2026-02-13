@@ -34,6 +34,7 @@ export interface RunWindow {
 
 export interface DayData {
   date: string;
+  dayIndex: number;
   hours: ScoredHour[];
   scores: number[];
   bestScore: number;
