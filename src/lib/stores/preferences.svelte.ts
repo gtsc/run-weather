@@ -1,13 +1,15 @@
+import type { Preferences } from '../types';
+
 const STORAGE_KEY = 'run-weather-prefs';
 
-const defaults = {
+const defaults: Preferences = {
   rainTolerance: 0.3,
   tempMin: 8,
   tempMax: 15,
   durationHours: 1,
 };
 
-function loadFromStorage() {
+function loadFromStorage(): Preferences {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) return { ...defaults, ...JSON.parse(stored) };
@@ -15,13 +17,13 @@ function loadFromStorage() {
   return { ...defaults };
 }
 
-let prefs = $state(loadFromStorage());
+let prefs = $state<Preferences>(loadFromStorage());
 
-export function getPreferences() {
+export function getPreferences(): Preferences {
   return prefs;
 }
 
-export function updatePreferences(updates) {
+export function updatePreferences(updates: Partial<Preferences>): void {
   Object.assign(prefs, updates);
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(prefs));

@@ -1,6 +1,8 @@
+import type { Location } from '../types';
+
 const BASE_URL = 'https://geocoding-api.open-meteo.com/v1/search';
 
-export async function geocodePostcode(postcode) {
+export async function geocodePostcode(postcode: string): Promise<Location> {
   const cleaned = postcode.trim().toUpperCase();
   if (!cleaned) throw new Error('Please enter a postcode');
 
@@ -31,7 +33,7 @@ export async function geocodePostcode(postcode) {
   throw new Error(`Could not find location for "${cleaned}"`);
 }
 
-export async function geocodeGPS() {
+export async function geocodeGPS(): Promise<Location> {
   return new Promise((resolve, reject) => {
     if (!navigator.geolocation) {
       reject(new Error('Geolocation is not supported by your browser'));

@@ -1,7 +1,7 @@
-<script>
-  import { geocodePostcode, geocodeGPS } from '../lib/api/geocoding.js';
-  import { getLocation, setLocation } from '../lib/stores/location.svelte.js';
-  import { loadForecast } from '../lib/stores/weather.svelte.js';
+<script lang="ts">
+  import { geocodePostcode, geocodeGPS } from '../lib/api/geocoding';
+  import { getLocation, setLocation } from '../lib/stores/location.svelte';
+  import { loadForecast } from '../lib/stores/weather.svelte';
 
   let postcode = $state('');
   let searching = $state(false);
@@ -9,7 +9,7 @@
 
   const location = $derived(getLocation());
 
-  async function handleSearch() {
+  async function handleSearch(): Promise<void> {
     if (!postcode.trim()) return;
     searching = true;
     errorMsg = '';
@@ -18,13 +18,13 @@
       setLocation(loc);
       await loadForecast(loc.latitude, loc.longitude);
     } catch (e) {
-      errorMsg = e.message;
+      errorMsg = (e as Error).message;
     } finally {
       searching = false;
     }
   }
 
-  async function handleGPS() {
+  async function handleGPS(): Promise<void> {
     searching = true;
     errorMsg = '';
     try {
@@ -32,13 +32,13 @@
       setLocation(loc);
       await loadForecast(loc.latitude, loc.longitude);
     } catch (e) {
-      errorMsg = e.message;
+      errorMsg = (e as Error).message;
     } finally {
       searching = false;
     }
   }
 
-  function handleKeydown(e) {
+  function handleKeydown(e: KeyboardEvent): void {
     if (e.key === 'Enter') handleSearch();
   }
 </script>

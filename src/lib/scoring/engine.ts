@@ -1,15 +1,15 @@
-import { getWeatherInfo } from './weatherCodes.js';
+import type { HourData, Preferences } from '../types';
+import { getWeatherInfo } from './weatherCodes';
 
-export function scoreHour(hour, prefs) {
+export function scoreHour(hour: HourData, prefs: Preferences): number {
   let score = 100;
 
   // Precipitation probability: up to 50 pts penalty (scaled by rain tolerance)
-  // Higher rain tolerance (0-1) means less penalty
   const precipProbPenalty = (hour.precipProbability / 100) * 50 * (1 - prefs.rainTolerance);
   score -= precipProbPenalty;
 
   // Precipitation amount: up to 15 pts
-  const precipAmount = Math.min(hour.precipitation, 5); // cap at 5mm
+  const precipAmount = Math.min(hour.precipitation, 5);
   score -= (precipAmount / 5) * 15;
 
   // Temperature outside feels-like comfort range: up to 20 pts (2 per degree)

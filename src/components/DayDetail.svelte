@@ -1,7 +1,8 @@
-<script>
+<script lang="ts">
+  import type { DayData } from '../lib/types';
   import RunWindow from './RunWindow.svelte';
 
-  let { day } = $props();
+  let { day }: { day: DayData } = $props();
 </script>
 
 <div class="p-3 bg-gray-50 rounded-lg border border-gray-200">

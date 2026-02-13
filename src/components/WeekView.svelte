@@ -1,13 +1,13 @@
-<script>
-  import { getWeatherState } from '../lib/stores/weather.svelte.js';
+<script lang="ts">
+  import { getWeatherState } from '../lib/stores/weather.svelte';
   import DayStrip from './DayStrip.svelte';
   import DayDetail from './DayDetail.svelte';
 
-  let expandedDay = $state(null);
+  let expandedDay = $state<string | null>(null);
 
   const weather = $derived(getWeatherState());
 
-  function toggleDay(date) {
+  function toggleDay(date: string): void {
     expandedDay = expandedDay === date ? null : date;
   }
 </script>

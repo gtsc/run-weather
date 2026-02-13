@@ -1,10 +1,10 @@
-<script>
-  import { formatHourRange, formatTemp, formatWind, scoreColorHex } from '../lib/utils/format.js';
-  import { getWeatherInfo } from '../lib/scoring/weatherCodes.js';
+<script lang="ts">
+  import type { RunWindow as RunWindowType } from '../lib/types';
+  import { formatHourRange, formatTemp, formatWind, scoreColorHex } from '../lib/utils/format';
+  import { getWeatherInfo } from '../lib/scoring/weatherCodes';
 
-  let { window, rank } = $props();
+  let { window, rank }: { window: RunWindowType; rank: number } = $props();
 
-  // Summarise conditions from the hours in this window
   const avgFeelsLike = $derived(
     Math.round(window.hours.reduce((s, h) => s + h.feelsLike, 0) / window.hours.length)
   );

@@ -1,10 +1,11 @@
-<script>
-  import { formatDayLabel, formatHour, scoreColorHex } from '../lib/utils/format.js';
-  import { getWeatherInfo } from '../lib/scoring/weatherCodes.js';
+<script lang="ts">
+  import type { DayData, ScoredHour } from '../lib/types';
+  import { formatDayLabel, formatHour, scoreColorHex } from '../lib/utils/format';
+  import { getWeatherInfo } from '../lib/scoring/weatherCodes';
 
-  let { day, expanded = false, onToggle } = $props();
+  let { day, expanded = false, onToggle }: { day: DayData; expanded?: boolean; onToggle: () => void } = $props();
 
-  function isPast(hourData) {
+  function isPast(hourData: ScoredHour): boolean {
     return new Date(hourData.time) < new Date();
   }
 </script>

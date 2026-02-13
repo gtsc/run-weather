@@ -1,8 +1,6 @@
-// WMO Weather interpretation codes
-// https://open-meteo.com/en/docs
-// penalty: 0 = no impact, up to 95 = severe
+import type { WeatherInfo } from '../types';
 
-export const WEATHER_CODES = {
+const WEATHER_CODES: Record<number, WeatherInfo> = {
   0:  { label: 'Clear sky', penalty: 0 },
   1:  { label: 'Mainly clear', penalty: 0 },
   2:  { label: 'Partly cloudy', penalty: 0 },
@@ -33,6 +31,6 @@ export const WEATHER_CODES = {
   99: { label: 'Thunderstorm with heavy hail', penalty: 95 },
 };
 
-export function getWeatherInfo(code) {
+export function getWeatherInfo(code: number): WeatherInfo {
   return WEATHER_CODES[code] || { label: 'Unknown', penalty: 10 };
 }

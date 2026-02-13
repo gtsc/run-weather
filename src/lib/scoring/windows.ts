@@ -1,10 +1,11 @@
-export function findRunWindows(dayHours, scores, durationHours) {
-  const windowSize = Math.max(1, Math.round(durationHours * 2) / 2 * 2); // round to nearest hour
+import type { ScoredHour, RunWindow } from '../types';
+
+export function findRunWindows(dayHours: ScoredHour[], scores: number[], durationHours: number): RunWindow[] {
   const stepsNeeded = Math.ceil(durationHours);
 
   if (dayHours.length < stepsNeeded) return [];
 
-  const windows = [];
+  const windows: RunWindow[] = [];
 
   for (let i = 0; i <= dayHours.length - stepsNeeded; i++) {
     const windowHours = dayHours.slice(i, i + stepsNeeded);
@@ -28,7 +29,6 @@ export function findRunWindows(dayHours, scores, durationHours) {
     });
   }
 
-  // Sort by score descending, return top 3
   windows.sort((a, b) => b.score - a.score);
   return windows.slice(0, 3);
 }

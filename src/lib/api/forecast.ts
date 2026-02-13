@@ -1,3 +1,5 @@
+import type { HourData } from '../types';
+
 const BASE_URL = 'https://api.open-meteo.com/v1/forecast';
 
 const HOURLY_PARAMS = [
@@ -11,7 +13,19 @@ const HOURLY_PARAMS = [
   'is_day',
 ].join(',');
 
-export async function fetchForecast(latitude, longitude) {
+interface HourlyResponse {
+  time: string[];
+  temperature_2m: number[];
+  apparent_temperature: number[];
+  precipitation_probability: number[];
+  precipitation: number[];
+  wind_speed_10m: number[];
+  wind_gusts_10m: number[];
+  weather_code: number[];
+  is_day: number[];
+}
+
+export async function fetchForecast(latitude: number, longitude: number): Promise<HourData[]> {
   const url = `${BASE_URL}?latitude=${latitude}&longitude=${longitude}&hourly=${HOURLY_PARAMS}&forecast_days=7&timezone=Europe%2FLondon`;
 
   const res = await fetch(url);
@@ -21,9 +35,9 @@ export async function fetchForecast(latitude, longitude) {
   return reshapeHourly(data.hourly);
 }
 
-function reshapeHourly(hourly) {
+function reshapeHourly(hourly: HourlyResponse): HourData[] {
   const count = hourly.time.length;
-  const hours = [];
+  const hours: HourData[] = [];
 
   for (let i = 0; i < count; i++) {
     hours.push({

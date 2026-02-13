@@ -1,5 +1,5 @@
-<script>
-  import { getPreferences, updatePreferences } from '../lib/stores/preferences.svelte.js';
+<script lang="ts">
+  import { getPreferences, updatePreferences } from '../lib/stores/preferences.svelte';
 
   let open = $state(false);
   const prefs = $derived(getPreferences());
@@ -30,7 +30,6 @@
       <h3 class="font-medium text-sm mb-3">Preferences</h3>
 
       <div class="flex flex-col gap-4">
-        <!-- Rain tolerance -->
         <label class="flex flex-col gap-1">
           <span class="text-xs text-run-muted">Rain tolerance: {Math.round(prefs.rainTolerance * 100)}%</span>
           <input
@@ -39,7 +38,7 @@
             max="1"
             step="0.05"
             value={prefs.rainTolerance}
-            oninput={(e) => updatePreferences({ rainTolerance: parseFloat(e.target.value) })}
+            oninput={(e) => updatePreferences({ rainTolerance: parseFloat((e.target as HTMLInputElement).value) })}
             class="w-full accent-run-green"
           />
           <div class="flex justify-between text-[10px] text-run-muted">
@@ -48,14 +47,13 @@
           </div>
         </label>
 
-        <!-- Temperature range -->
         <div class="flex gap-3">
           <label class="flex-1 flex flex-col gap-1">
             <span class="text-xs text-run-muted">Min temp (°C)</span>
             <input
               type="number"
               value={prefs.tempMin}
-              oninput={(e) => updatePreferences({ tempMin: parseInt(e.target.value) || 0 })}
+              oninput={(e) => updatePreferences({ tempMin: parseInt((e.target as HTMLInputElement).value) || 0 })}
               class="w-full px-2 py-1.5 border border-gray-300 rounded text-sm bg-white text-run-text"
             />
           </label>
@@ -64,18 +62,17 @@
             <input
               type="number"
               value={prefs.tempMax}
-              oninput={(e) => updatePreferences({ tempMax: parseInt(e.target.value) || 20 })}
+              oninput={(e) => updatePreferences({ tempMax: parseInt((e.target as HTMLInputElement).value) || 20 })}
               class="w-full px-2 py-1.5 border border-gray-300 rounded text-sm bg-white text-run-text"
             />
           </label>
         </div>
 
-        <!-- Run duration -->
         <label class="flex flex-col gap-1">
           <span class="text-xs text-run-muted">Run duration</span>
           <select
             value={prefs.durationHours}
-            onchange={(e) => updatePreferences({ durationHours: parseFloat(e.target.value) })}
+            onchange={(e) => updatePreferences({ durationHours: parseFloat((e.target as HTMLSelectElement).value) })}
             class="w-full px-2 py-1.5 border border-gray-300 rounded text-sm bg-white text-run-text"
           >
             {#each durationOptions as opt}
