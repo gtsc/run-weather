@@ -55,8 +55,13 @@
               <span class="text-[10px] text-run-muted">Too cold below (°C)</span>
               <input
                 type="number"
+                min="-30"
+                max="50"
                 value={prefs.tempMin}
-                oninput={(e) => updatePreferences({ tempMin: parseInt((e.target as HTMLInputElement).value) || 0 })}
+                onchange={(e) => {
+                  const val = parseInt((e.target as HTMLInputElement).value);
+                  if (!isNaN(val)) updatePreferences({ tempMin: val });
+                }}
                 class="w-full px-2 py-1.5 border border-gray-300 rounded text-sm bg-white text-run-text"
               />
             </label>
@@ -64,8 +69,13 @@
               <span class="text-[10px] text-run-muted">Too hot above (°C)</span>
               <input
                 type="number"
+                min="-30"
+                max="50"
                 value={prefs.tempMax}
-                oninput={(e) => updatePreferences({ tempMax: parseInt((e.target as HTMLInputElement).value) || 20 })}
+                onchange={(e) => {
+                  const val = parseInt((e.target as HTMLInputElement).value);
+                  if (!isNaN(val)) updatePreferences({ tempMax: val });
+                }}
                 class="w-full px-2 py-1.5 border border-gray-300 rounded text-sm bg-white text-run-text"
               />
             </label>

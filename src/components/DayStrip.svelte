@@ -26,21 +26,30 @@
     </span>
   </div>
 
-  <div class="flex gap-px h-6 rounded overflow-hidden">
-    {#each day.hours as hour, i}
-      {@const past = isPast(hour)}
-      <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <div class="relative">
+    <div class="flex gap-px h-6 rounded overflow-hidden">
+      {#each day.hours as hour, i}
+        {@const past = isPast(hour)}
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
+        <div
+          class="flex-1"
+          style="background-color: {past ? '#d1d5db' : scoreColorHex(day.scores[i])}"
+          onmouseenter={() => hoveredIndex = i}
+          onmouseleave={() => hoveredIndex = null}
+        ></div>
+      {/each}
+    </div>
+
+    {#if hoveredIndex !== null}
+      {@const hour = day.hours[hoveredIndex]}
+      {@const score = day.scores[hoveredIndex]}
       <div
-        class="flex-1 relative"
-        style="background-color: {past ? '#d1d5db' : scoreColorHex(day.scores[i])}"
-        onmouseenter={() => hoveredIndex = i}
-        onmouseleave={() => hoveredIndex = null}
+        class="absolute bottom-full mb-2 z-20 pointer-events-none"
+        style="left: {(hoveredIndex / day.hours.length) * 100}%"
       >
-        {#if hoveredIndex === i}
-          <HourTooltip {hour} score={day.scores[i]} />
-        {/if}
+        <HourTooltip {hour} {score} />
       </div>
-    {/each}
+    {/if}
   </div>
 
   <div class="flex justify-between mt-1 text-[10px] text-run-muted">

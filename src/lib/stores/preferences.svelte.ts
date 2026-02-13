@@ -4,8 +4,8 @@ const STORAGE_KEY = 'run-weather-prefs';
 
 const defaults: Preferences = {
   rainTolerance: 0.3,
-  tempMin: 8,
-  tempMax: 15,
+  tempMin: -2,
+  tempMax: 25,
   durationHours: 1,
 };
 
