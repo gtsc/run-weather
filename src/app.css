@@ -1,0 +1,12 @@
+@import "tailwindcss";
+
+@theme {
+  --color-run-green: #22c55e;
+  --color-run-amber: #f59e0b;
+  --color-run-red: #ef4444;
+  --color-run-grey: #9ca3af;
+  --color-run-bg: #f8fafc;
+  --color-run-card: #ffffff;
+  --color-run-text: #1e293b;
+  --color-run-muted: #64748b;
+}
