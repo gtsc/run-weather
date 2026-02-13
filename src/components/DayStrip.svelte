@@ -13,13 +13,24 @@
 </script>
 
 <button
-  class="w-full text-left p-3 rounded-lg bg-run-card border border-gray-200 hover:border-gray-300 transition-colors cursor-pointer"
+  class="w-full text-left p-4 rounded-xl bg-white border border-run-border hover:border-gray-300 transition-all cursor-pointer {expanded ? 'ring-2 ring-run-green/20 border-run-green/40' : ''}"
   onclick={onToggle}
 >
-  <div class="flex items-center justify-between mb-2">
-    <span class="font-medium text-sm">{formatDayLabel(day.date)}</span>
+  <div class="flex items-center justify-between mb-2.5">
+    <div class="flex items-center gap-2">
+      <span class="font-medium text-sm">{formatDayLabel(day.date)}</span>
+      {#if expanded}
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-run-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" />
+        </svg>
+      {:else}
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-run-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+        </svg>
+      {/if}
+    </div>
     <span
-      class="text-xs font-bold px-2 py-0.5 rounded-full text-white"
+      class="text-xs font-semibold px-2.5 py-1 rounded-full text-white"
       style="background-color: {scoreColorHex(day.bestScore)}"
     >
       Best: {day.bestScore}
@@ -27,12 +38,12 @@
   </div>
 
   <div class="relative">
-    <div class="flex gap-px h-6 rounded overflow-hidden">
+    <div class="flex gap-px h-7 rounded-lg overflow-hidden">
       {#each day.hours as hour, i}
         {@const past = isPast(hour)}
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div
-          class="flex-1"
+          class="flex-1 transition-opacity {past ? 'opacity-40' : 'hover:opacity-80'}"
           style="background-color: {past ? '#d1d5db' : scoreColorHex(day.scores[i])}"
           onmouseenter={() => hoveredIndex = i}
           onmouseleave={() => hoveredIndex = null}
@@ -52,7 +63,7 @@
     {/if}
   </div>
 
-  <div class="flex justify-between mt-1 text-[10px] text-run-muted">
+  <div class="flex justify-between mt-1.5 text-[10px] text-run-muted">
     <span>00:00</span>
     <span>06:00</span>
     <span>12:00</span>

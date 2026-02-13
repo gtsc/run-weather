@@ -1,12 +1,27 @@
 @import "tailwindcss";
 
 @theme {
-  --color-run-green: #22c55e;
+  --color-run-green: #16a34a;
+  --color-run-green-light: #dcfce7;
   --color-run-amber: #f59e0b;
   --color-run-red: #ef4444;
   --color-run-grey: #9ca3af;
-  --color-run-bg: #f8fafc;
+  --color-run-bg: #f9fafb;
   --color-run-card: #ffffff;
-  --color-run-text: #1e293b;
-  --color-run-muted: #64748b;
+  --color-run-text: #111827;
+  --color-run-muted: #6b7280;
+  --color-run-border: #e5e7eb;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin {
+  animation: spin 0.8s linear infinite;
 }

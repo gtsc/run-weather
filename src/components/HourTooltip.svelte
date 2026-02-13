@@ -8,7 +8,7 @@
   const weather = $derived(getWeatherInfo(hour.weatherCode));
 </script>
 
-<div class="-translate-x-1/2 whitespace-nowrap">
+<div class="relative -translate-x-1/2 whitespace-nowrap">
   <div class="bg-gray-900 text-white text-xs rounded-lg px-3 py-2 shadow-lg">
     <div class="font-semibold mb-1 flex items-center gap-2">
       <span>{formatHour(hour.hour)}</span>

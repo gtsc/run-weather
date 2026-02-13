@@ -16,7 +16,7 @@
 <div class="relative">
   <button
     onclick={() => open = !open}
-    class="p-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+    class="p-2 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer"
     title="Settings"
   >
     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-run-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -26,12 +26,15 @@
   </button>
 
   {#if open}
-    <div class="absolute right-0 top-full mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 p-4 z-10">
-      <h3 class="font-medium text-sm mb-3">Preferences</h3>
+    <div class="absolute right-0 top-full mt-2 w-80 bg-white rounded-xl shadow-lg border border-run-border p-5 z-10">
+      <h3 class="font-semibold text-sm mb-4">Preferences</h3>
 
-      <div class="flex flex-col gap-4">
-        <label class="flex flex-col gap-1">
-          <span class="text-xs text-run-muted">Rain tolerance: {Math.round(prefs.rainTolerance * 100)}%</span>
+      <div class="flex flex-col gap-5">
+        <label class="flex flex-col gap-1.5">
+          <div class="flex justify-between items-baseline">
+            <span class="text-xs font-medium text-run-text">Rain tolerance</span>
+            <span class="text-xs text-run-muted">{Math.round(prefs.rainTolerance * 100)}%</span>
+          </div>
           <input
             type="range"
             min="0"
@@ -48,47 +51,53 @@
         </label>
 
         <div>
-          <span class="text-xs text-run-muted">Comfortable temperature range</span>
-          <p class="text-[10px] text-run-muted mb-1.5">Hours outside this range score lower</p>
+          <span class="text-xs font-medium text-run-text">Comfortable temperature range</span>
+          <p class="text-[10px] text-run-muted mt-0.5 mb-2">Hours outside this range score lower</p>
           <div class="flex gap-3">
             <label class="flex-1 flex flex-col gap-1">
-              <span class="text-[10px] text-run-muted">Too cold below (°C)</span>
-              <input
-                type="number"
-                min="-30"
-                max="50"
-                value={prefs.tempMin}
-                onchange={(e) => {
-                  const val = parseInt((e.target as HTMLInputElement).value);
-                  if (!isNaN(val)) updatePreferences({ tempMin: val });
-                }}
-                class="w-full px-2 py-1.5 border border-gray-300 rounded text-sm bg-white text-run-text"
-              />
+              <span class="text-[10px] text-run-muted">Too cold below</span>
+              <div class="relative">
+                <input
+                  type="number"
+                  min="-30"
+                  max="50"
+                  value={prefs.tempMin}
+                  onchange={(e) => {
+                    const val = parseInt((e.target as HTMLInputElement).value);
+                    if (!isNaN(val)) updatePreferences({ tempMin: val });
+                  }}
+                  class="w-full px-2.5 py-2 border border-run-border rounded-lg text-sm bg-white text-run-text focus:outline-none focus:ring-2 focus:ring-run-green/30 focus:border-run-green transition-shadow"
+                />
+                <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-run-muted pointer-events-none">°C</span>
+              </div>
             </label>
             <label class="flex-1 flex flex-col gap-1">
-              <span class="text-[10px] text-run-muted">Too hot above (°C)</span>
-              <input
-                type="number"
-                min="-30"
-                max="50"
-                value={prefs.tempMax}
-                onchange={(e) => {
-                  const val = parseInt((e.target as HTMLInputElement).value);
-                  if (!isNaN(val)) updatePreferences({ tempMax: val });
-                }}
-                class="w-full px-2 py-1.5 border border-gray-300 rounded text-sm bg-white text-run-text"
-              />
+              <span class="text-[10px] text-run-muted">Too hot above</span>
+              <div class="relative">
+                <input
+                  type="number"
+                  min="-30"
+                  max="50"
+                  value={prefs.tempMax}
+                  onchange={(e) => {
+                    const val = parseInt((e.target as HTMLInputElement).value);
+                    if (!isNaN(val)) updatePreferences({ tempMax: val });
+                  }}
+                  class="w-full px-2.5 py-2 border border-run-border rounded-lg text-sm bg-white text-run-text focus:outline-none focus:ring-2 focus:ring-run-green/30 focus:border-run-green transition-shadow"
+                />
+                <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-run-muted pointer-events-none">°C</span>
+              </div>
             </label>
           </div>
         </div>
 
-        <label class="flex flex-col gap-1">
-          <span class="text-xs text-run-muted">How long do you run for?</span>
-          <p class="text-[10px] text-run-muted mb-0.5">Finds the best consecutive window of this length</p>
+        <label class="flex flex-col gap-1.5">
+          <span class="text-xs font-medium text-run-text">How long do you run for?</span>
+          <p class="text-[10px] text-run-muted">Finds the best consecutive window of this length</p>
           <select
             value={prefs.durationHours}
             onchange={(e) => updatePreferences({ durationHours: parseFloat((e.target as HTMLSelectElement).value) })}
-            class="w-full px-2 py-1.5 border border-gray-300 rounded text-sm bg-white text-run-text"
+            class="w-full px-2.5 py-2 border border-run-border rounded-lg text-sm bg-white text-run-text focus:outline-none focus:ring-2 focus:ring-run-green/30 focus:border-run-green transition-shadow"
           >
             {#each durationOptions as opt}
               <option value={opt.value}>{opt.label}</option>
