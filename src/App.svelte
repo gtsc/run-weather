@@ -1,13 +1,17 @@
 <script>
   import LocationInput from './components/LocationInput.svelte';
   import WeekView from './components/WeekView.svelte';
+  import Settings from './components/Settings.svelte';
 </script>
 
 <div class="min-h-screen bg-run-bg text-run-text">
   <header class="px-4 py-4 border-b border-gray-200">
-    <div class="max-w-2xl mx-auto">
-      <h1 class="text-2xl font-bold">Run Weather</h1>
-      <p class="text-run-muted text-sm">Find the best time to run</p>
+    <div class="max-w-2xl mx-auto flex items-start justify-between">
+      <div>
+        <h1 class="text-2xl font-bold">Run Weather</h1>
+        <p class="text-run-muted text-sm">Find the best time to run</p>
+      </div>
+      <Settings />
     </div>
   </header>
 
