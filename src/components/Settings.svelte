@@ -26,7 +26,7 @@
   </button>
 
   {#if open}
-    <div class="absolute right-0 top-full mt-2 w-72 bg-white rounded-lg shadow-lg border border-gray-200 p-4 z-10">
+    <div class="absolute right-0 top-full mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 p-4 z-10">
       <h3 class="font-medium text-sm mb-3">Preferences</h3>
 
       <div class="flex flex-col gap-4">
@@ -47,29 +47,34 @@
           </div>
         </label>
 
-        <div class="flex gap-3">
-          <label class="flex-1 flex flex-col gap-1">
-            <span class="text-xs text-run-muted">Min temp (°C)</span>
-            <input
-              type="number"
-              value={prefs.tempMin}
-              oninput={(e) => updatePreferences({ tempMin: parseInt((e.target as HTMLInputElement).value) || 0 })}
-              class="w-full px-2 py-1.5 border border-gray-300 rounded text-sm bg-white text-run-text"
-            />
-          </label>
-          <label class="flex-1 flex flex-col gap-1">
-            <span class="text-xs text-run-muted">Max temp (°C)</span>
-            <input
-              type="number"
-              value={prefs.tempMax}
-              oninput={(e) => updatePreferences({ tempMax: parseInt((e.target as HTMLInputElement).value) || 20 })}
-              class="w-full px-2 py-1.5 border border-gray-300 rounded text-sm bg-white text-run-text"
-            />
-          </label>
+        <div>
+          <span class="text-xs text-run-muted">Comfortable temperature range</span>
+          <p class="text-[10px] text-run-muted mb-1.5">Hours outside this range score lower</p>
+          <div class="flex gap-3">
+            <label class="flex-1 flex flex-col gap-1">
+              <span class="text-[10px] text-run-muted">Too cold below (°C)</span>
+              <input
+                type="number"
+                value={prefs.tempMin}
+                oninput={(e) => updatePreferences({ tempMin: parseInt((e.target as HTMLInputElement).value) || 0 })}
+                class="w-full px-2 py-1.5 border border-gray-300 rounded text-sm bg-white text-run-text"
+              />
+            </label>
+            <label class="flex-1 flex flex-col gap-1">
+              <span class="text-[10px] text-run-muted">Too hot above (°C)</span>
+              <input
+                type="number"
+                value={prefs.tempMax}
+                oninput={(e) => updatePreferences({ tempMax: parseInt((e.target as HTMLInputElement).value) || 20 })}
+                class="w-full px-2 py-1.5 border border-gray-300 rounded text-sm bg-white text-run-text"
+              />
+            </label>
+          </div>
         </div>
 
         <label class="flex flex-col gap-1">
-          <span class="text-xs text-run-muted">Run duration</span>
+          <span class="text-xs text-run-muted">How long do you run for?</span>
+          <p class="text-[10px] text-run-muted mb-0.5">Finds the best consecutive window of this length</p>
           <select
             value={prefs.durationHours}
             onchange={(e) => updatePreferences({ durationHours: parseFloat((e.target as HTMLSelectElement).value) })}

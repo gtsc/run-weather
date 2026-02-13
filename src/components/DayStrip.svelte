@@ -1,9 +1,11 @@
 <script lang="ts">
   import type { DayData, ScoredHour } from '../lib/types';
-  import { formatDayLabel, formatHour, scoreColorHex } from '../lib/utils/format';
-  import { getWeatherInfo } from '../lib/scoring/weatherCodes';
+  import { formatDayLabel, scoreColorHex } from '../lib/utils/format';
+  import HourTooltip from './HourTooltip.svelte';
 
   let { day, expanded = false, onToggle }: { day: DayData; expanded?: boolean; onToggle: () => void } = $props();
+
+  let hoveredIndex = $state<number | null>(null);
 
   function isPast(hourData: ScoredHour): boolean {
     return new Date(hourData.time) < new Date();
@@ -27,12 +29,17 @@
   <div class="flex gap-px h-6 rounded overflow-hidden">
     {#each day.hours as hour, i}
       {@const past = isPast(hour)}
-      {@const weather = getWeatherInfo(hour.weatherCode)}
+      <!-- svelte-ignore a11y_no_static_element_interactions -->
       <div
-        class="flex-1 relative group"
+        class="flex-1 relative"
         style="background-color: {past ? '#d1d5db' : scoreColorHex(day.scores[i])}"
-        title="{formatHour(hour.hour)} — Score: {day.scores[i]} — {weather.label} — {Math.round(hour.feelsLike)}°C"
-      ></div>
+        onmouseenter={() => hoveredIndex = i}
+        onmouseleave={() => hoveredIndex = null}
+      >
+        {#if hoveredIndex === i}
+          <HourTooltip {hour} score={day.scores[i]} />
+        {/if}
+      </div>
     {/each}
   </div>
 

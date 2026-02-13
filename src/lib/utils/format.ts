@@ -28,14 +28,21 @@ export function formatDayLabel(dateStr: string): string {
   return date.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
 }
 
-export function scoreColor(score: number): string {
-  if (score >= 70) return 'bg-run-green';
-  if (score >= 40) return 'bg-run-amber';
-  return 'bg-run-red';
-}
-
 export function scoreColorHex(score: number): string {
-  if (score >= 70) return '#22c55e';
-  if (score >= 40) return '#f59e0b';
-  return '#ef4444';
+  // Smooth gradient: 0 = red (0°), 50 = amber (35°), 100 = green (142°)
+  // Using HSL with fixed saturation and lightness
+  const clamped = Math.max(0, Math.min(100, score));
+
+  // Piecewise linear hue: 0-50 maps to 0°-35°, 50-100 maps to 35°-142°
+  let hue: number;
+  if (clamped <= 50) {
+    hue = (clamped / 50) * 35;
+  } else {
+    hue = 35 + ((clamped - 50) / 50) * (142 - 35);
+  }
+
+  const saturation = 70 + (clamped / 100) * 15; // 70-85%
+  const lightness = 42 + (clamped / 100) * 6; // 42-48%
+
+  return `hsl(${Math.round(hue)}, ${Math.round(saturation)}%, ${Math.round(lightness)}%)`;
 }

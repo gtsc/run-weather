@@ -5,6 +5,9 @@
 
   let { window, rank }: { window: RunWindowType; rank: number } = $props();
 
+  const avgTemp = $derived(
+    Math.round(window.hours.reduce((s, h) => s + h.temperature, 0) / window.hours.length)
+  );
   const avgFeelsLike = $derived(
     Math.round(window.hours.reduce((s, h) => s + h.feelsLike, 0) / window.hours.length)
   );
@@ -33,7 +36,7 @@
       #{rank} {formatHourRange(window.startHour, window.endHour)}
     </div>
     <div class="text-xs text-run-muted flex flex-wrap gap-x-3 gap-y-0.5 mt-0.5">
-      <span>{formatTemp(avgFeelsLike)} feels like</span>
+      <span>{formatTemp(avgTemp)}, feels like {formatTemp(avgFeelsLike)}</span>
       <span>💨 {formatWind(maxWind)}</span>
       <span>🌧 {maxPrecipProb}%</span>
       <span>{getWeatherInfo(worstWeather.weatherCode).label}</span>

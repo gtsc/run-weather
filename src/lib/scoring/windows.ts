@@ -5,11 +5,15 @@ export function findRunWindows(dayHours: ScoredHour[], scores: number[], duratio
 
   if (dayHours.length < stepsNeeded) return [];
 
+  const now = new Date();
   const windows: RunWindow[] = [];
 
   for (let i = 0; i <= dayHours.length - stepsNeeded; i++) {
     const windowHours = dayHours.slice(i, i + stepsNeeded);
     const windowScores = scores.slice(i, i + stepsNeeded);
+
+    // Skip windows that have already started
+    if (new Date(windowHours[0].time) < now) continue;
 
     // Skip windows containing any hour below 20
     if (windowScores.some(s => s < 20)) continue;
