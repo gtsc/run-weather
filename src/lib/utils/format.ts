@@ -28,21 +28,29 @@ export function formatDayLabel(dateStr: string): string {
   return date.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
 }
 
+// RdYlGn-inspired colourmap: red → orange → yellow → lime → green
+// 5 stops at 0%, 25%, 50%, 75%, 100% with RGB interpolation between them
+const COLOR_STOPS: [number, number, number][] = [
+  [215, 48, 39],   // 0   — red
+  [244, 109, 67],  // 25  — orange
+  [253, 204, 92],  // 50  — yellow
+  [166, 217, 106], // 75  — lime
+  [39, 166, 75],   // 100 — green
+];
+
+function lerp(a: number, b: number, t: number): number {
+  return Math.round(a + (b - a) * t);
+}
+
 export function scoreColorHex(score: number): string {
-  // Smooth gradient: 0 = red (0°), 50 = amber (35°), 100 = green (142°)
-  // Using HSL with fixed saturation and lightness
-  const clamped = Math.max(0, Math.min(100, score));
+  const t = Math.max(0, Math.min(1, score / 100));
+  const scaled = t * (COLOR_STOPS.length - 1);
+  const i = Math.min(Math.floor(scaled), COLOR_STOPS.length - 2);
+  const frac = scaled - i;
 
-  // Piecewise linear hue: 0-50 maps to 0°-35°, 50-100 maps to 35°-142°
-  let hue: number;
-  if (clamped <= 50) {
-    hue = (clamped / 50) * 35;
-  } else {
-    hue = 35 + ((clamped - 50) / 50) * (142 - 35);
-  }
+  const r = lerp(COLOR_STOPS[i][0], COLOR_STOPS[i + 1][0], frac);
+  const g = lerp(COLOR_STOPS[i][1], COLOR_STOPS[i + 1][1], frac);
+  const b = lerp(COLOR_STOPS[i][2], COLOR_STOPS[i + 1][2], frac);
 
-  const saturation = 70 + (clamped / 100) * 15; // 70-85%
-  const lightness = 42 + (clamped / 100) * 6; // 42-48%
-
-  return `hsl(${Math.round(hue)}, ${Math.round(saturation)}%, ${Math.round(lightness)}%)`;
+  return `rgb(${r}, ${g}, ${b})`;
 }
