@@ -22,9 +22,11 @@ export function getWeatherState(): { days: DayData[]; loading: boolean; error: s
     dayMap.get(h.date)!.push(h);
   }
 
+  const now = new Date();
   const days: DayData[] = [...dayMap.entries()].map(([date, hours], dayIndex) => {
     const scores = hours.map(h => h.score);
-    const bestScore = Math.max(...scores, 0);
+    const futureScores = hours.map((h, i) => new Date(h.time) >= now ? scores[i] : -1);
+    const bestScore = Math.max(...futureScores, 0);
     const windows = findRunWindows(hours, scores, prefs.durationHours);
     return { date, dayIndex, hours, scores, bestScore, windows };
   });
