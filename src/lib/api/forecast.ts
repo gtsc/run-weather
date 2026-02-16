@@ -10,6 +10,7 @@ const HOURLY_PARAMS = [
   'wind_speed_10m',
   'wind_gusts_10m',
   'weather_code',
+  'snow_depth',
   'is_day',
 ].join(',');
 
@@ -22,6 +23,7 @@ interface HourlyResponse {
   wind_speed_10m: number[];
   wind_gusts_10m: number[];
   weather_code: number[];
+  snow_depth: number[];
   is_day: number[];
 }
 
@@ -51,6 +53,7 @@ function reshapeHourly(hourly: HourlyResponse): HourData[] {
       windSpeed: hourly.wind_speed_10m[i],
       windGusts: hourly.wind_gusts_10m[i],
       weatherCode: hourly.weather_code[i],
+      snowDepth: hourly.snow_depth[i],
       isDay: hourly.is_day[i] === 1,
     });
   }

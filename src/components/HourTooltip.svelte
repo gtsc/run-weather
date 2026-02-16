@@ -23,10 +23,15 @@
       <span>{formatTemp(hour.temperature)}, feels like {formatTemp(hour.feelsLike)}</span>
       <span>Wind: {formatWind(hour.windSpeed)}</span>
       <span>Rain: {hour.precipProbability}% chance</span>
+      {#if hour.snowDepth > 0}
+        <span>Snow on ground: {Math.round(hour.snowDepth * 100)} cm</span>
+      {/if}
       {#if !hour.isDay}
         <span>Dark</span>
       {/if}
     </div>
-    <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+    <div
+      class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900"
+    ></div>
   </div>
 </div>

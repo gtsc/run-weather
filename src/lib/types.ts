@@ -15,6 +15,7 @@ export interface HourData {
   windSpeed: number;
   windGusts: number;
   weatherCode: number;
+  snowDepth: number;
   isDay: boolean;
 }
 

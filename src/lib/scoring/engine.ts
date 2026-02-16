@@ -29,6 +29,16 @@ export function scoreHour(hour: HourData, prefs: Preferences): number {
   const weatherInfo = getWeatherInfo(hour.weatherCode);
   score -= (weatherInfo.penalty / 95) * 25;
 
+  // Snow depth on ground: up to 30 pts penalty
+  if (hour.snowDepth >= 0.01) {
+    let snowPenalty = hour.snowDepth > 0.05 ? 30 : hour.snowDepth > 0.03 ? 20 : 10;
+    // Discount by 40% when temp > 2°C (streets thaw faster)
+    if (hour.temperature > 2) {
+      snowPenalty *= 0.6;
+    }
+    score -= snowPenalty;
+  }
+
   // Darkness: 10 pts penalty
   if (!hour.isDay) {
     score -= 10;
@@ -41,6 +51,7 @@ export function scoreHour(hour: HourData, prefs: Preferences): number {
   if (hour.windSpeed > 15) badFactors++;
   if (feelsLike < prefs.tempMin || feelsLike > prefs.tempMax) badFactors++;
   if (weatherInfo.penalty >= 25) badFactors++;
+  if (hour.snowDepth >= 0.03) badFactors++;
 
   // Each stacking factor beyond the first reduces the score by an additional 8%
   if (badFactors >= 2) {
