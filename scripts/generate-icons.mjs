@@ -2,7 +2,7 @@ import sharp from 'sharp';
 import { mkdirSync } from 'fs';
 
 const svg = Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <circle cx="50" cy="50" r="50" fill="#22c55e"/>
+  <rect width="100" height="100" fill="#22c55e"/>
   <text x="50" y="68" font-family="system-ui,sans-serif" font-size="52"
         font-weight="700" text-anchor="middle" fill="white">R</text>
 </svg>`);
