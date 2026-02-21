@@ -1,191 +1,16 @@
-# PWA Support + Scriptable Widget Implementation Plan
+# Scriptable Widget Implementation Plan
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
-**Goal:** Add iOS "Add to Home Screen" PWA support and a Scriptable home screen widget showing today/tomorrow run weather scores using shared scoring logic.
+**Goal:** Build a Scriptable iOS home screen widget (medium size) showing today and tomorrow's run weather scores as coloured hour bands, using the existing shared scoring logic.
 
-**Architecture:** Two independent features. PWA = static manifest + icons + HTML meta tags (no service worker, no new runtime deps). Scriptable widget = new `src/scriptable/widget.ts` entry point that imports the existing pure-TS lib modules; esbuild bundles everything into `scriptable/widget.js` which the user pastes into Scriptable. One change to existing code: `forecast.ts` gets a `timezone` parameter (default `Europe/London`).
+**Architecture:** New `src/scriptable/widget.ts` imports pure-TS lib modules. esbuild bundles it into `scriptable/widget.js` (committed to repo). One change to existing code: `forecast.ts` gets a `timezone` parameter so the widget uses the device's real timezone. Widget uses GPS location and app-default preferences.
 
-**Tech Stack:** Vite 7, TypeScript, vitest, esbuild (new dev dep), sharp (new dev dep for icon generation), Scriptable iOS app.
-
----
-
-## Feature 1: PWA Support
-
-### Task 1: Generate app icons
-
-**Files:**
-- Create: `scripts/generate-icons.mjs`
-- Create: `public/icons/icon-192.png` (generated artifact)
-- Create: `public/icons/icon-512.png` (generated artifact)
-- Modify: `package.json` (add `generate:icons` script + `sharp` devDep)
-
-**Step 1: Install sharp**
-
-```bash
-npm install --save-dev sharp
-```
-
-Expected: `sharp` appears in `package.json` devDependencies, `package-lock.json` updated.
-
-**Step 2: Write the icon generator**
-
-Create `scripts/generate-icons.mjs`:
-
-```js
-import sharp from 'sharp';
-import { mkdirSync } from 'fs';
-
-const svg = Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <circle cx="50" cy="50" r="50" fill="#22c55e"/>
-  <text x="50" y="68" font-family="system-ui,sans-serif" font-size="52"
-        font-weight="700" text-anchor="middle" fill="white">R</text>
-</svg>`);
-
-mkdirSync('public/icons', { recursive: true });
-await sharp(svg).resize(192, 192).png().toFile('public/icons/icon-192.png');
-console.log('✓ icon-192.png');
-await sharp(svg).resize(512, 512).png().toFile('public/icons/icon-512.png');
-console.log('✓ icon-512.png');
-```
-
-**Step 3: Add generate:icons script to package.json**
-
-In `package.json`, add to `"scripts"`:
-```json
-"generate:icons": "node scripts/generate-icons.mjs"
-```
-
-**Step 4: Run the generator**
-
-```bash
-npm run generate:icons
-```
-
-Expected output:
-```
-✓ icon-192.png
-✓ icon-512.png
-```
-
-Verify:
-```bash
-ls -lh public/icons/
-```
-Expected: two PNG files, each > 1 KB.
-
-**Step 5: Commit**
-
-```bash
-git add scripts/generate-icons.mjs public/icons/ package.json package-lock.json
-git commit -m "feat: add icon generator and PWA app icons"
-```
+**Tech Stack:** TypeScript, vitest, esbuild (new dev dep), Scriptable iOS app.
 
 ---
 
-### Task 2: Add PWA manifest
-
-**Files:**
-- Create: `public/manifest.json`
-
-**Step 1: Create the manifest**
-
-Create `public/manifest.json`:
-
-```json
-{
-  "name": "Run Weather",
-  "short_name": "Run Weather",
-  "description": "Find the best time to run based on weather forecasts",
-  "start_url": "/run-weather/",
-  "display": "standalone",
-  "background_color": "#f9fafb",
-  "theme_color": "#22c55e",
-  "icons": [
-    {
-      "src": "/run-weather/icons/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "/run-weather/icons/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ]
-}
-```
-
-**Step 2: Validate it is valid JSON**
-
-```bash
-node -e "JSON.parse(require('fs').readFileSync('public/manifest.json','utf8')); console.log('valid JSON')"
-```
-
-Expected: `valid JSON`
-
-**Step 3: Commit**
-
-```bash
-git add public/manifest.json
-git commit -m "feat: add PWA web app manifest"
-```
-
----
-
-### Task 3: Wire up index.html
-
-**Files:**
-- Modify: `index.html`
-
-**Step 1: Read index.html**
-
-Read `index.html` to see the current `<head>` structure before editing.
-
-**Step 2: Add manifest link and Apple meta tags**
-
-Insert the following five lines inside `<head>`, directly after the `<meta name="viewport" ...>` line:
-
-```html
-    <link rel="manifest" href="/run-weather/manifest.json" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="apple-mobile-web-app-title" content="Run Weather" />
-    <link rel="apple-touch-icon" href="/run-weather/icons/icon-192.png" />
-```
-
-Note: `apple-touch-icon` is required specifically for iOS — iOS ignores manifest icons for the home screen shortcut.
-
-**Step 3: Verify build succeeds**
-
-```bash
-npm run build
-```
-
-Expected: completes with no errors.
-
-**Step 4: Verify dev server serves the assets**
-
-```bash
-npm run dev
-```
-
-Open in browser and confirm these URLs return content:
-- `http://localhost:5173/run-weather/manifest.json` → JSON response
-- `http://localhost:5173/run-weather/icons/icon-192.png` → green R icon
-
-**Step 5: Commit**
-
-```bash
-git add index.html
-git commit -m "feat: add PWA manifest link and Apple meta tags"
-```
-
----
-
-## Feature 2: Scriptable Widget
-
-### Task 4: Parameterize forecast.ts timezone
+### Task 1: Parameterize forecast.ts timezone
 
 This is the only change to existing shared code. It makes the widget use the device's real timezone rather than hardcoded London.
 
@@ -291,7 +116,7 @@ git commit -m "feat: make fetchForecast timezone a parameter (default: Europe/Lo
 
 ---
 
-### Task 5: Add esbuild and build:widget script
+### Task 2: Add esbuild and build:widget script
 
 **Files:**
 - Modify: `package.json`
@@ -323,7 +148,7 @@ git commit -m "chore: add esbuild dev dep and build:widget npm script"
 
 ---
 
-### Task 6: Write the Scriptable widget entry point
+### Task 3: Write the Scriptable widget entry point
 
 **Files:**
 - Create: `src/scriptable/widget.ts`
@@ -509,7 +334,7 @@ git commit -m "feat: add Scriptable widget with shared scoring logic"
 
 ---
 
-### Task 7: Final verification
+### Task 4: Final verification
 
 **Step 1: Run all tests**
 
@@ -544,7 +369,7 @@ git commit -m "chore: formatting fixes"
 
 ---
 
-## How to use the Scriptable widget (post-implementation)
+## How to use the widget (post-implementation)
 
 1. Install [Scriptable](https://apps.apple.com/app/scriptable/id1405459188) from the App Store (free)
 2. Copy the contents of `scriptable/widget.js` from this repo
