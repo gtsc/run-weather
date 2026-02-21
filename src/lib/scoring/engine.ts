@@ -4,14 +4,12 @@ import { getWeatherInfo } from './weatherCodes';
 export function scoreHour(hour: HourData, prefs: Preferences): number {
   let score = 100;
 
-  // Precipitation probability: up to 65 pts penalty
-  // Squared curve so high probabilities are punishing
+  // Rain penalty: geometric mean of probability and intensity, up to 65 pts
+  // Both must be high for maximum penalty; either alone gives moderate penalty
+  // Zero probability → zero penalty regardless of intensity
   const precipProb = hour.precipProbability / 100;
-  score -= precipProb * precipProb * 65 * (1 - prefs.rainTolerance * 0.5);
-
-  // Precipitation amount: up to 25 pts (saturates at 2mm/h)
-  const precipAmount = Math.min(hour.precipitation, 2);
-  score -= (precipAmount / 2) * 25;
+  const precipIntensity = Math.min(hour.precipitation / 2, 1);
+  score -= Math.sqrt(precipProb * precipIntensity) * 65 * (1 - prefs.rainTolerance * 0.5);
 
   // Temperature outside feels-like comfort range: up to 30 pts (4 per degree)
   const feelsLike = hour.feelsLike;
