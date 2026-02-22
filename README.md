@@ -85,7 +85,7 @@ Long-press the widget → **Edit Widget** → set **Script** to **Run Weather**.
 
 ### Updating
 
-When `scriptable/widget.js` changes (e.g. after a `git pull`), open the script in Scriptable, select all, and paste the new file contents.
+When `scriptable/widget.js` changes, open the script in Scriptable, select all, and paste the new file contents.
 
 ## Data Sources
 
