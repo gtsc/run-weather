@@ -16,6 +16,7 @@
 body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
+  background-color: var(--color-run-bg);
 }
 
 /* Dark mode overrides */
