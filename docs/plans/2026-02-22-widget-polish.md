@@ -13,6 +13,7 @@
 ### Task 1: Add Device declaration, theme resolution, title bar, and tap URL
 
 **Files:**
+
 - Modify: `src/scriptable/widget.ts`
 
 **Step 1: Add `Device` and `SFSymbol` to the Scriptable global declarations block**
@@ -37,9 +38,9 @@ In `run()`, immediately after `const widget = new ListWidget();`, add:
 ```ts
 const isDark = Device.isUsingDarkAppearance();
 const theme = {
-  bg:      isDark ? '#1c1c1e' : '#f2f2f7',
-  label:   isDark ? '#ffffff' : '#000000',
-  muted:   isDark ? '#8e8e93' : '#6c6c70',
+  bg: isDark ? '#1c1c1e' : '#f2f2f7',
+  label: isDark ? '#ffffff' : '#000000',
+  muted: isDark ? '#8e8e93' : '#6c6c70',
   pastSeg: isDark ? '#48484a' : '#c7c7cc',
 };
 ```
@@ -47,11 +48,14 @@ const theme = {
 **Step 4: Use theme.bg for widget background and set tap URL**
 
 Replace:
+
 ```ts
 widget.backgroundColor = new Color('#1c1c1e');
 widget.setPadding(12, 14, 12, 14);
 ```
+
 With:
+
 ```ts
 widget.backgroundColor = new Color(theme.bg);
 widget.setPadding(12, 14, 12, 14);
@@ -82,6 +86,7 @@ widget.addSpacer(6);
 **Step 6: Pass theme into renderDay calls**
 
 Change every `renderDay(widget, date, dayHours)` call to:
+
 ```ts
 renderDay(widget, date, dayHours, theme);
 ```
@@ -89,10 +94,13 @@ renderDay(widget, date, dayHours, theme);
 **Step 7: Update renderDay signature to accept theme**
 
 Change:
+
 ```ts
 function renderDay(widget: any, date: string, dayHours: HourData[]): void {
 ```
+
 To:
+
 ```ts
 function renderDay(
   widget: any,
@@ -105,19 +113,25 @@ function renderDay(
 **Step 8: Use theme colours for text in renderDay**
 
 Replace:
+
 ```ts
 label.textColor = new Color('#ffffff');
 ```
+
 With:
+
 ```ts
 label.textColor = new Color(theme.label);
 ```
 
 Replace:
+
 ```ts
 bestText.textColor = new Color('#8e8e93');
 ```
+
 With:
+
 ```ts
 bestText.textColor = new Color(theme.muted);
 ```
@@ -142,6 +156,7 @@ git commit -m "feat: add title bar, dark/light theme, and tap-to-open in widget"
 ### Task 2: Add segment gaps and past hour greying
 
 **Files:**
+
 - Modify: `src/scriptable/widget.ts`
 
 **Step 1: Replace the DrawContext loop in renderDay**

@@ -100,12 +100,14 @@ function renderDay(
   const BAR_W = 288;
   const BAR_H = 16;
   const segW = BAR_W / scored.length;
+  const now = new Date();
   const dc = new DrawContext();
   dc.size = new Size(BAR_W, BAR_H);
   dc.opaque = false;
   for (let i = 0; i < scored.length; i++) {
-    dc.setFillColor(toColor(scoreColorHex(scored[i].score)));
-    dc.fillRect(new Rect(Math.round(i * segW), 0, Math.ceil(segW), BAR_H));
+    const isPast = new Date(scored[i].time) < now;
+    dc.setFillColor(isPast ? new Color(theme.pastSeg) : toColor(scoreColorHex(scored[i].score)));
+    dc.fillRect(new Rect(Math.round(i * segW), 0, Math.max(1, Math.ceil(segW) - 1), BAR_H));
   }
   const barImg = widget.addImage(dc.getImage());
   barImg.cornerRadius = 3;

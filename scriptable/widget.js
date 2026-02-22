@@ -173,6 +173,17 @@
   }
 
   // src/scriptable/widget.ts
+  {
+    const g = globalThis;
+    if (!g.fetch) {
+      g.fetch = async (url) => {
+        const req = new g.Request(url);
+        const data = await req.loadJSON();
+        return { ok: true, json: async () => data };
+      };
+    }
+  }
+  var WEBSITE_URL = "https://gtsc.github.io/run-weather/";
   var DEFAULT_PREFS = {
     rainTolerance: 0.3,
     tempMin: -2,
@@ -192,7 +203,7 @@
     if (dateStr === tomorrow) return "Tomorrow";
     return dateStr;
   }
-  function renderDay(widget, date, dayHours) {
+  function renderDay(widget, date, dayHours, theme) {
     const scored = dayHours.map((h) => ({
       ...h,
       score: scoreHour(h, DEFAULT_PREFS)
@@ -204,27 +215,53 @@
     header.layoutHorizontally();
     const label = header.addText(dayLabel(date));
     label.font = Font.boldSystemFont(13);
-    label.textColor = new Color("#ffffff");
+    label.textColor = new Color(theme.label);
     header.addSpacer();
     const bestLabel = best ? `${formatHour(best.startHour)}\u2013${formatHour(best.endHour)}` : "\u2013";
     const bestText = header.addText(bestLabel);
     bestText.font = Font.systemFont(12);
-    bestText.textColor = new Color("#8e8e93");
+    bestText.textColor = new Color(theme.muted);
     widget.addSpacer(4);
-    const bar = widget.addStack();
-    bar.layoutHorizontally();
-    bar.cornerRadius = 3;
-    for (const hour of scored) {
-      const cell = bar.addStack();
-      cell.backgroundColor = toColor(scoreColorHex(hour.score));
-      cell.cornerRadius = 2;
-      cell.addSpacer();
+    const BAR_W = 288;
+    const BAR_H = 16;
+    const segW = BAR_W / scored.length;
+    const now = /* @__PURE__ */ new Date();
+    const dc = new DrawContext();
+    dc.size = new Size(BAR_W, BAR_H);
+    dc.opaque = false;
+    for (let i = 0; i < scored.length; i++) {
+      const isPast = new Date(scored[i].time) < now;
+      dc.setFillColor(isPast ? new Color(theme.pastSeg) : toColor(scoreColorHex(scored[i].score)));
+      dc.fillRect(new Rect(Math.round(i * segW), 0, Math.max(1, Math.ceil(segW) - 1), BAR_H));
     }
+    const barImg = widget.addImage(dc.getImage());
+    barImg.cornerRadius = 3;
   }
   async function run() {
     const widget = new ListWidget();
-    widget.backgroundColor = new Color("#1c1c1e");
+    const isDark = Device.isUsingDarkAppearance();
+    const theme = {
+      bg: isDark ? "#1c1c1e" : "#f2f2f7",
+      label: isDark ? "#ffffff" : "#000000",
+      muted: isDark ? "#8e8e93" : "#6c6c70",
+      pastSeg: isDark ? "#48484a" : "#c7c7cc"
+    };
+    widget.backgroundColor = new Color(theme.bg);
     widget.setPadding(12, 14, 12, 14);
+    widget.url = WEBSITE_URL;
+    const titleRow = widget.addStack();
+    titleRow.layoutHorizontally();
+    titleRow.centerAlignContent();
+    const sym = SFSymbol.named("figure.run");
+    sym.applyFont(Font.systemFont(11));
+    const symImg = titleRow.addImage(sym.image);
+    symImg.imageSize = new Size(13, 13);
+    symImg.tintColor = new Color("#26a65b");
+    titleRow.addSpacer(5);
+    const titleText = titleRow.addText("Run Weather");
+    titleText.font = Font.boldSystemFont(11);
+    titleText.textColor = new Color(theme.muted);
+    widget.addSpacer(6);
     try {
       Location.setAccuracyToHundredMeters();
       const loc = await Location.current();
@@ -235,7 +272,7 @@
       for (const [i, date] of [today, tomorrow].entries()) {
         if (i > 0) widget.addSpacer(8);
         const dayHours = hours.filter((h) => h.date === date);
-        renderDay(widget, date, dayHours);
+        renderDay(widget, date, dayHours, theme);
       }
     } catch (e) {
       const errStack = widget.addStack();
