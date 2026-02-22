@@ -63,7 +63,8 @@ function dayLabel(dateStr: string): string {
   const tomorrow = new Date(Date.now() + 86_400_000).toISOString().slice(0, 10);
   if (dateStr === today) return 'Today';
   if (dateStr === tomorrow) return 'Tomorrow';
-  return dateStr;
+  const [y, m, d] = dateStr.split('-').map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString(undefined, { weekday: 'long' });
 }
 
 function renderDay(
@@ -95,7 +96,7 @@ function renderDay(
   bestText.font = Font.systemFont(12);
   bestText.textColor = new Color(theme.muted);
 
-  widget.addSpacer(4);
+  widget.addSpacer(1);
 
   // Row 2: 24 coloured hour segments drawn as an image
   const BAR_W = 288;
@@ -126,7 +127,7 @@ async function run(): Promise<void> {
     pastSeg: isDark ? '#48484a' : '#c7c7cc',
   };
   widget.backgroundColor = new Color(theme.bg);
-  widget.setPadding(12, 14, 12, 14);
+  widget.setPadding(0, 14, 0, 14);
   widget.url = WEBSITE_URL;
   // Title bar: SF Symbol icon + app name
   const titleRow = widget.addStack();
@@ -150,24 +151,30 @@ async function run(): Promise<void> {
 
     const today = new Date().toISOString().slice(0, 10);
     const tomorrow = new Date(Date.now() + 86_400_000).toISOString().slice(0, 10);
+    const dayAfterTomorrow = new Date(Date.now() + 2 * 86_400_000).toISOString().slice(0, 10);
 
     titleRow.addSpacer();
     const nowHour = hours.find((h: HourData) => h.date === today && h.hour === new Date().getHours());
     if (nowHour) {
-      const condText = `${getWeatherInfo(nowHour.weatherCode).label} · ${Math.round(nowHour.temperature)}°`;
-      const condEl = titleRow.addText(condText);
+      const condParts = [
+        `${getWeatherInfo(nowHour.weatherCode).label} · ${Math.round(nowHour.temperature)}°`,
+        `feels ${Math.round(nowHour.feelsLike)}°`,
+        `${Math.round(nowHour.windSpeed)} km/h`,
+      ];
+      if (nowHour.precipProbability > 0) condParts.push(`${nowHour.precipProbability}% rain`);
+      const condEl = titleRow.addText(condParts.join(' · '));
       condEl.font = Font.systemFont(10);
       condEl.textColor = new Color(theme.muted);
     }
-    widget.addSpacer(6);
+    widget.addSpacer(2);
 
-    for (const [i, date] of [today, tomorrow].entries()) {
-      if (i > 0) widget.addSpacer(8);
+    for (const [i, date] of [today, tomorrow, dayAfterTomorrow].entries()) {
+      if (i > 0) widget.addSpacer(4);
       const dayHours = hours.filter((h: HourData) => h.date === date);
       renderDay(widget, date, dayHours, theme);
     }
   } catch (e) {
-    widget.addSpacer(6);
+    widget.addSpacer(4);
     const errStack = widget.addStack();
     const errText = errStack.addText(`Error: ${e}`);
     errText.textColor = new Color('#8e8e93');

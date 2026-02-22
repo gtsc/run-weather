@@ -201,7 +201,8 @@
     const tomorrow = new Date(Date.now() + 864e5).toISOString().slice(0, 10);
     if (dateStr === today) return "Today";
     if (dateStr === tomorrow) return "Tomorrow";
-    return dateStr;
+    const [y, m, d] = dateStr.split("-").map(Number);
+    return new Date(y, m - 1, d).toLocaleDateString(void 0, { weekday: "long" });
   }
   function renderDay(widget, date, dayHours, theme) {
     const scored = dayHours.map((h) => ({
@@ -221,7 +222,7 @@
     const bestText = header.addText(bestLabel);
     bestText.font = Font.systemFont(12);
     bestText.textColor = new Color(theme.muted);
-    widget.addSpacer(4);
+    widget.addSpacer(1);
     const BAR_W = 288;
     const BAR_H = 16;
     const segW = BAR_W / scored.length;
@@ -249,7 +250,7 @@
       pastSeg: isDark ? "#48484a" : "#c7c7cc"
     };
     widget.backgroundColor = new Color(theme.bg);
-    widget.setPadding(12, 14, 12, 14);
+    widget.setPadding(0, 14, 0, 14);
     widget.url = WEBSITE_URL;
     const titleRow = widget.addStack();
     titleRow.layoutHorizontally();
@@ -270,22 +271,28 @@
       const hours = await fetchForecast(loc.latitude, loc.longitude, timezone);
       const today = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
       const tomorrow = new Date(Date.now() + 864e5).toISOString().slice(0, 10);
+      const dayAfterTomorrow = new Date(Date.now() + 2 * 864e5).toISOString().slice(0, 10);
       titleRow.addSpacer();
       const nowHour = hours.find((h) => h.date === today && h.hour === (/* @__PURE__ */ new Date()).getHours());
       if (nowHour) {
-        const condText = `${getWeatherInfo(nowHour.weatherCode).label} \xB7 ${Math.round(nowHour.temperature)}\xB0`;
-        const condEl = titleRow.addText(condText);
+        const condParts = [
+          `${getWeatherInfo(nowHour.weatherCode).label} \xB7 ${Math.round(nowHour.temperature)}\xB0`,
+          `feels ${Math.round(nowHour.feelsLike)}\xB0`,
+          `${Math.round(nowHour.windSpeed)} km/h`
+        ];
+        if (nowHour.precipProbability > 0) condParts.push(`${nowHour.precipProbability}% rain`);
+        const condEl = titleRow.addText(condParts.join(" \xB7 "));
         condEl.font = Font.systemFont(10);
         condEl.textColor = new Color(theme.muted);
       }
-      widget.addSpacer(6);
-      for (const [i, date] of [today, tomorrow].entries()) {
-        if (i > 0) widget.addSpacer(8);
+      widget.addSpacer(2);
+      for (const [i, date] of [today, tomorrow, dayAfterTomorrow].entries()) {
+        if (i > 0) widget.addSpacer(4);
         const dayHours = hours.filter((h) => h.date === date);
         renderDay(widget, date, dayHours, theme);
       }
     } catch (e) {
-      widget.addSpacer(6);
+      widget.addSpacer(4);
       const errStack = widget.addStack();
       const errText = errStack.addText(`Error: ${e}`);
       errText.textColor = new Color("#8e8e93");
