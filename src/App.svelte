@@ -6,7 +6,7 @@
 </script>
 
 <div class="min-h-screen bg-run-bg text-run-text">
-  <header class="bg-run-card border-b border-run-border">
+  <header class="bg-run-card border-b border-run-border" style="padding-top: env(safe-area-inset-top)">
     <div class="max-w-2xl mx-auto px-4 py-5 flex items-center justify-between">
       <div class="flex items-center gap-3">
         <div class="w-9 h-9 bg-run-green rounded-xl flex items-center justify-center">
