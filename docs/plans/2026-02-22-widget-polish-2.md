@@ -13,32 +13,41 @@
 ### Task 1: Fix bar alignment and add score to best-time label
 
 **Files:**
+
 - Modify: `src/scriptable/widget.ts`
 
 **Step 1: Wrap the bar image in a horizontal stack**
 
 In `renderDay`, find:
+
 ```ts
-  const barImg = widget.addImage(dc.getImage());
-  barImg.cornerRadius = 3;
+const barImg = widget.addImage(dc.getImage());
+barImg.cornerRadius = 3;
 ```
+
 Replace with:
+
 ```ts
-  const barStack = widget.addStack();
-  barStack.layoutHorizontally();
-  const barImg = barStack.addImage(dc.getImage());
-  barImg.cornerRadius = 3;
+const barStack = widget.addStack();
+barStack.layoutHorizontally();
+const barImg = barStack.addImage(dc.getImage());
+barImg.cornerRadius = 3;
 ```
 
 **Step 2: Append score to the best-time label**
 
 In `renderDay`, find:
+
 ```ts
-  const bestLabel = best ? `${formatHour(best.startHour)}–${formatHour(best.endHour)}` : '–';
+const bestLabel = best ? `${formatHour(best.startHour)}–${formatHour(best.endHour)}` : '–';
 ```
+
 Replace with:
+
 ```ts
-  const bestLabel = best ? `${formatHour(best.startHour)}–${formatHour(best.endHour)} · ${best.score}` : '–';
+const bestLabel = best
+  ? `${formatHour(best.startHour)}–${formatHour(best.endHour)} · ${best.score}`
+  : '–';
 ```
 
 **Step 3: Run type check**
@@ -61,15 +70,19 @@ git commit -m "fix: align bar to header width and show score next to best-time"
 ### Task 2: Add current conditions to the title row
 
 **Files:**
+
 - Modify: `src/scriptable/widget.ts`
 
 **Step 1: Add getWeatherInfo import**
 
 At the top of the file, find:
+
 ```ts
 import { scoreColorHex, formatHour } from '../lib/utils/format';
 ```
+
 Replace with:
+
 ```ts
 import { scoreColorHex, formatHour } from '../lib/utils/format';
 import { getWeatherInfo } from '../lib/scoring/weatherCodes';
@@ -78,25 +91,31 @@ import { getWeatherInfo } from '../lib/scoring/weatherCodes';
 **Step 2: Remove the unconditional spacer after the title row**
 
 Find:
+
 ```ts
-  titleText.textColor = new Color(theme.muted);
-  widget.addSpacer(6);
+titleText.textColor = new Color(theme.muted);
+widget.addSpacer(6);
 ```
+
 Replace with:
+
 ```ts
-  titleText.textColor = new Color(theme.muted);
+titleText.textColor = new Color(theme.muted);
 ```
 
 **Step 3: Add conditions to titleRow inside the try block and restore the spacer**
 
 Find:
+
 ```ts
     const today = new Date().toISOString().slice(0, 10);
     const tomorrow = new Date(Date.now() + 86_400_000).toISOString().slice(0, 10);
 
     for (const [i, date] of [today, tomorrow].entries()) {
 ```
+
 Replace with:
+
 ```ts
     const today = new Date().toISOString().slice(0, 10);
     const tomorrow = new Date(Date.now() + 86_400_000).toISOString().slice(0, 10);
@@ -117,11 +136,14 @@ Replace with:
 **Step 4: Restore the spacer in the catch block**
 
 Find:
+
 ```ts
   } catch (e) {
     const errStack = widget.addStack();
 ```
+
 Replace with:
+
 ```ts
   } catch (e) {
     widget.addSpacer(6);
@@ -174,6 +196,7 @@ git commit -m "feat: show current conditions in widget title row"
 ### Task 3: Improve PWA icon
 
 **Files:**
+
 - Modify: `scripts/generate-icons.mjs`
 - Regenerate: `public/icons/icon-192.png`, `public/icons/icon-512.png`
 
@@ -205,6 +228,7 @@ node scripts/generate-icons.mjs
 ```
 
 Expected output:
+
 ```
 ✓ icon-192.png
 ✓ icon-512.png

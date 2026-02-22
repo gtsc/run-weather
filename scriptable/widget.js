@@ -217,7 +217,7 @@
     label.font = Font.boldSystemFont(13);
     label.textColor = new Color(theme.label);
     header.addSpacer();
-    const bestLabel = best ? `${formatHour(best.startHour)}\u2013${formatHour(best.endHour)}` : "\u2013";
+    const bestLabel = best ? `${formatHour(best.startHour)}\u2013${formatHour(best.endHour)} \xB7 ${best.score}` : "\u2013";
     const bestText = header.addText(bestLabel);
     bestText.font = Font.systemFont(12);
     bestText.textColor = new Color(theme.muted);
@@ -234,7 +234,9 @@
       dc.setFillColor(isPast ? new Color(theme.pastSeg) : toColor(scoreColorHex(scored[i].score)));
       dc.fillRect(new Rect(Math.round(i * segW), 0, Math.max(1, Math.ceil(segW) - 1), BAR_H));
     }
-    const barImg = widget.addImage(dc.getImage());
+    const barStack = widget.addStack();
+    barStack.layoutHorizontally();
+    const barImg = barStack.addImage(dc.getImage());
     barImg.cornerRadius = 3;
   }
   async function run() {
@@ -261,7 +263,6 @@
     const titleText = titleRow.addText("Run Weather");
     titleText.font = Font.boldSystemFont(11);
     titleText.textColor = new Color(theme.muted);
-    widget.addSpacer(6);
     try {
       Location.setAccuracyToHundredMeters();
       const loc = await Location.current();
@@ -269,12 +270,22 @@
       const hours = await fetchForecast(loc.latitude, loc.longitude, timezone);
       const today = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
       const tomorrow = new Date(Date.now() + 864e5).toISOString().slice(0, 10);
+      titleRow.addSpacer();
+      const nowHour = hours.find((h) => h.date === today && h.hour === (/* @__PURE__ */ new Date()).getHours());
+      if (nowHour) {
+        const condText = `${getWeatherInfo(nowHour.weatherCode).label} \xB7 ${Math.round(nowHour.temperature)}\xB0`;
+        const condEl = titleRow.addText(condText);
+        condEl.font = Font.systemFont(10);
+        condEl.textColor = new Color(theme.muted);
+      }
+      widget.addSpacer(6);
       for (const [i, date] of [today, tomorrow].entries()) {
         if (i > 0) widget.addSpacer(8);
         const dayHours = hours.filter((h) => h.date === date);
         renderDay(widget, date, dayHours, theme);
       }
     } catch (e) {
+      widget.addSpacer(6);
       const errStack = widget.addStack();
       const errText = errStack.addText(`Error: ${e}`);
       errText.textColor = new Color("#8e8e93");

@@ -2,6 +2,7 @@ import { fetchForecast } from '../lib/api/forecast';
 import { scoreHour } from '../lib/scoring/engine';
 import { findRunWindows } from '../lib/scoring/windows';
 import { scoreColorHex, formatHour } from '../lib/utils/format';
+import { getWeatherInfo } from '../lib/scoring/weatherCodes';
 import type { HourData, Preferences, ScoredHour } from '../lib/types';
 
 // ── Scriptable global declarations ──────────────────────────────────────────
@@ -140,7 +141,6 @@ async function run(): Promise<void> {
   const titleText = titleRow.addText('Run Weather');
   titleText.font = Font.boldSystemFont(11);
   titleText.textColor = new Color(theme.muted);
-  widget.addSpacer(6);
 
   try {
     Location.setAccuracyToHundredMeters();
@@ -151,12 +151,23 @@ async function run(): Promise<void> {
     const today = new Date().toISOString().slice(0, 10);
     const tomorrow = new Date(Date.now() + 86_400_000).toISOString().slice(0, 10);
 
+    titleRow.addSpacer();
+    const nowHour = hours.find((h: HourData) => h.date === today && h.hour === new Date().getHours());
+    if (nowHour) {
+      const condText = `${getWeatherInfo(nowHour.weatherCode).label} · ${Math.round(nowHour.temperature)}°`;
+      const condEl = titleRow.addText(condText);
+      condEl.font = Font.systemFont(10);
+      condEl.textColor = new Color(theme.muted);
+    }
+    widget.addSpacer(6);
+
     for (const [i, date] of [today, tomorrow].entries()) {
       if (i > 0) widget.addSpacer(8);
       const dayHours = hours.filter((h: HourData) => h.date === date);
       renderDay(widget, date, dayHours, theme);
     }
   } catch (e) {
+    widget.addSpacer(6);
     const errStack = widget.addStack();
     const errText = errStack.addText(`Error: ${e}`);
     errText.textColor = new Color('#8e8e93');

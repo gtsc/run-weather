@@ -37,6 +37,7 @@ One-line change to the template string in `renderDay`.
 ### 4 — PWA icon
 
 Replace the green-square-with-"R" placeholder with a green rounded-square icon containing:
+
 - A white stroke-based running figure (thick rounded strokes, recognisable silhouette)
 - `"RW"` in bold white text below
 
