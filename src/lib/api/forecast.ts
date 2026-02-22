@@ -30,7 +30,7 @@ interface HourlyResponse {
 export async function fetchForecast(
   latitude: number,
   longitude: number,
-  timezone = 'Europe/London'
+  timezone = 'Europe/London',
 ): Promise<HourData[]> {
   const tz = encodeURIComponent(timezone);
   const url = `${BASE_URL}?latitude=${latitude}&longitude=${longitude}&hourly=${HOURLY_PARAMS}&forecast_days=8&timezone=${tz}`;
