@@ -53,7 +53,7 @@ export async function geocodeLocation(query: string): Promise<Location> {
   if (!cleaned) throw new Error('Please enter a location');
 
   // Try Open-Meteo first, fall back to Nominatim for postal codes etc.
-  const result = await geocodeOpenMeteo(cleaned) ?? await geocodeNominatim(cleaned);
+  const result = (await geocodeOpenMeteo(cleaned)) ?? (await geocodeNominatim(cleaned));
   if (result) return result;
 
   throw new Error(`Could not find location for "${cleaned}"`);
@@ -77,7 +77,7 @@ export async function geocodeGPS(): Promise<Location> {
       (err) => {
         reject(new Error(`Could not get your location: ${err.message}`));
       },
-      { enableHighAccuracy: false, timeout: 10000 }
+      { enableHighAccuracy: false, timeout: 10000 },
     );
   });
 }

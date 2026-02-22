@@ -15,6 +15,7 @@
 This is the only change to existing shared code. It makes the widget use the device's real timezone rather than hardcoded London.
 
 **Files:**
+
 - Modify: `src/lib/api/forecast.ts`
 - Create: `src/lib/api/forecast.test.ts`
 
@@ -119,6 +120,7 @@ git commit -m "feat: make fetchForecast timezone a parameter (default: Europe/Lo
 ### Task 2: Add esbuild and build:widget script
 
 **Files:**
+
 - Modify: `package.json`
 
 **Step 1: Install esbuild as a dev dependency**
@@ -151,6 +153,7 @@ git commit -m "chore: add esbuild dev dep and build:widget npm script"
 ### Task 3: Write the Scriptable widget entry point
 
 **Files:**
+
 - Create: `src/scriptable/widget.ts`
 
 **Background — Scriptable's runtime environment:**
@@ -219,11 +222,11 @@ function dayLabel(dateStr: string): string {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function renderDay(widget: any, date: string, dayHours: HourData[]): void {
-  const scored: ScoredHour[] = dayHours.map(h => ({
+  const scored: ScoredHour[] = dayHours.map((h) => ({
     ...h,
     score: scoreHour(h, DEFAULT_PREFS),
   }));
-  const scores = scored.map(h => h.score);
+  const scores = scored.map((h) => h.score);
   const windows = findRunWindows(scored, scores, DEFAULT_PREFS.durationHours);
   const best = windows[0];
 
@@ -237,9 +240,7 @@ function renderDay(widget: any, date: string, dayHours: HourData[]): void {
 
   header.addSpacer();
 
-  const bestLabel = best
-    ? `${formatHour(best.startHour)}–${formatHour(best.endHour)}`
-    : '–';
+  const bestLabel = best ? `${formatHour(best.startHour)}–${formatHour(best.endHour)}` : '–';
   const bestText = header.addText(bestLabel);
   bestText.font = Font.systemFont(12);
   bestText.textColor = new Color('#8e8e93');

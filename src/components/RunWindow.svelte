@@ -3,7 +3,7 @@
   import { formatHourRange, formatTemp, formatWind, scoreColorHex } from '../lib/utils/format';
   import { getWeatherInfo } from '../lib/scoring/weatherCodes';
 
-  let { window, rank }: { window: RunWindowType; rank: number } = $props();
+  let { window }: { window: RunWindowType; rank: number } = $props();
 
   const avgTemp = $derived(
     Math.round(window.hours.reduce((s, h) => s + h.temperature, 0) / window.hours.length),

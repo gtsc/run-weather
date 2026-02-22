@@ -9,6 +9,7 @@ A webapp to find the best time to run based on weather forecasts.
 - **Styling**: Tailwind CSS v4 with custom theme tokens
 - **API**: Open-Meteo (free, no key required)
 - **State**: Svelte 5 runes (`$state`, `$derived`) with localStorage persistence
+- **Linting**: ESLint 9 + `eslint-plugin-svelte` + `@typescript-eslint/parser` + Prettier
 
 ## Commands
 
@@ -21,6 +22,7 @@ A webapp to find the best time to run based on weather forecasts.
 ## Quality Gates
 
 Before committing, ensure:
+
 1. `npm run check` passes with 0 errors
 2. `npm run lint` passes (or run `npm run format` first)
 3. `npm run build` succeeds

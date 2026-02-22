@@ -11,7 +11,7 @@ let error = $state<string | null>(null);
 export function getWeatherState(): { days: DayData[]; loading: boolean; error: string | null } {
   const prefs = getPreferences();
 
-  const scored = rawHours.map(h => ({
+  const scored = rawHours.map((h) => ({
     ...h,
     score: scoreHour(h, prefs),
   }));
@@ -24,8 +24,8 @@ export function getWeatherState(): { days: DayData[]; loading: boolean; error: s
 
   const now = new Date();
   const days: DayData[] = [...dayMap.entries()].map(([date, hours], dayIndex) => {
-    const scores = hours.map(h => h.score);
-    const futureScores = hours.map((h, i) => new Date(h.time) >= now ? scores[i] : -1);
+    const scores = hours.map((h) => h.score);
+    const futureScores = hours.map((h, i) => (new Date(h.time) >= now ? scores[i] : -1));
     const bestScore = Math.max(...futureScores, 0);
     const windows = findRunWindows(hours, scores, prefs.durationHours);
     return { date, dayIndex, hours, scores, bestScore, windows };

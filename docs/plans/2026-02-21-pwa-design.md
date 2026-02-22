@@ -21,6 +21,7 @@ A service worker adds no value here since the app requires live network data.
 ## Changes to Existing Files
 
 **`index.html`** — add inside `<head>`:
+
 ```html
 <link rel="manifest" href="/run-weather/manifest.json" />
 <meta name="apple-mobile-web-app-capable" content="yes" />

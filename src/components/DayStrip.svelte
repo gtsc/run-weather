@@ -3,7 +3,11 @@
   import { formatDayLabel, scoreColorHex } from '../lib/utils/format';
   import HourTooltip from './HourTooltip.svelte';
 
-  let { day, expanded = false, onToggle }: { day: DayData; expanded?: boolean; onToggle: () => void } = $props();
+  let {
+    day,
+    expanded = false,
+    onToggle,
+  }: { day: DayData; expanded?: boolean; onToggle: () => void } = $props();
 
   let hoveredIndex = $state<number | null>(null);
 
@@ -11,29 +15,47 @@
     return new Date(hourData.time) < new Date();
   }
 
-  const confidence = $derived(
-    day.dayIndex <= 1 ? null : day.dayIndex <= 4 ? 'moderate' : 'low'
-  );
+  const confidence = $derived(day.dayIndex <= 1 ? null : day.dayIndex <= 4 ? 'moderate' : 'low');
 </script>
 
 <button
-  class="w-full text-left p-4 rounded-xl bg-run-card border border-run-border hover:border-run-muted/40 transition-all cursor-pointer {expanded ? 'ring-2 ring-run-green/20 border-run-green/40' : ''}"
+  class="w-full text-left p-4 rounded-xl bg-run-card border border-run-border hover:border-run-muted/40 transition-all cursor-pointer {expanded
+    ? 'ring-2 ring-run-green/20 border-run-green/40'
+    : ''}"
   onclick={onToggle}
 >
   <div class="flex items-center justify-between mb-2.5">
     <div class="flex items-center gap-2">
       <span class="font-medium text-sm">{formatDayLabel(day.date)}</span>
       {#if confidence}
-        <span class="text-[10px] px-1.5 py-0.5 rounded {confidence === 'low' ? 'bg-run-amber/10 text-run-amber' : 'bg-run-border/50 text-run-muted'}">
+        <span
+          class="text-[10px] px-1.5 py-0.5 rounded {confidence === 'low'
+            ? 'bg-run-amber/10 text-run-amber'
+            : 'bg-run-border/50 text-run-muted'}"
+        >
           {confidence === 'low' ? 'Less reliable' : 'Approx.'}
         </span>
       {/if}
       {#if expanded}
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-run-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="w-3.5 h-3.5 text-run-muted"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+        >
           <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" />
         </svg>
       {:else}
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-run-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="w-3.5 h-3.5 text-run-muted"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+        >
           <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
         </svg>
       {/if}
@@ -47,15 +69,17 @@
   </div>
 
   <div class="relative">
-    <div class="flex gap-px h-7 rounded-lg overflow-hidden {confidence === 'low' ? 'opacity-70' : ''}">
-      {#each day.hours as hour, i}
+    <div
+      class="flex gap-px h-7 rounded-lg overflow-hidden {confidence === 'low' ? 'opacity-70' : ''}"
+    >
+      {#each day.hours as hour, i (hour.time)}
         {@const past = isPast(hour)}
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div
           class="flex-1 transition-opacity {past ? 'opacity-40' : 'hover:opacity-80'}"
           style="background-color: {past ? '#d1d5db' : scoreColorHex(day.scores[i])}"
-          onmouseenter={() => hoveredIndex = i}
-          onmouseleave={() => hoveredIndex = null}
+          onmouseenter={() => (hoveredIndex = i)}
+          onmouseleave={() => (hoveredIndex = null)}
         ></div>
       {/each}
     </div>

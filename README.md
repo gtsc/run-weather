@@ -25,13 +25,13 @@ Open http://localhost:5173 and search for a location.
 
 ## Commands
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start dev server |
-| `npm run build` | Production build |
-| `npm run check` | TypeScript + Svelte type checking |
-| `npm run lint` | ESLint + Prettier checks |
-| `npm run format` | Auto-format all files |
+| Command          | Description                       |
+| ---------------- | --------------------------------- |
+| `npm run dev`    | Start dev server                  |
+| `npm run build`  | Production build                  |
+| `npm run check`  | TypeScript + Svelte type checking |
+| `npm run lint`   | ESLint + Prettier checks          |
+| `npm run format` | Auto-format all files             |
 
 ## Tech Stack
 
@@ -45,14 +45,14 @@ Open http://localhost:5173 and search for a location.
 
 Each hour is scored 0-100 based on:
 
-| Factor | Max penalty | Notes |
-|--------|------------|-------|
-| Rain probability | 65 pts | Squared curve, scaled by rain tolerance preference |
-| Rain amount | 25 pts | Saturates at 2mm/h |
-| Temperature | 30 pts | 4 pts per degree outside your comfort range |
-| Wind | 30 pts | Kicks in above 8 km/h |
-| Weather severity | 25 pts | Based on WMO weather code (fog, snow, thunderstorm, etc.) |
-| Darkness | 10 pts | Binary, from Open-Meteo `is_day` field |
+| Factor           | Max penalty | Notes                                                     |
+| ---------------- | ----------- | --------------------------------------------------------- |
+| Rain probability | 65 pts      | Squared curve, scaled by rain tolerance preference        |
+| Rain amount      | 25 pts      | Saturates at 2mm/h                                        |
+| Temperature      | 30 pts      | 4 pts per degree outside your comfort range               |
+| Wind             | 30 pts      | Kicks in above 8 km/h                                     |
+| Weather severity | 25 pts      | Based on WMO weather code (fog, snow, thunderstorm, etc.) |
+| Darkness         | 10 pts      | Binary, from Open-Meteo `is_day` field                    |
 
 When 2+ bad factors stack simultaneously, a **misery multiplier** compounds the penalty by 8% per additional factor.
 

@@ -31,11 +31,11 @@ export function formatDayLabel(dateStr: string): string {
 // RdYlGn-inspired colourmap: red → orange → yellow → lime → green
 // 5 stops at 0%, 25%, 50%, 75%, 100% with RGB interpolation between them
 const COLOR_STOPS: [number, number, number][] = [
-  [215, 48, 39],   // 0   — red
-  [244, 109, 67],  // 25  — orange
-  [253, 204, 92],  // 50  — yellow
+  [215, 48, 39], // 0   — red
+  [244, 109, 67], // 25  — orange
+  [253, 204, 92], // 50  — yellow
   [166, 217, 106], // 75  — lime
-  [39, 166, 75],   // 100 — green
+  [39, 166, 75], // 100 — green
 ];
 
 function lerp(a: number, b: number, t: number): number {

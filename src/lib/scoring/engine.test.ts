@@ -53,7 +53,10 @@ describe('rain scoring: combined probability × intensity model', () => {
 
   it('zero probability → no rain penalty regardless of intensity', () => {
     const noRain = scoreHour({ ...baseHour, precipProbability: 0, precipitation: 0 }, neutralPrefs);
-    const weirdAPI = scoreHour({ ...baseHour, precipProbability: 0, precipitation: 5 }, neutralPrefs);
+    const weirdAPI = scoreHour(
+      { ...baseHour, precipProbability: 0, precipitation: 5 },
+      neutralPrefs,
+    );
     expect(weirdAPI).toBe(noRain);
   });
 

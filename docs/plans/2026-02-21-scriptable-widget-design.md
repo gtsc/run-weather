@@ -26,15 +26,17 @@ scriptable/
 ## Changes to Existing Files
 
 **`src/lib/api/forecast.ts`** — make timezone a parameter with `Europe/London` as default:
+
 ```ts
 export async function fetchForecast(
   latitude: number,
   longitude: number,
-  timezone = 'Europe/London'
-): Promise<HourData[]>
+  timezone = 'Europe/London',
+): Promise<HourData[]>;
 ```
 
 **`package.json`** — add esbuild dev dep and build script:
+
 ```json
 "build:widget": "esbuild src/scriptable/widget.ts --bundle --platform=browser --format=iife --outfile=scriptable/widget.js"
 ```
@@ -75,14 +77,14 @@ Best window label shows `–` if no valid window found (all hours below 20).
 
 ## Reused lib modules (no duplication)
 
-| Module | Used for |
-|---|---|
-| `src/lib/scoring/engine.ts` | `scoreHour()` |
-| `src/lib/scoring/weatherCodes.ts` | `getWeatherInfo()` (via engine) |
-| `src/lib/scoring/windows.ts` | `findRunWindows()` |
-| `src/lib/utils/format.ts` | `scoreColorHex()`, `formatHour()` |
-| `src/lib/api/forecast.ts` | `fetchForecast()` |
-| `src/lib/types.ts` | Type interfaces |
+| Module                            | Used for                          |
+| --------------------------------- | --------------------------------- |
+| `src/lib/scoring/engine.ts`       | `scoreHour()`                     |
+| `src/lib/scoring/weatherCodes.ts` | `getWeatherInfo()` (via engine)   |
+| `src/lib/scoring/windows.ts`      | `findRunWindows()`                |
+| `src/lib/utils/format.ts`         | `scoreColorHex()`, `formatHour()` |
+| `src/lib/api/forecast.ts`         | `fetchForecast()`                 |
+| `src/lib/types.ts`                | Type interfaces                   |
 
 ## Out of Scope
 

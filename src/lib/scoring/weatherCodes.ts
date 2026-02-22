@@ -1,10 +1,10 @@
 import type { WeatherInfo } from '../types';
 
 const WEATHER_CODES: Record<number, WeatherInfo> = {
-  0:  { label: 'Clear sky', penalty: 0 },
-  1:  { label: 'Mainly clear', penalty: 0 },
-  2:  { label: 'Partly cloudy', penalty: 0 },
-  3:  { label: 'Overcast', penalty: 2 },
+  0: { label: 'Clear sky', penalty: 0 },
+  1: { label: 'Mainly clear', penalty: 0 },
+  2: { label: 'Partly cloudy', penalty: 0 },
+  3: { label: 'Overcast', penalty: 2 },
   45: { label: 'Fog', penalty: 15 },
   48: { label: 'Depositing rime fog', penalty: 20 },
   51: { label: 'Light drizzle', penalty: 15 },

@@ -11,7 +11,7 @@
   {:else}
     <p class="text-xs text-run-muted mb-2 font-medium">Best run windows</p>
     <div class="flex flex-col gap-2">
-      {#each day.windows as window, i}
+      {#each day.windows as window, i (window.startTime)}
         <RunWindow {window} rank={i + 1} />
       {/each}
     </div>
