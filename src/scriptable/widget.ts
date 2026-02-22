@@ -14,6 +14,7 @@ declare const Font: {
   boldSystemFont(_size: number): any;
 };
 declare const Location: {
+  setAccuracyToHundredMeters(): void;
   current(): Promise<{ latitude: number; longitude: number }>;
 };
 declare const config: { runsInWidget: boolean };
@@ -87,6 +88,7 @@ async function run(): Promise<void> {
   widget.setPadding(12, 14, 12, 14);
 
   try {
+    Location.setAccuracyToHundredMeters();
     const loc = await Location.current();
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const hours = await fetchForecast(loc.latitude, loc.longitude, timezone);
@@ -99,9 +101,9 @@ async function run(): Promise<void> {
       const dayHours = hours.filter((h: HourData) => h.date === date);
       renderDay(widget, date, dayHours);
     }
-  } catch {
+  } catch (e) {
     const errStack = widget.addStack();
-    const errText = errStack.addText('Failed to load weather');
+    const errText = errStack.addText(`Error: ${e}`);
     errText.textColor = new Color('#8e8e93');
     errText.font = Font.systemFont(12);
   }

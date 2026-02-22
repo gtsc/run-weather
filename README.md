@@ -56,6 +56,37 @@ Each hour is scored 0-100 based on:
 
 When 2+ bad factors stack simultaneously, a **misery multiplier** compounds the penalty by 8% per additional factor.
 
+## iOS Home Screen Widget
+
+A Scriptable widget shows today and tomorrow as coloured hour bars with the best run window time, using the same scoring logic as the web app.
+
+### Requirements
+
+- [Scriptable](https://apps.apple.com/app/scriptable/id1405459188) (free, App Store)
+- The built widget file: `scriptable/widget.js` in this repo
+
+### Setup
+
+**1. Add the script to Scriptable**
+
+Copy the full contents of `scriptable/widget.js` from this repo. In Scriptable, tap **+**, paste the code, and rename the script **"Run Weather"**.
+
+**2. Run the script once in-app**
+
+Before adding it as a widget, tap the play button inside Scriptable. This triggers the location permission prompt — grant it. The script will display a medium widget preview if everything works.
+
+**3. Add the widget to your home screen**
+
+Long-press the home screen → **+** → search **Scriptable** → choose **Medium** size → tap **Add Widget**.
+
+**4. Configure it**
+
+Long-press the widget → **Edit Widget** → set **Script** to **Run Weather**.
+
+### Updating
+
+When `scriptable/widget.js` changes (e.g. after a `git pull`), open the script in Scriptable, select all, and paste the new file contents.
+
 ## Data Sources
 
 Weather data provided by [Open-Meteo.com](https://open-meteo.com/).

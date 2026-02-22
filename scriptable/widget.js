@@ -226,6 +226,7 @@
     widget.backgroundColor = new Color("#1c1c1e");
     widget.setPadding(12, 14, 12, 14);
     try {
+      Location.setAccuracyToHundredMeters();
       const loc = await Location.current();
       const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
       const hours = await fetchForecast(loc.latitude, loc.longitude, timezone);
@@ -236,9 +237,9 @@
         const dayHours = hours.filter((h) => h.date === date);
         renderDay(widget, date, dayHours);
       }
-    } catch {
+    } catch (e) {
       const errStack = widget.addStack();
-      const errText = errStack.addText("Failed to load weather");
+      const errText = errStack.addText(`Error: ${e}`);
       errText.textColor = new Color("#8e8e93");
       errText.font = Font.systemFont(12);
     }
