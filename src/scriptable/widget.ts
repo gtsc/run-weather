@@ -6,19 +6,17 @@ import type { HourData, Preferences, ScoredHour } from '../lib/types';
 
 // ── Scriptable global declarations ──────────────────────────────────────────
 // These objects are injected by the Scriptable runtime; they are not imports.
-/* eslint-disable @typescript-eslint/no-explicit-any */
-declare const Script: { setWidget(w: any): void };
+declare const Script: { setWidget(_w: any): void };
 declare const ListWidget: { new (): any };
-declare const Color: { new (hex: string, alpha?: number): any };
+declare const Color: { new (_hex: string, _alpha?: number): any };
 declare const Font: {
-  systemFont(size: number): any;
-  boldSystemFont(size: number): any;
+  systemFont(_size: number): any;
+  boldSystemFont(_size: number): any;
 };
 declare const Location: {
   current(): Promise<{ latitude: number; longitude: number }>;
 };
 declare const config: { runsInWidget: boolean };
-/* eslint-enable @typescript-eslint/no-explicit-any */
 // ────────────────────────────────────────────────────────────────────────────
 
 const DEFAULT_PREFS: Preferences = {
@@ -44,13 +42,12 @@ function dayLabel(dateStr: string): string {
   return dateStr;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function renderDay(widget: any, date: string, dayHours: HourData[]): void {
-  const scored: ScoredHour[] = dayHours.map(h => ({
+  const scored: ScoredHour[] = dayHours.map((h) => ({
     ...h,
     score: scoreHour(h, DEFAULT_PREFS),
   }));
-  const scores = scored.map(h => h.score);
+  const scores = scored.map((h) => h.score);
   const windows = findRunWindows(scored, scores, DEFAULT_PREFS.durationHours);
   const best = windows[0];
 
@@ -64,9 +61,7 @@ function renderDay(widget: any, date: string, dayHours: HourData[]): void {
 
   header.addSpacer();
 
-  const bestLabel = best
-    ? `${formatHour(best.startHour)}–${formatHour(best.endHour)}`
-    : '–';
+  const bestLabel = best ? `${formatHour(best.startHour)}–${formatHour(best.endHour)}` : '–';
   const bestText = header.addText(bestLabel);
   bestText.font = Font.systemFont(12);
   bestText.textColor = new Color('#8e8e93');

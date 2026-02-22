@@ -127,9 +127,7 @@
       const windowScores = scores.slice(i, i + stepsNeeded);
       if (new Date(windowHours[0].time) < now) continue;
       if (windowScores.some((s) => s < 20)) continue;
-      const avgScore = Math.round(
-        windowScores.reduce((sum, s) => sum + s, 0) / windowScores.length
-      );
+      const avgScore = Math.round(windowScores.reduce((sum, s) => sum + s, 0) / windowScores.length);
       windows.push({
         startHour: windowHours[0].hour,
         endHour: (windowHours[windowHours.length - 1].hour + 1) % 24,
