@@ -89,7 +89,7 @@ function renderDay(
 
   header.addSpacer();
 
-  const bestLabel = best ? `${formatHour(best.startHour)}–${formatHour(best.endHour)}` : '–';
+  const bestLabel = best ? `${formatHour(best.startHour)}–${formatHour(best.endHour)} · ${best.score}` : '–';
   const bestText = header.addText(bestLabel);
   bestText.font = Font.systemFont(12);
   bestText.textColor = new Color(theme.muted);
@@ -109,7 +109,9 @@ function renderDay(
     dc.setFillColor(isPast ? new Color(theme.pastSeg) : toColor(scoreColorHex(scored[i].score)));
     dc.fillRect(new Rect(Math.round(i * segW), 0, Math.max(1, Math.ceil(segW) - 1), BAR_H));
   }
-  const barImg = widget.addImage(dc.getImage());
+  const barStack = widget.addStack();
+  barStack.layoutHorizontally();
+  const barImg = barStack.addImage(dc.getImage());
   barImg.cornerRadius = 3;
 }
 
