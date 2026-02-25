@@ -294,7 +294,10 @@
     } catch (e) {
       widget.addSpacer(4);
       const errStack = widget.addStack();
-      const errText = errStack.addText(`Error: ${e}`);
+      const msg = e instanceof Error ? e.message : String(e);
+      const isLocationDenied = msg.includes("kCLErrorDomain error 1");
+      const displayMsg = isLocationDenied ? "Location access denied. Go to Settings \u2192 Privacy \u2192 Location Services \u2192 Scriptable \u2192 Always or While Using." : `Error: ${msg}`;
+      const errText = errStack.addText(displayMsg);
       errText.textColor = new Color("#8e8e93");
       errText.font = Font.systemFont(12);
     }
