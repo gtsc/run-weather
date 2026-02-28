@@ -183,7 +183,7 @@
       };
     }
   }
-  var WEBSITE_URL = "https://gtsc.github.io/run-weather/";
+  var WEBSITE_URL = "https://weather.gustavtsc.eu/";
   var DEFAULT_PREFS = {
     rainTolerance: 0.3,
     tempMin: -2,

@@ -3,6 +3,6 @@ import tailwindcss from '@tailwindcss/vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 
 export default defineConfig({
-  base: '/run-weather/',
+  base: '/',
   plugins: [tailwindcss(), svelte()],
 });

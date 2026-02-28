@@ -41,7 +41,7 @@ declare const SFSymbol: { named(_name: string): { applyFont(_font: any): void; i
 }
 // ────────────────────────────────────────────────────────────────────────────
 
-const WEBSITE_URL = 'https://gtsc.github.io/run-weather/';
+const WEBSITE_URL = 'https://weather.gustavtsc.eu/';
 
 const DEFAULT_PREFS: Preferences = {
   rainTolerance: 0.3,

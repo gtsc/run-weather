@@ -2,18 +2,18 @@
   "name": "Run Weather",
   "short_name": "Run Weather",
   "description": "Find the best time to run based on weather forecasts",
-  "start_url": "/run-weather/",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#f9fafb",
   "theme_color": "#22c55e",
   "icons": [
     {
-      "src": "/run-weather/icons/icon-192.png",
+      "src": "/icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/run-weather/icons/icon-512.png",
+      "src": "/icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
