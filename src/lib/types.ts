@@ -17,6 +17,7 @@ export interface HourData {
   weatherCode: number;
   snowDepth: number;
   isDay: boolean;
+  dewPoint: number;
 }
 
 export interface ScoredHour extends HourData {

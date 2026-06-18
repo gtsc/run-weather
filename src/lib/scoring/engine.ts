@@ -42,6 +42,17 @@ export function scoreHour(hour: HourData, prefs: Preferences): number {
     score -= 10;
   }
 
+  // Dew point: high absolute humidity impairs sweat evaporation regardless of temperature
+  // <10°C: no penalty; 10-15°C: 0-10 pts; 15-20°C: 10-25 pts; >20°C: capped at 25 pts
+  const dew = hour.dewPoint;
+  if (dew >= 10 && dew < 15) {
+    score -= ((dew - 10) / 5) * 10;
+  } else if (dew >= 15 && dew < 20) {
+    score -= 10 + ((dew - 15) / 5) * 15;
+  } else if (dew >= 20) {
+    score -= 25;
+  }
+
   // Misery multiplier: when rain + wind + cold all stack, it's worse than the sum
   // Count how many "bad" factors are present
   let badFactors = 0;
@@ -50,6 +61,7 @@ export function scoreHour(hour: HourData, prefs: Preferences): number {
   if (feelsLike < prefs.tempMin || feelsLike > prefs.tempMax) badFactors++;
   if (weatherInfo.penalty >= 25) badFactors++;
   if (hour.snowDepth >= 0.03) badFactors++;
+  if (dew >= 15) badFactors++;
 
   // Each stacking factor beyond the first reduces the score by an additional 8%
   if (badFactors >= 2) {

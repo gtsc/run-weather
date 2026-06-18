@@ -12,6 +12,7 @@ const HOURLY_PARAMS = [
   'weather_code',
   'snow_depth',
   'is_day',
+  'dew_point_2m',
 ].join(',');
 
 interface HourlyResponse {
@@ -25,6 +26,7 @@ interface HourlyResponse {
   weather_code: number[];
   snow_depth: number[];
   is_day: number[];
+  dew_point_2m: number[];
 }
 
 export async function fetchForecast(
@@ -60,6 +62,7 @@ function reshapeHourly(hourly: HourlyResponse): HourData[] {
       weatherCode: hourly.weather_code[i],
       snowDepth: hourly.snow_depth[i],
       isDay: hourly.is_day[i] === 1,
+      dewPoint: hourly.dew_point_2m[i],
     });
   }
 

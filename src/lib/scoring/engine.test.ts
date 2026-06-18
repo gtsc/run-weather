@@ -15,6 +15,7 @@ const baseHour: HourData = {
   weatherCode: 0,
   snowDepth: 0,
   isDay: true,
+  dewPoint: 9,
 };
 
 const neutralPrefs: Preferences = {
@@ -23,6 +24,31 @@ const neutralPrefs: Preferences = {
   tempMax: 25,
   durationHours: 1,
 };
+
+describe('humidity scoring: dew point penalty', () => {
+  it('humid conditions (dew point 17.5°C) score lower than dry (dew point 9°C)', () => {
+    const humid = scoreHour({ ...baseHour, dewPoint: 17.5 }, neutralPrefs);
+    const dry = scoreHour({ ...baseHour, dewPoint: 9 }, neutralPrefs);
+    expect(humid).toBeLessThan(dry);
+  });
+
+  it('dew point 15°C applies ~10 pt penalty', () => {
+    const score = scoreHour({ ...baseHour, dewPoint: 15 }, neutralPrefs);
+    expect(score).toBeGreaterThanOrEqual(89);
+    expect(score).toBeLessThanOrEqual(91);
+  });
+
+  it('dew point 20°C hits the 25 pt cap', () => {
+    const score = scoreHour({ ...baseHour, dewPoint: 20 }, neutralPrefs);
+    expect(score).toBe(75);
+  });
+
+  it('dew point above 20°C is capped at 25 pts (same as 20°C)', () => {
+    const at20 = scoreHour({ ...baseHour, dewPoint: 20 }, neutralPrefs);
+    const at25 = scoreHour({ ...baseHour, dewPoint: 25 }, neutralPrefs);
+    expect(at20).toBe(at25);
+  });
+});
 
 describe('rain scoring: combined probability × intensity model', () => {
   it('low probability + low intensity → low penalty (score near 100)', () => {
