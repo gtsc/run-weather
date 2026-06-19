@@ -1,4 +1,4 @@
-import { anthropic, HAIKU } from './client';
+import { anthropic, SONNET } from './client';
 import { RECOMMEND_SYSTEM } from './prompts';
 import { SEED_MEMORY, SAMPLE_WEATHER } from './fixtures';
 import { formatWeather } from './utils';
@@ -22,7 +22,7 @@ async function main() {
   console.log('\n=== Recommendation ===');
 
   const response = await anthropic.messages.create({
-    model: HAIKU,
+    model: SONNET,
     max_tokens: 256,
     system: RECOMMEND_SYSTEM,
     messages: [{ role: 'user', content: userMessage }],

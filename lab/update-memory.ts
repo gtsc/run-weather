@@ -1,4 +1,4 @@
-import { anthropic, HAIKU } from './client';
+import { anthropic, SONNET } from './client';
 import { UPDATE_MEMORY_SYSTEM } from './prompts';
 import { SEED_MEMORY, SAMPLE_WEATHER } from './fixtures';
 import { formatWeather } from './utils';
@@ -32,7 +32,7 @@ async function main() {
   console.log('\n=== Updated memory ===');
 
   const response = await anthropic.messages.create({
-    model: HAIKU,
+    model: SONNET,
     max_tokens: 512,
     system: UPDATE_MEMORY_SYSTEM,
     messages: [{ role: 'user', content: userMessage }],

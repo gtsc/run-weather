@@ -1,14 +1,14 @@
-import { anthropic, HAIKU } from '../client';
+import { anthropic, SONNET, HAIKU } from '../client';
 import { RECOMMEND_SYSTEM, UPDATE_MEMORY_SYSTEM } from '../prompts';
 import { formatWeather } from '../utils';
 import { CASES } from './cases';
 import { judge, type JudgeVerdict } from './judge';
 
-// Pass 'sonnet' as the first arg to compare models:
+// Default model is Sonnet. Pass 'haiku' to compare:
 //   npx tsx lab/eval/run.ts
-//   npx tsx lab/eval/run.ts sonnet
+//   npx tsx lab/eval/run.ts haiku
 const modelArg = process.argv[2];
-const REC_MODEL = modelArg === 'sonnet' ? 'claude-sonnet-4-6' : HAIKU;
+const REC_MODEL = modelArg === 'haiku' ? HAIKU : SONNET;
 
 function truncate(s: string, max = 120): string {
   const single = s.replace(/\s+/g, ' ').trim();
