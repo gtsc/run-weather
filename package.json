@@ -12,13 +12,18 @@
     "format": "prettier --write .",
     "test": "vitest run --config vitest.config.ts",
     "generate:icons": "node scripts/generate-icons.mjs",
-    "build:widget": "esbuild src/scriptable/widget.ts --bundle --platform=browser --format=iife --outfile=scriptable/widget.js"
+    "build:widget": "esbuild src/scriptable/widget.ts --bundle --platform=browser --format=iife --outfile=scriptable/widget.js",
+    "lab:recommend": "tsx lab/recommend.ts",
+    "lab:update": "tsx lab/update-memory.ts",
+    "lab:eval": "tsx lab/eval/run.ts"
   },
   "devDependencies": {
+    "@anthropic-ai/sdk": "^0.105.0",
     "@eslint/js": "^9.0.0",
     "@sveltejs/vite-plugin-svelte": "^6.2.1",
     "@tailwindcss/vite": "^4.1.18",
     "@typescript-eslint/parser": "^8.56.0",
+    "dotenv": "^17.4.2",
     "esbuild": "^0.27.3",
     "eslint": "^9.0.0",
     "eslint-plugin-svelte": "^3.15.0",
@@ -28,6 +33,7 @@
     "svelte": "^5.45.2",
     "svelte-check": "^4.4.0",
     "tailwindcss": "^4.1.18",
+    "tsx": "^4.22.4",
     "typescript": "^5.9.3",
     "vite": "^7.3.1",
     "vitest": "^4.0.18"
