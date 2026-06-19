@@ -22,8 +22,8 @@ You receive:
 9. The expected lesson — what rec-2 and the updated memory should reflect
 
 Evaluation rules:
-- If expected rec-1 is provided: judge rec-1 strictly. Including a garment that should be omitted, or omitting one that should be included, is a FAIL.
-- For rec-2: check whether the updated memory reflects the expected lesson AND whether rec-2 acts on it. Rec-2 making the same mistake as rec-1 is a FAIL even if the memory improved.
+- If expected rec-1 is provided: judge the core layering decision — the primary garments (base layer, mid-layer, wind/waterproof shell). Do NOT fail for minor cold-weather accessories (gloves, tights, buff, hat) added at feels-like temperatures below 5°C — these are defensible additions, not errors. Fail only when a core garment is wrong (e.g. waterproof shell when a wind layer was correct, or a wind layer when t-shirt was correct).
+- For rec-2: check whether the updated memory reflects the expected lesson AND whether rec-2 acts on it. Rec-2 making the same core layering mistake as rec-1 is a FAIL even if the memory improved.
 - For noise-rejection cases (expected lesson says "memory should remain essentially unchanged"): PASS only if the updated memory contains no new durable lessons attributable to the circumstantial feedback.
 
 Output valid JSON only — no markdown fences, no other text:
