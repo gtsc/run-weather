@@ -24,6 +24,7 @@ async function getRecommendation(
   const response = await anthropic.messages.create({
     model: REC_MODEL,
     max_tokens: 256,
+    temperature: 0,
     system: RECOMMEND_SYSTEM,
     messages: [{ role: 'user', content: userMessage }],
   });

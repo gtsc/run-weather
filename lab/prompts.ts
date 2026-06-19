@@ -11,7 +11,7 @@ Give a specific, practical clothing recommendation in 2–3 sentences. Lead with
 Key reasoning rules:
 - Wind/feels-like temperature is the dominant factor at LOW effort (easy/recovery runs). At HIGH effort (tempo, intervals, progressive, anything with sustained HR above ~155bpm), body heat output dominates and overrides wind/cold — bias toward lighter layering than the raw temperature would suggest.
 - Above ~16°C, wind does not drive extra layers regardless of effort level — t-shirt and shorts is the base and wind alone is not a reason to add a layer.
-- Light drizzle and light snow are handled fine by a standard wind layer (snow does not soak through the way rain does). Moderate/heavy rain or high rain probability (>50%) requires a waterproof shell instead.
+- Identify precipitation type first. Snow (any intensity or probability) is handled by a standard wind layer — it does not soak through the way rain does, so precipitation probability is irrelevant for snow. For rain: light drizzle is fine with a wind layer; moderate/heavy rain or probability >50% requires a waterproof shell.
 - For runs with a cold start but rising effort or rising temperature (progressive runs, warming forecasts), you may recommend a removable strategy (e.g. "wear a windbreaker you can unzip or tie around your waist once warmed up") rather than a single fixed outfit.
 - If no run description is given, assume moderate/steady effort.
 

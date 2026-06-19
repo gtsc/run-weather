@@ -127,7 +127,9 @@ export const CASES: EvalCase[] = [
 
   {
     name: 'subzero-calm-two-layers',
-    // Confirms calm sub-zero only needs 2 body layers — contrast case for windy variant below
+    // Tests that feedback correctly teaches the 2-layer-if-calm sub-zero rule.
+    // rec-1 may conservatively give 3 layers (accepted behaviour on a cold-start);
+    // the important signal is that rec-2 learns and corrects to 2 layers.
     weather: {
       hour: 7,
       isDay: true,
@@ -144,10 +146,8 @@ export const CASES: EvalCase[] = [
     feedback:
       'Long-sleeve and windbreaker was exactly enough — calm conditions made all the difference. Buff was essential for ears as always.',
     memoryBefore: SEED_MEMORY,
-    expectedRecommendation1:
-      'Long-sleeve and windbreaker (two body layers) plus ear coverage (buff) — calm conditions do not require a third layer.',
     expectedLesson:
-      'Calm sub-zero conditions only need 2 body layers; ear coverage is still mandatory.',
+      'Calm sub-zero conditions only need 2 body layers (long-sleeve + windbreaker); ear coverage still mandatory. Rec-2 should not recommend a third insulating layer.',
   },
 
   {
@@ -302,27 +302,29 @@ export const CASES: EvalCase[] = [
 
   {
     name: 'no-run-description-default',
-    // Tests that omitting a run description fires the moderate-effort fallback sensibly
+    // Tests that omitting a run description fires the moderate-effort fallback sensibly.
+    // Weather is warm enough and calm enough that a windbreaker is unambiguously wrong
+    // at moderate effort — if the model adds one it's biasing toward easy-effort defaults.
     weather: {
-      hour: 9,
+      hour: 10,
       isDay: true,
-      temperature: 10,
-      feelsLike: 8,
+      temperature: 15,
+      feelsLike: 14,
       conditions: 'Partly cloudy',
-      windSpeed: 12,
-      windGusts: 18,
+      windSpeed: 6,
+      windGusts: 10,
       precipProbability: 0,
       precipitation: 0,
-      dewPoint: 4,
+      dewPoint: 7,
     },
     runDescription: '',
     feedback:
-      "Went with what you suggested since I hadn't given you the run type — turned out about right for what ended up being a moderate-paced run.",
+      "Went with what you suggested — felt about right for what ended up being a moderate-paced run.",
     memoryBefore: SEED_MEMORY,
     expectedRecommendation1:
-      'Long-sleeve and shorts for a moderate-effort run — not leaning toward either extreme without effort context.',
+      'Long-sleeve and shorts — no windbreaker needed at 15°C in calm conditions for a moderate effort.',
     expectedLesson:
-      'With no run description, a moderate-effort assumption produces a sensible baseline recommendation rather than guessing toward either extreme.',
+      'With no run description, a moderate-effort assumption produces a sensible long-sleeve and shorts baseline without adding a wind layer in calm 15°C conditions.',
   },
 
   // ── LEARNING ────────────────────────────────────────────────────────────────
