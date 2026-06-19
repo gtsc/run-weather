@@ -8,7 +8,7 @@ Extend run weather with AI-powered clothing recommendations and a personal memor
 
 - **Supabase** — email/password auth + Postgres database for user memory
 - **Cloudflare Worker** — Claude proxy (keeps API key server-side); rate limiting per user
-- **Claude Haiku** — recommendation and memory-update calls
+- **Claude Sonnet** — recommendation and memory-update calls (Haiku evaluated and rejected: 9/19 eval pass rate vs Sonnet's 17/19)
 - **`lab/` directory** — standalone TypeScript scripts for prompt iteration and evals (no app wiring)
 
 No LangChain, no orchestration framework. Two prompts, called at the right moments.

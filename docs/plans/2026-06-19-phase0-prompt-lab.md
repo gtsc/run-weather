@@ -6,7 +6,7 @@
 
 **Architecture:** Plain TypeScript scripts run with `tsx`, no Svelte/Vite involved. Two prompts live in `lab/prompts.ts` and are called from interactive scripts (`recommend.ts`, `update-memory.ts`) for manual iteration, then exercised automatically by `lab/eval/run.ts` which uses Claude-as-judge to grade quality. All lab code is self-contained — no imports from `src/`.
 
-**Tech Stack:** `@anthropic-ai/sdk`, `dotenv`, `tsx` (all dev dependencies); Claude Haiku (`claude-haiku-4-5-20251001`) for recommendations, memory updates, and judging.
+**Tech Stack:** `@anthropic-ai/sdk`, `dotenv`, `tsx` (all dev dependencies); Claude Sonnet (`claude-sonnet-4-6`) for recommendations and memory updates; Claude Opus 4.8 (`claude-opus-4-8`) for judging. Note: Haiku was evaluated and rejected (9/19 eval pass rate vs Sonnet's 15/19 baseline before prompt iteration).
 
 ---
 
