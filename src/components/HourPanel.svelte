@@ -145,7 +145,7 @@
             disabled={recommending}
             class="w-full py-2 border border-run-border text-run-muted rounded-lg text-xs font-medium hover:border-run-green hover:text-run-green transition-colors disabled:opacity-50"
           >
-            {recommending ? 'Thinking…' : '⭐  What should I wear?'}
+            {recommending ? 'Thinking…' : '✨  What should I wear?'}
           </button>
           {#if recommendError}
             <p class="text-xs text-red-500">{recommendError}</p>
@@ -170,7 +170,7 @@
               disabled={submittingFeedback || !feedbackText.trim()}
               class="w-full py-2 border border-run-border text-run-muted rounded-lg text-xs font-medium hover:border-run-green hover:text-run-green transition-colors disabled:opacity-50"
             >
-              {submittingFeedback ? 'Saving…' : '⭐  Submit feedback'}
+              {submittingFeedback ? 'Saving…' : '✨  Submit feedback'}
             </button>
             {#if feedbackError}
               <p class="text-xs text-red-500">{feedbackError}</p>
