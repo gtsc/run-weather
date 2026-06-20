@@ -1315,3 +1315,37 @@ git commit -m "feat: AI section in HourPanel — recommend (upcoming) + feedback
 ## Done
 
 All three layers complete. Run `npm run build` to verify the production build is clean before shipping.
+
+---
+
+## Phase 2b: Follow-up (next branch)
+
+### Task 11: Sign-up flow
+
+Allow new users to register from within the app rather than needing manual Supabase dashboard creation.
+
+**Files:**
+- Modify: `src/components/AuthModal.svelte` — add email/password sign-up tab alongside sign-in
+- Supabase dashboard: disable "Confirm email" so sign-up is instant (already done for sign-in)
+
+**Design:**
+- Two tabs in the modal: **Sign in** / **Sign up**
+- Sign-up: email + password + confirm password fields
+- On success: user is automatically signed in (Supabase returns a session immediately when email confirmation is off)
+- No email verification flow needed
+
+### Task 12: Merged settings + account panel
+
+Replace the separate settings gear dropdown and the notes-in-UserButton dropdown with a single unified panel accessible from both. When logged out it shows preferences only; when logged in it also shows running notes.
+
+**Files:**
+- Modify: `src/components/Settings.svelte` — expand into a modal/slide-over instead of a small dropdown; add notes section when `auth.user` is set
+- Modify: `src/components/UserButton.svelte` — when logged in, clicking initials opens the same settings/account modal instead of the mini notes dropdown; remove the standalone notes dropdown
+
+**Design:**
+- Trigger: gear icon (always) or initials (when logged in) — both open the same panel
+- Panel sections:
+  - **Preferences** — rain tolerance, temp range (existing)
+  - **Running notes** — textarea + save (only when logged in)
+  - **Account** — signed in as `email@...` + sign-out button (only when logged in)
+- Wider modal (~400px) to give notes room to breathe
