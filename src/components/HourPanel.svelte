@@ -20,9 +20,7 @@
   const timeLabel = $derived(`${String(hour.hour).padStart(2, '0')}:00`);
 
   const now = new Date();
-  const todayDate = now.toISOString().slice(0, 10);
   const isUpcoming = $derived(new Date(hour.time) >= now);
-  const isPastToday = $derived(new Date(hour.time) < now && hour.date === todayDate);
 
   let runDescription = $state('');
   let recommending = $state(false);
@@ -159,7 +157,7 @@
             <p class="text-xs text-run-text leading-relaxed">{recommendation}</p>
           {/if}
         </div>
-      {:else if isPastToday}
+      {:else if !isUpcoming}
         <div class="flex flex-col gap-2">
           {#if feedbackDone}
             <p class="text-xs text-run-green">Memory updated ✓</p>

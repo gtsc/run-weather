@@ -22,10 +22,17 @@ export function getWeatherState(): { days: DayData[]; loading: boolean; error: s
   }
 
   const now = new Date();
-  const days: DayData[] = [...dayMap.entries()].map(([date, hours], dayIndex) => {
+  const todayStr = new Date().toISOString().slice(0, 10);
+
+  const days: DayData[] = [...dayMap.entries()].map(([date, hours]) => {
     const scores = hours.map((h) => h.score);
     const futureScores = hours.map((h, i) => (new Date(h.time) >= now ? scores[i] : -1));
-    const bestScore = Math.max(...futureScores, 0);
+    const msPerDay = 86400000;
+    const dayIndex = Math.round(
+      (new Date(date + 'T00:00:00').getTime() - new Date(todayStr + 'T00:00:00').getTime()) /
+        msPerDay,
+    );
+    const bestScore = dayIndex < 0 ? Math.max(...scores) : Math.max(...futureScores, 0);
     return { date, dayIndex, hours, scores, bestScore };
   });
 

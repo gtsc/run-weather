@@ -9,18 +9,16 @@
     selectedHourTime = null,
     onHourSelect,
     panel,
+    isToday = false,
   }: {
     day: DayData;
     selectedHourTime?: string | null;
     onHourSelect: (_hour: ScoredHour | null) => void;
     panel?: Snippet<[ScoredHour, number]>;
+    isToday?: boolean;
   } = $props();
 
   let hoveredIndex = $state<number | null>(null);
-
-  function isPast(hourData: ScoredHour): boolean {
-    return new Date(hourData.time) < new Date();
-  }
 
   function handleSegmentClick(hour: ScoredHour) {
     if (selectedHourTime === hour.time) {
@@ -71,13 +69,12 @@
       class="flex gap-px h-7 rounded-lg overflow-hidden {confidence === 'low' ? 'opacity-70' : ''}"
     >
       {#each day.hours as hour, i (hour.time)}
-        {@const past = isPast(hour)}
         {@const selected = selectedHourTime === hour.time}
         <button
-          class="flex-1 focus:outline-none {past ? 'opacity-40' : 'hover:opacity-80'} {selected
+          class="flex-1 focus:outline-none hover:opacity-80 {selected
             ? 'ring-2 ring-black/40 ring-inset'
             : ''}"
-          style="background-color: {past ? '#d1d5db' : scoreColorHex(day.scores[i])}"
+          style="background-color: {scoreColorHex(day.scores[i])}"
           onclick={() => handleSegmentClick(hour)}
           onmouseenter={() => (hoveredIndex = i)}
           onmouseleave={() => (hoveredIndex = null)}
@@ -116,6 +113,18 @@
             <span>Dark</span>
           {/if}
         </div>
+      </div>
+    {/if}
+
+    {#if isToday}
+      {@const nowPct = ((new Date().getHours() * 60 + new Date().getMinutes()) / 1440) * 100}
+      <div
+        class="absolute bottom-full mb-0.5 pointer-events-none z-10 -translate-x-1/2"
+        style="left: {nowPct}%"
+      >
+        <div
+          class="w-0 h-0 border-l-[4px] border-r-[4px] border-t-[5px] border-l-transparent border-r-transparent border-t-run-text opacity-50"
+        ></div>
       </div>
     {/if}
   </div>

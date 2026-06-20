@@ -22,8 +22,12 @@ export function formatDayLabel(dateStr: string): string {
   const tomorrow = new Date(today);
   tomorrow.setDate(tomorrow.getDate() + 1);
 
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+
   if (date.getTime() === today.getTime()) return 'Today';
   if (date.getTime() === tomorrow.getTime()) return 'Tomorrow';
+  if (date.getTime() === yesterday.getTime()) return 'Yesterday';
 
   return date.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
 }
