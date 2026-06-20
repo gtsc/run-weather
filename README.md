@@ -26,25 +26,31 @@ Open http://localhost:5173 and search for a location.
 
 ## Commands
 
-### Frontend
+### Local development
 
-| Command          | Description                       |
-| ---------------- | --------------------------------- |
-| `npm run dev`    | Start dev server                  |
-| `npm run build`  | Production build                  |
-| `npm run check`  | TypeScript + Svelte type checking |
-| `npm run lint`   | ESLint + Prettier checks          |
-| `npm run format` | Auto-format all files             |
-
-### Worker (API)
+Run both processes in separate terminals:
 
 ```bash
-cd worker
-npm run dev     # local dev with wrangler
-npm run deploy  # deploy to Cloudflare Workers
+npm run dev          # Vite frontend at localhost:5173
+npm run dev:worker   # Wrangler worker at localhost:8787
 ```
 
-Secrets required (set via `wrangler secret put`):
+Vite proxies `/recommend` and `/feedback` to the worker automatically.
+
+### Other commands
+
+| Command                | Description                            |
+| ---------------------- | -------------------------------------- |
+| `npm run build`        | Production build                       |
+| `npm run deploy`       | Build + deploy everything via wrangler |
+| `npm run check`        | TypeScript + Svelte type checking      |
+| `npm run check:server` | TypeScript check for src/server/       |
+| `npm run lint`         | ESLint + Prettier checks               |
+| `npm run format`       | Auto-format all files                  |
+
+### Secrets
+
+Set once via `wrangler secret put` or in the Cloudflare dashboard:
 
 - `ANTHROPIC_API_KEY`
 - `SUPABASE_URL`

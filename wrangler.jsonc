@@ -1,8 +1,15 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "run-weather",
+  "main": "src/server/index.ts",
   "compatibility_date": "2026-06-01",
+  "compatibility_flags": ["nodejs_compat"],
   "assets": {
     "directory": "./dist",
   },
+
+  // Secrets (set via `wrangler secret put` or Cloudflare dashboard):
+  // ANTHROPIC_API_KEY
+  // SUPABASE_URL
+  // SUPABASE_ANON_KEY
 }

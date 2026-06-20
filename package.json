@@ -13,6 +13,9 @@
     "test": "vitest run --config vitest.config.ts",
     "generate:icons": "node scripts/generate-icons.mjs",
     "build:widget": "esbuild src/scriptable/widget.ts --bundle --platform=browser --format=iife --outfile=scriptable/widget.js",
+    "dev:worker": "wrangler dev --port 8787",
+    "check:server": "tsc --noEmit -p src/server/tsconfig.json",
+    "deploy": "npm run build && wrangler deploy",
     "lab:recommend": "tsx lab/recommend.ts",
     "lab:update": "tsx lab/update-memory.ts",
     "lab:eval": "tsx lab/eval/run.ts"
@@ -36,7 +39,9 @@
     "tsx": "^4.22.4",
     "typescript": "^5.9.3",
     "vite": "^7.3.1",
-    "vitest": "^4.0.18"
+    "vitest": "^4.0.18",
+    "@cloudflare/workers-types": "^4.20250525.0",
+    "wrangler": "^4.0.0"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.108.2"
