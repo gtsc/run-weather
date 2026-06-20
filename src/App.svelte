@@ -1,9 +1,13 @@
-<script>
+<script lang="ts">
   import LocationInput from './components/LocationInput.svelte';
   import WeekView from './components/WeekView.svelte';
   import Settings from './components/Settings.svelte';
   import DarkModeToggle from './components/DarkModeToggle.svelte';
   import UserButton from './components/UserButton.svelte';
+  import SetPasswordModal from './components/SetPasswordModal.svelte';
+  import { getIsRecovery } from './lib/stores/auth.svelte';
+
+  const isRecovery = $derived(getIsRecovery());
 </script>
 
 <div class="min-h-screen bg-run-bg text-run-text">
@@ -52,3 +56,7 @@
     >
   </footer>
 </div>
+
+{#if isRecovery}
+  <SetPasswordModal onClose={() => {}} />
+{/if}
