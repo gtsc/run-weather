@@ -1334,6 +1334,19 @@ Allow new users to register from within the app rather than needing manual Supab
 - On success: user is automatically signed in (Supabase returns a session immediately when email confirmation is off)
 - No email verification flow needed
 
+### Task 11b: Password reset / forgot password
+
+**Files:**
+- Modify: `src/components/AuthModal.svelte` — add "Forgot password?" link on sign-in tab
+- Supabase: `supabase.auth.resetPasswordForEmail(email, { redirectTo })` sends a reset link
+- Add a `?type=recovery` URL handler in `src/App.svelte` — Supabase redirects back with a token in the URL fragment; detect it and show a "Set new password" form
+- The "Set new password" form calls `supabase.auth.updateUser({ password })`
+
+**Flow:**
+1. User clicks "Forgot password?" → enters email → receives reset link via email
+2. Clicks link → redirected back to app with recovery token → prompted for new password
+3. On submit → signed in automatically with new password
+
 ### Task 12: Merged settings + account panel
 
 Replace the separate settings gear dropdown and the notes-in-UserButton dropdown with a single unified panel accessible from both. When logged out it shows preferences only; when logged in it also shows running notes.
