@@ -29,17 +29,17 @@ async function authenticate(
 
 export default {
   async fetch(req: Request, env: Env): Promise<Response> {
-    if (req.method !== 'POST') {
-      return jsonResponse(JSON.stringify({ error: 'Method not allowed' }), 405);
-    }
-
-    const authResult = await authenticate(req, env);
-    if (authResult instanceof Response) return authResult;
-    const { token, userId } = authResult;
-
-    const path = new URL(req.url).pathname;
-
     try {
+      if (req.method !== 'POST') {
+        return jsonResponse(JSON.stringify({ error: 'Method not allowed' }), 405);
+      }
+
+      const authResult = await authenticate(req, env);
+      if (authResult instanceof Response) return authResult;
+      const { token, userId } = authResult;
+
+      const path = new URL(req.url).pathname;
+
       if (path === '/recommend') return await handleRecommend(req, env, token);
       if (path === '/feedback') return await handleFeedback(req, env, token, userId);
       return jsonResponse(JSON.stringify({ error: 'Not found' }), 404);
