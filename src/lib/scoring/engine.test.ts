@@ -22,7 +22,6 @@ const neutralPrefs: Preferences = {
   rainTolerance: 0,
   tempMin: 5,
   tempMax: 25,
-  durationHours: 1,
 };
 
 describe('humidity scoring: dew point penalty', () => {

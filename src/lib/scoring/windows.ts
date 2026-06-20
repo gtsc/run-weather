@@ -1,4 +1,14 @@
-import type { ScoredHour, RunWindow } from '../types';
+import type { ScoredHour } from '../types';
+
+export interface RunWindow {
+  startHour: number;
+  endHour: number;
+  startTime: string;
+  endTime: string;
+  score: number;
+  hours: ScoredHour[];
+  scores: number[];
+}
 
 export function findRunWindows(
   dayHours: ScoredHour[],
@@ -16,10 +26,7 @@ export function findRunWindows(
     const windowHours = dayHours.slice(i, i + stepsNeeded);
     const windowScores = scores.slice(i, i + stepsNeeded);
 
-    // Skip windows that have already started
     if (new Date(windowHours[0].time) < now) continue;
-
-    // Skip windows containing any hour below 20
     if (windowScores.some((s) => s < 20)) continue;
 
     const avgScore = Math.round(windowScores.reduce((sum, s) => sum + s, 0) / windowScores.length);

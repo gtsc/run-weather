@@ -47,7 +47,6 @@ const DEFAULT_PREFS: Preferences = {
   rainTolerance: 0.3,
   tempMin: -2,
   tempMax: 25,
-  durationHours: 1,
 };
 
 /** Convert "rgb(r, g, b)" from scoreColorHex() to a Scriptable Color object. */
@@ -78,7 +77,7 @@ function renderDay(
     score: scoreHour(h, DEFAULT_PREFS),
   }));
   const scores = scored.map((h) => h.score);
-  const windows = findRunWindows(scored, scores, DEFAULT_PREFS.durationHours);
+  const windows = findRunWindows(scored, scores, 1);
   const best = windows[0];
 
   // Row 1: day label + best window time

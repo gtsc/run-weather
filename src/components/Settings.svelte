@@ -3,14 +3,6 @@
 
   let open = $state(false);
   const prefs = $derived(getPreferences());
-
-  const durationOptions = [
-    { label: '30 min', value: 0.5 },
-    { label: '45 min', value: 0.75 },
-    { label: '1 hour', value: 1 },
-    { label: '1.5 hours', value: 1.5 },
-    { label: '2 hours', value: 2 },
-  ];
 </script>
 
 <div class="relative">
@@ -84,10 +76,7 @@
                   }}
                   class="w-full px-2.5 py-2 border border-run-border rounded-lg text-sm bg-run-card text-run-text focus:outline-none focus:ring-2 focus:ring-run-green/30 focus:border-run-green transition-shadow"
                 />
-                <span
-                  class="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-run-muted pointer-events-none"
-                  >°C</span
-                >
+                <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-run-muted pointer-events-none">°C</span>
               </div>
             </label>
             <label class="flex-1 flex flex-col gap-1">
@@ -104,31 +93,11 @@
                   }}
                   class="w-full px-2.5 py-2 border border-run-border rounded-lg text-sm bg-run-card text-run-text focus:outline-none focus:ring-2 focus:ring-run-green/30 focus:border-run-green transition-shadow"
                 />
-                <span
-                  class="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-run-muted pointer-events-none"
-                  >°C</span
-                >
+                <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-run-muted pointer-events-none">°C</span>
               </div>
             </label>
           </div>
         </div>
-
-        <label class="flex flex-col gap-1.5">
-          <span class="text-xs font-medium text-run-text">How long do you run for?</span>
-          <p class="text-[10px] text-run-muted">Finds the best consecutive window of this length</p>
-          <select
-            value={prefs.durationHours}
-            onchange={(e) =>
-              updatePreferences({
-                durationHours: parseFloat((e.target as HTMLSelectElement).value),
-              })}
-            class="w-full px-2.5 py-2 border border-run-border rounded-lg text-sm bg-run-card text-run-text focus:outline-none focus:ring-2 focus:ring-run-green/30 focus:border-run-green transition-shadow"
-          >
-            {#each durationOptions as opt (opt.value)}
-              <option value={opt.value}>{opt.label}</option>
-            {/each}
-          </select>
-        </label>
       </div>
     </div>
   {/if}
