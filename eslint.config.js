@@ -50,9 +50,9 @@ export default [
       },
     },
   },
-  // Node.js scripts
+  // Node.js scripts and lab
   {
-    files: ['scripts/**/*.mjs', 'scripts/**/*.js'],
+    files: ['lab/**/*.ts', 'scripts/**/*.mjs', 'scripts/**/*.js'],
     languageOptions: {
       globals: {
         ...globals.node,

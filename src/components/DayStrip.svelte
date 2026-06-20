@@ -12,7 +12,7 @@
   }: {
     day: DayData;
     selectedHourTime?: string | null;
-    onHourSelect: (hour: ScoredHour | null) => void;
+    onHourSelect: (_hour: ScoredHour | null) => void;
     panel?: Snippet<[ScoredHour, number]>;
   } = $props();
 
@@ -102,7 +102,11 @@
         </div>
         <div class="text-gray-300 flex flex-col gap-0.5">
           <span>{weather.label}</span>
-          <span>{formatTemp(hoveredHour.temperature)}, feels like {formatTemp(hoveredHour.feelsLike)}</span>
+          <span
+            >{formatTemp(hoveredHour.temperature)}, feels like {formatTemp(
+              hoveredHour.feelsLike,
+            )}</span
+          >
           <span>Wind: {formatWind(hoveredHour.windSpeed)}</span>
           <span>Rain: {hoveredHour.precipProbability}%</span>
           {#if hoveredHour.snowDepth > 0}
