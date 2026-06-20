@@ -155,7 +155,7 @@
         </p>
         <textarea
           bind:value={notes}
-          rows="5"
+          rows="8"
           placeholder="e.g. I run cold, hate arm warmers, tend to overheat on tempo efforts…"
           class="w-full px-3 py-2 border border-run-border rounded-lg text-xs bg-run-bg text-run-text resize-none focus:outline-none focus:ring-2 focus:ring-run-green/30 focus:border-run-green transition-shadow"
         ></textarea>
