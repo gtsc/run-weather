@@ -37,7 +37,7 @@
   <div class="relative">
     <button
       onclick={openDropdown}
-      class="w-8 h-8 rounded-full bg-run-green text-white text-xs font-semibold flex items-center justify-center hover:opacity-90 transition-opacity"
+      class="w-8 h-8 rounded-full border border-run-border text-xs font-medium text-run-muted flex items-center justify-center hover:bg-run-border/50 transition-colors"
     >
       {initials}
     </button>
@@ -61,17 +61,17 @@
         ></textarea>
         <div class="flex items-center justify-between mt-2">
           <button
-            onclick={handleSignOut}
-            class="text-xs text-run-muted hover:text-run-text transition-colors"
-          >
-            Sign out
-          </button>
-          <button
             onclick={handleSave}
             disabled={saving}
             class="text-xs px-3 py-1.5 bg-run-green text-white rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
           >
-            {saved ? 'Saved ✓' : saving ? 'Saving…' : 'Save'}
+            {saved ? 'Saved ✓' : saving ? 'Saving…' : 'Save notes'}
+          </button>
+          <button
+            onclick={handleSignOut}
+            class="text-xs px-3 py-1.5 border border-run-border text-run-muted rounded-lg hover:border-red-400 hover:text-red-400 transition-colors"
+          >
+            Sign out
           </button>
         </div>
       </div>
