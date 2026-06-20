@@ -1,14 +1,15 @@
 <script lang="ts">
+  import type { ScoredHour } from '../lib/types';
   import { getWeatherState } from '../lib/stores/weather.svelte';
   import DayStrip from './DayStrip.svelte';
-  import DayDetail from './DayDetail.svelte';
+  import HourPanel from './HourPanel.svelte';
 
-  let expandedDay = $state<string | null>(null);
+  let selectedHourTime = $state<string | null>(null);
 
   const weather = $derived(getWeatherState());
 
-  function toggleDay(date: string): void {
-    expandedDay = expandedDay === date ? null : date;
+  function handleHourSelect(hour: ScoredHour | null) {
+    selectedHourTime = hour ? hour.time : null;
   }
 </script>
 
@@ -52,10 +53,15 @@
 {:else}
   <div class="flex flex-col gap-2">
     {#each weather.days as day (day.date)}
-      <DayStrip {day} expanded={expandedDay === day.date} onToggle={() => toggleDay(day.date)} />
-      {#if expandedDay === day.date}
-        <DayDetail {day} />
-      {/if}
+      {@const selectedInThisDay =
+        selectedHourTime && day.hours.some((h) => h.time === selectedHourTime)
+          ? selectedHourTime
+          : null}
+      <DayStrip {day} selectedHourTime={selectedInThisDay} onHourSelect={handleHourSelect}>
+        {#snippet panel(hour: ScoredHour, score: number)}
+          <HourPanel {hour} {score} onClose={() => (selectedHourTime = null)} />
+        {/snippet}
+      </DayStrip>
     {/each}
   </div>
 {/if}
