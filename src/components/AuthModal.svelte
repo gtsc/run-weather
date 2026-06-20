@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { signIn, signUp, resetPassword } from '../lib/stores/auth.svelte';
+  import { signIn, signUp, resetPassword, friendlyAuthError } from '../lib/stores/auth.svelte';
 
   let { onClose }: { onClose: () => void } = $props();
 
@@ -18,6 +18,7 @@
   let suConfirm = $state('');
   let suLoading = $state(false);
   let suError = $state<string | null>(null);
+  let suNeedsConfirmation = $state(false);
 
   // Forgot password state
   let showForgot = $state(false);
@@ -32,21 +33,22 @@
     siError = null;
     const err = await signIn(siEmail, siPassword);
     siLoading = false;
-    if (err) siError = err;
+    if (err) siError = friendlyAuthError(err);
     else onClose();
   }
 
   async function handleSignUp(e: SubmitEvent) {
     e.preventDefault();
     if (suPassword !== suConfirm) {
-      suError = 'Passwords do not match';
+      suError = 'Passwords do not match.';
       return;
     }
     suLoading = true;
     suError = null;
-    const err = await signUp(suEmail, suPassword);
+    const result = await signUp(suEmail, suPassword);
     suLoading = false;
-    if (err) suError = err;
+    if (result.error) suError = friendlyAuthError(result.error);
+    else if (result.needsConfirmation) suNeedsConfirmation = true;
     else onClose();
   }
 
@@ -56,7 +58,7 @@
     forgotError = null;
     const err = await resetPassword(forgotEmail);
     forgotLoading = false;
-    if (err) forgotError = err;
+    if (err) forgotError = friendlyAuthError(err);
     else forgotSent = true;
   }
 
@@ -65,6 +67,7 @@
     showForgot = false;
     siError = null;
     suError = null;
+    suNeedsConfirmation = false;
     forgotError = null;
     forgotSent = false;
   }
@@ -74,7 +77,7 @@
   }
 
   const inputClass =
-    'px-3 py-2.5 border border-run-border rounded-lg text-sm bg-run-bg text-run-text focus:outline-none focus:ring-2 focus:ring-run-green/30 focus:border-run-green transition-shadow';
+    'px-3 py-2.5 border border-run-border rounded-lg text-sm bg-run-bg text-run-text focus:outline-none focus:ring-2 focus:ring-run-green/30 focus:border-run-green user-invalid:border-run-red [&:user-invalid:focus]:border-run-red [&:user-invalid:focus]:ring-run-red/20 transition-shadow';
 </script>
 
 <div
@@ -161,7 +164,24 @@
             />
           </label>
           {#if forgotError}
-            <p class="text-xs text-red-500">{forgotError}</p>
+            <div
+              class="flex items-start gap-2 rounded-lg border border-run-red/25 bg-run-red/5 px-3 py-2 text-xs text-run-red"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="mt-px h-3.5 w-3.5 shrink-0"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2.5"
+                ><path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+                /></svg
+              >
+              <span>{forgotError}</span>
+            </div>
           {/if}
           <button
             type="submit"
@@ -208,7 +228,24 @@
           />
         </label>
         {#if siError}
-          <p class="text-xs text-red-500">{siError}</p>
+          <div
+            class="flex items-start gap-2 rounded-lg border border-run-red/25 bg-run-red/5 px-3 py-2 text-xs text-run-red"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="mt-px h-3.5 w-3.5 shrink-0"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2.5"
+              ><path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+              /></svg
+            >
+            <span>{siError}</span>
+          </div>
         {/if}
         <button
           type="submit"
@@ -220,6 +257,19 @@
       </form>
 
       <!-- Sign up -->
+    {:else if suNeedsConfirmation}
+      <div class="flex flex-col gap-3 text-sm">
+        <p class="text-run-text">Check your inbox.</p>
+        <p class="text-xs text-run-muted leading-relaxed">
+          We've sent a confirmation link to <strong class="text-run-text">{suEmail}</strong>. Click
+          it to activate your account and sign in.
+        </p>
+        <button
+          onclick={onClose}
+          class="mt-1 w-full py-2.5 bg-run-green text-white rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
+          >Done</button
+        >
+      </div>
     {:else}
       <form onsubmit={handleSignUp} class="flex flex-col gap-4">
         <label class="flex flex-col gap-1.5">
@@ -254,7 +304,24 @@
           />
         </label>
         {#if suError}
-          <p class="text-xs text-red-500">{suError}</p>
+          <div
+            class="flex items-start gap-2 rounded-lg border border-run-red/25 bg-run-red/5 px-3 py-2 text-xs text-run-red"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="mt-px h-3.5 w-3.5 shrink-0"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2.5"
+              ><path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+              /></svg
+            >
+            <span>{suError}</span>
+          </div>
         {/if}
         <button
           type="submit"
