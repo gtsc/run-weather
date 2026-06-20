@@ -6,7 +6,6 @@ const defaults: Preferences = {
   rainTolerance: 0.3,
   tempMin: -2,
   tempMax: 25,
-  durationHours: 1,
 };
 
 function loadFromStorage(): Preferences {

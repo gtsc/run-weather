@@ -5,14 +5,14 @@ Find the best time to go for a run based on weather forecasts. Enter any locatio
 ## Features
 
 - **8-day hourly forecast** with colour-coded "runnability" scores (0-100)
-- **Best run window detection** -- finds the top 3 consecutive-hour windows per day
 - **Global location search** -- works with city names, postcodes, or place names anywhere in the world
 - **GPS location** -- use your current position with one click
-- **Customisable preferences** -- rain tolerance, comfortable temperature range, run duration
+- **Customisable preferences** -- rain tolerance, comfortable temperature range
 - **Smart scoring** with a "misery multiplier" that compounds penalties when rain + wind + cold stack together
 - **Forecast confidence indicators** -- days further out are marked as approximate or less reliable
 - **Dark mode** -- respects system preference, toggleable in the header
-- **Hover tooltips** on hourly segments showing detailed conditions
+- **Hover tooltips** on hourly segments for a quick conditions summary
+- **Click any segment** for a persistent detail panel (stays open so you can read and copy)
 
 ## Getting Started
 

@@ -1,7 +1,6 @@
 import type { HourData, DayData } from '../types';
 import { fetchForecast } from '../api/forecast';
 import { scoreHour } from '../scoring/engine';
-import { findRunWindows } from '../scoring/windows';
 import { getPreferences } from './preferences.svelte';
 
 let rawHours = $state<HourData[]>([]);
@@ -27,8 +26,7 @@ export function getWeatherState(): { days: DayData[]; loading: boolean; error: s
     const scores = hours.map((h) => h.score);
     const futureScores = hours.map((h, i) => (new Date(h.time) >= now ? scores[i] : -1));
     const bestScore = Math.max(...futureScores, 0);
-    const windows = findRunWindows(hours, scores, prefs.durationHours);
-    return { date, dayIndex, hours, scores, bestScore, windows };
+    return { date, dayIndex, hours, scores, bestScore };
   });
 
   return { days, loading, error };
