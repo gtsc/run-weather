@@ -5,8 +5,6 @@
   import { getAuthState, supabase } from '../lib/stores/auth.svelte';
   import { toWeatherInput } from '../lib/utils/weatherInput';
 
-  const WORKER_URL = 'https://run-weather-api.gustavtsc.workers.dev';
-
   let {
     hour,
     score,
@@ -47,7 +45,7 @@
     recommending = true;
     recommendError = null;
     try {
-      const res = await fetch(`${WORKER_URL}/recommend`, {
+      const res = await fetch('/recommend', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({
@@ -71,7 +69,7 @@
     submittingFeedback = true;
     feedbackError = null;
     try {
-      const res = await fetch(`${WORKER_URL}/feedback`, {
+      const res = await fetch('/feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({
