@@ -8,7 +8,7 @@ export async function handleFeedback(
   req: Request,
   env: Env,
   userToken: string,
-  userId: string
+  userId: string,
 ): Promise<Response> {
   const body = (await req.json()) as FeedbackRequest;
   if (!body.weather || !body.feedback) {

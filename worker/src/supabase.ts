@@ -10,10 +10,7 @@ export function supabaseForUser(env: Env, userToken: string) {
 
 export async function fetchMemory(env: Env, userToken: string): Promise<string> {
   const db = supabaseForUser(env, userToken);
-  const { data, error } = await db
-    .from('user_memory')
-    .select('content')
-    .maybeSingle();
+  const { data, error } = await db.from('user_memory').select('content').maybeSingle();
   if (error) throw new Error(`Supabase fetch error: ${error.message}`);
   return data?.content ?? '';
 }
@@ -22,7 +19,7 @@ export async function saveMemory(
   env: Env,
   userToken: string,
   userId: string,
-  content: string
+  content: string,
 ): Promise<void> {
   const db = supabaseForUser(env, userToken);
   const { error } = await db

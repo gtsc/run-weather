@@ -7,7 +7,7 @@ import type { Env, RecommendRequest, RecommendResponse } from './types';
 export async function handleRecommend(
   req: Request,
   env: Env,
-  userToken: string
+  userToken: string,
 ): Promise<Response> {
   const body = (await req.json()) as RecommendRequest;
   if (!body.weather) {

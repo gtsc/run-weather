@@ -4,15 +4,16 @@ Find the best time to go for a run based on weather forecasts. Enter any locatio
 
 ## Features
 
-- **8-day hourly forecast** with colour-coded "runnability" scores (0-100)
-- **Global location search** -- works with city names, postcodes, or place names anywhere in the world
-- **GPS location** -- use your current position with one click
-- **Customisable preferences** -- rain tolerance, comfortable temperature range
+- **8-day hourly forecast** with colour-coded "runnability" scores (0–100)
+- **Global location search** — city names, postcodes, or place names anywhere in the world
+- **GPS location** — one click to use your current position
+- **Customisable preferences** — rain tolerance, comfortable temperature range
 - **Smart scoring** with a "misery multiplier" that compounds penalties when rain + wind + cold stack together
-- **Forecast confidence indicators** -- days further out are marked as approximate or less reliable
-- **Dark mode** -- respects system preference, toggleable in the header
-- **Hover tooltips** on hourly segments for a quick conditions summary
-- **Click any segment** for a persistent detail panel (stays open so you can read and copy)
+- **AI clothing recommendations** — click any hour to get a "what to wear" suggestion from Claude, personalised over time via a per-user memory
+- **Run feedback** — rate past hours; the AI learns what works for you
+- **Accounts** — email/password sign-up so your memory persists across devices
+- **Dark mode** — respects system preference, toggleable in the header
+- **iOS widget** — Scriptable widget showing today/tomorrow as coloured hour bars
 
 ## Getting Started
 
@@ -25,6 +26,8 @@ Open http://localhost:5173 and search for a location.
 
 ## Commands
 
+### Frontend
+
 | Command          | Description                       |
 | ---------------- | --------------------------------- |
 | `npm run dev`    | Start dev server                  |
@@ -33,24 +36,42 @@ Open http://localhost:5173 and search for a location.
 | `npm run lint`   | ESLint + Prettier checks          |
 | `npm run format` | Auto-format all files             |
 
+### Worker (API)
+
+```bash
+cd worker
+npm run dev     # local dev with wrangler
+npm run deploy  # deploy to Cloudflare Workers
+```
+
+Secrets required (set via `wrangler secret put`):
+
+- `ANTHROPIC_API_KEY`
+- `SUPABASE_URL`
+- `SUPABASE_ANON_KEY`
+
 ## Tech Stack
 
 - **Svelte 5** with runes (`$state`, `$derived`, `$props`)
 - **Vite 7** for dev/build
 - **Tailwind CSS v4** with custom theme tokens
 - **TypeScript** in strict mode
-- **Open-Meteo API** -- free, no API key required, CORS-friendly
+- **Open-Meteo API** — free, no API key required, CORS-friendly
+- **Cloudflare Workers** — AI proxy (keeps Anthropic key server-side)
+- **Supabase** — auth + Postgres for per-user AI memory
+- **Claude Sonnet** — clothing recommendations + memory updates
 
 ## How Scoring Works
 
-Each hour is scored 0-100 based on:
+Each hour is scored 0–100 based on:
 
 | Factor           | Max penalty | Notes                                                     |
 | ---------------- | ----------- | --------------------------------------------------------- |
 | Rain probability | 65 pts      | Squared curve, scaled by rain tolerance preference        |
-| Rain amount      | 25 pts      | Saturates at 2mm/h                                        |
+| Rain amount      | 25 pts      | Saturates at 2 mm/h                                       |
 | Temperature      | 30 pts      | 4 pts per degree outside your comfort range               |
 | Wind             | 30 pts      | Kicks in above 8 km/h                                     |
+| Dew point        | 20 pts      | High humidity makes warm runs miserable                   |
 | Weather severity | 25 pts      | Based on WMO weather code (fog, snow, thunderstorm, etc.) |
 | Darkness         | 10 pts      | Binary, from Open-Meteo `is_day` field                    |
 
@@ -67,25 +88,10 @@ A Scriptable widget shows today and tomorrow as coloured hour bars with the best
 
 ### Setup
 
-**1. Add the script to Scriptable**
-
-Copy the full contents of `scriptable/widget.js` from this repo. In Scriptable, tap **+**, paste the code, and rename the script **"Run Weather"**.
-
-**2. Run the script once in-app**
-
-Before adding it as a widget, tap the play button inside Scriptable. This triggers the location permission prompt — grant it. The script will display a medium widget preview if everything works.
-
-**3. Add the widget to your home screen**
-
-Long-press the home screen → **+** → search **Scriptable** → choose **Medium** size → tap **Add Widget**.
-
-**4. Configure it**
-
-Long-press the widget → **Edit Widget** → set **Script** to **Run Weather**.
-
-### Updating
-
-When `scriptable/widget.js` changes, open the script in Scriptable, select all, and paste the new file contents.
+1. Copy the full contents of `scriptable/widget.js`. In Scriptable, tap **+**, paste the code, and rename the script **"Run Weather"**.
+2. Tap the play button inside Scriptable to trigger the location permission prompt.
+3. Long-press the home screen → **+** → search **Scriptable** → choose **Medium** size → **Add Widget**.
+4. Long-press the widget → **Edit Widget** → set **Script** to **Run Weather**.
 
 ## Data Sources
 

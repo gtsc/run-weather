@@ -18,7 +18,7 @@ function corsResponse(body: string, status: number): Response {
 
 async function authenticate(
   req: Request,
-  env: Env
+  env: Env,
 ): Promise<{ token: string; userId: string } | Response> {
   const auth = req.headers.get('Authorization');
   if (!auth?.startsWith('Bearer ')) {

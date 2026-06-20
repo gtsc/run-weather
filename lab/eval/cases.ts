@@ -319,7 +319,7 @@ export const CASES: EvalCase[] = [
     },
     runDescription: '',
     feedback:
-      "Went with what you suggested — felt about right for what ended up being a moderate-paced run.",
+      'Went with what you suggested — felt about right for what ended up being a moderate-paced run.',
     memoryBefore: SEED_MEMORY,
     expectedRecommendation1:
       'T-shirt or light long-sleeve and shorts — no windbreaker at 19°C in calm conditions regardless of effort.',
