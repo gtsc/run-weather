@@ -17,3 +17,5 @@ create policy "Users upsert own memory"
 create policy "Users update own memory"
   on public.user_memory for update
   using (auth.uid() = user_id);
+
+grant select, insert, update on public.user_memory to authenticated;
