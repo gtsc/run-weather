@@ -19,6 +19,13 @@ A webapp to find the best time to run based on weather forecasts.
 - `npm run lint` -- ESLint + Prettier checks
 - `npm run format` -- Auto-format all files with Prettier
 
+## Git Workflow
+
+- **Never commit directly to `main`** — always create a feature branch first
+- Branch naming: `feat/description`, `fix/description`, `chore/description`
+- Open a PR when the feature is complete; `main` stays stable and deployable
+- Example: `git checkout -b feat/auth-panel`
+
 ## Quality Gates
 
 Before committing, ensure:
@@ -53,11 +60,9 @@ src/
   components/
     LocationInput.svelte           # Location search field + GPS button
     WeekView.svelte                # 8-day stack of DayStrips
-    DayStrip.svelte                # Single day: 24 coloured hour segments + tooltip
-    DayDetail.svelte               # Expanded: top 3 ranked run windows
-    RunWindow.svelte               # Single window card with conditions
-    HourTooltip.svelte             # Hover tooltip for individual hours
-    Settings.svelte                # Rain tolerance, temp range, duration
+    DayStrip.svelte                # Single day: 24 coloured hour segments + hover tooltip + click panel
+    HourPanel.svelte               # Persistent click panel: weather detail + (future) AI section
+    Settings.svelte                # Rain tolerance, temp range
     DarkModeToggle.svelte          # Light/dark mode toggle
 ```
 
