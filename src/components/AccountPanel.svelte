@@ -172,7 +172,9 @@
         {#if !historyLoaded}
           <p class="text-xs text-run-muted">Loading…</p>
         {:else if history.length === 0}
-          <p class="text-xs text-run-muted">No recommendations yet. Click a future hour slot to get started.</p>
+          <p class="text-xs text-run-muted">
+            No recommendations yet. Click a future hour slot to get started.
+          </p>
         {:else}
           <div class="flex flex-col gap-2">
             {#each history as rec (rec.id)}
@@ -186,7 +188,9 @@
                   {/if}
                 </div>
                 {#if rec.run_description}
-                  <span class="text-[10px] text-run-muted">{rec.run_description} · {rec.location_name}</span>
+                  <span class="text-[10px] text-run-muted"
+                    >{rec.run_description} · {rec.location_name}</span
+                  >
                 {:else}
                   <span class="text-[10px] text-run-muted">{rec.location_name}</span>
                 {/if}
