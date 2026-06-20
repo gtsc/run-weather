@@ -18,18 +18,18 @@
 </script>
 
 <div class="mt-3 pt-3 border-t border-run-border">
-  <div class="flex items-start justify-between mb-2">
-    <div class="flex items-center gap-2">
-      <span class="font-medium text-sm">{timeLabel}</span>
+  <div class="flex items-center justify-between mb-1.5">
+    <div class="flex items-center gap-2 min-w-0">
+      <span class="font-semibold text-sm shrink-0">{timeLabel}</span>
       <span
         class="inline-block w-2 h-2 rounded-full shrink-0"
         style="background-color: {scoreColorHex(score)}"
       ></span>
-      <span class="text-xs text-run-muted">Score: {score}</span>
+      <span class="text-xs text-run-muted truncate">{weather.label}</span>
     </div>
     <button
       onclick={onClose}
-      class="text-run-muted hover:text-run-text transition-colors p-0.5 -mr-0.5"
+      class="text-run-muted hover:text-run-text transition-colors p-0.5 -mr-0.5 shrink-0 ml-3"
       aria-label="Close"
     >
       <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -38,15 +38,20 @@
     </button>
   </div>
 
-  <div class="flex flex-col gap-0.5 text-xs text-run-muted">
-    <span>{weather.label}</span>
-    <span>{formatTemp(hour.temperature)}, feels like {formatTemp(hour.feelsLike)}</span>
+  <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-run-muted">
+    <span>Score: {score}</span>
+    <span class="opacity-30">·</span>
+    <span>{formatTemp(hour.temperature)} (feels {formatTemp(hour.feelsLike)})</span>
+    <span class="opacity-30">·</span>
     <span>Wind: {formatWind(hour.windSpeed)}</span>
+    <span class="opacity-30">·</span>
     <span>Rain: {hour.precipProbability}%</span>
     {#if hour.snowDepth > 0}
-      <span>Snow on ground: {Math.round(hour.snowDepth * 100)} cm</span>
+      <span class="opacity-30">·</span>
+      <span>Snow: {Math.round(hour.snowDepth * 100)} cm</span>
     {/if}
     {#if !hour.isDay}
+      <span class="opacity-30">·</span>
       <span>Dark</span>
     {/if}
   </div>
