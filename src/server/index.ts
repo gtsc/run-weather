@@ -27,9 +27,21 @@ async function authenticate(
   return { token, userId: data.user.id };
 }
 
+function missingSecrets(env: Env): string[] {
+  return (['ANTHROPIC_API_KEY', 'SUPABASE_URL', 'SUPABASE_ANON_KEY'] as const).filter(
+    (k) => !env[k],
+  );
+}
+
 export default {
   async fetch(req: Request, env: Env): Promise<Response> {
     try {
+      const missing = missingSecrets(env);
+      if (missing.length > 0) {
+        console.error('Missing secrets:', missing.join(', '));
+        return jsonResponse(JSON.stringify({ error: 'Worker not configured' }), 503);
+      }
+
       if (req.method !== 'POST') {
         return jsonResponse(JSON.stringify({ error: 'Method not allowed' }), 405);
       }
