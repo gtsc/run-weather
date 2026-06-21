@@ -293,7 +293,7 @@
           <button
             onclick={handleSaveNotes}
             disabled={savingNotes}
-            class="text-xs px-3 py-1.5 bg-run-green text-white rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
+            class="text-xs px-3 py-1.5 bg-run-green text-white rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 min-w-[82px] text-center"
           >
             {notesSaved ? 'Saved ✓' : savingNotes ? 'Saving…' : 'Save notes'}
           </button>
