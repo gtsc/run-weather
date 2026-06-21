@@ -84,6 +84,17 @@ src/
     UserButton.svelte              # Header user button
 ```
 
+## Supabase
+
+Migrations live in `supabase/migrations/`. See `0001_user_memory.sql` as the reference pattern.
+
+**Every new table needs three things — not two:**
+1. `ALTER TABLE ... ENABLE ROW LEVEL SECURITY;`
+2. RLS policies (`CREATE POLICY ...`)
+3. `GRANT SELECT, INSERT, UPDATE ON public.<table> TO authenticated;`
+
+RLS policies control which rows a user can see/write. The `GRANT` controls whether the role can touch the table at all. Without the grant, all operations return "permission denied" even with valid RLS policies. The Supabase Table Editor adds the grant automatically; raw SQL in the editor does not.
+
 ## Conventions
 
 - All `.svelte` files use `<script lang="ts">`
