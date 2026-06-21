@@ -240,9 +240,12 @@
                 </p>
                 {#if new Date(rec.slot_datetime) < new Date()}
                   {#if rec.feedback || feedbackDone[rec.id]}
-                    <p class="text-[10px] text-run-muted mt-1 italic">
-                      "{rec.feedback ?? feedbackInputs[rec.id]}"
-                    </p>
+                    <div class="mt-1.5 flex items-baseline gap-1.5">
+                      <span class="text-[10px] text-run-green shrink-0">Feedback ✓</span>
+                      <p class="text-[10px] text-run-muted italic">
+                        "{rec.feedback ?? feedbackInputs[rec.id]}"
+                      </p>
+                    </div>
                   {:else}
                     <div class="mt-2 flex gap-1.5">
                       <input
