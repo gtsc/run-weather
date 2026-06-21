@@ -1,7 +1,12 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { UPDATE_MEMORY_SYSTEM } from './prompts';
 import { formatWeather } from './weather';
-import { fetchMemory, saveMemory } from './supabase';
+import {
+  fetchMemory,
+  saveMemory,
+  fetchRecommendationById,
+  updateRecommendationFeedback,
+} from './supabase';
 import type { Env, FeedbackRequest, FeedbackResponse } from './types';
 
 export async function handleFeedback(
@@ -11,12 +16,22 @@ export async function handleFeedback(
   userId: string,
 ): Promise<Response> {
   const body = (await req.json()) as FeedbackRequest;
-  if (!body.weather || !body.feedback) {
-    return new Response(JSON.stringify({ error: 'Missing weather or feedback field' }), {
+  if (!body.recommendation_id || !body.feedback) {
+    return new Response(JSON.stringify({ error: 'Missing recommendation_id or feedback' }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' },
     });
   }
+
+  const rec = await fetchRecommendationById(env, userToken, body.recommendation_id);
+  if (!rec) {
+    return new Response(JSON.stringify({ error: 'Recommendation not found' }), {
+      status: 404,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  await updateRecommendationFeedback(env, userToken, body.recommendation_id, body.feedback);
 
   const currentMemory = await fetchMemory(env, userToken);
 
@@ -25,15 +40,13 @@ export async function handleFeedback(
     currentMemory || '(empty)',
     '',
     'Weather at time of run:',
-    formatWeather(body.weather),
+    formatWeather(rec.weather_snapshot),
     '',
-    body.run_description
-      ? `Run description: ${body.run_description}`
+    rec.run_description
+      ? `Run description: ${rec.run_description}`
       : 'Run description: (not provided)',
     '',
-    body.original_suggestion
-      ? `Original clothing suggestion: ${body.original_suggestion}`
-      : 'Original clothing suggestion: (not available)',
+    `Original clothing suggestion: ${rec.recommendation}`,
     '',
     `Runner feedback: ${body.feedback}`,
   ].join('\n');

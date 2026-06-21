@@ -1,17 +1,24 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { RECOMMEND_SYSTEM } from './prompts';
 import { formatWeather } from './weather';
-import { fetchMemory } from './supabase';
+import { fetchMemory, saveRecommendation } from './supabase';
 import type { Env, RecommendRequest, RecommendResponse } from './types';
 
 export async function handleRecommend(
   req: Request,
   env: Env,
   userToken: string,
+  userId: string,
 ): Promise<Response> {
   const body = (await req.json()) as RecommendRequest;
-  if (!body.weather) {
-    return new Response(JSON.stringify({ error: 'Missing weather field' }), {
+  if (
+    !body.weather ||
+    !body.slot_datetime ||
+    body.latitude == null ||
+    body.longitude == null ||
+    !body.location_name
+  ) {
+    return new Response(JSON.stringify({ error: 'Missing required fields' }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' },
     });
@@ -39,7 +46,18 @@ export async function handleRecommend(
   });
 
   const recommendation = (msg.content[0] as { type: string; text: string }).text;
-  const res: RecommendResponse = { recommendation };
+
+  const id = await saveRecommendation(env, userToken, userId, {
+    slot_datetime: body.slot_datetime,
+    run_description: body.run_description,
+    weather_snapshot: body.weather,
+    recommendation,
+    latitude: body.latitude,
+    longitude: body.longitude,
+    location_name: body.location_name,
+  });
+
+  const res: RecommendResponse = { id, recommendation };
   return new Response(JSON.stringify(res), {
     headers: { 'Content-Type': 'application/json' },
   });

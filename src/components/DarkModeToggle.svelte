@@ -6,7 +6,7 @@
 
 <button
   onclick={toggleDarkMode}
-  class="p-2 rounded-xl hover:bg-run-border/50 transition-colors cursor-pointer"
+  class="p-1 rounded-lg hover:bg-run-border/50 transition-colors cursor-pointer"
   title={dark ? 'Switch to light mode' : 'Switch to dark mode'}
 >
   {#if dark}

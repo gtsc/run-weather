@@ -1,4 +1,4 @@
-// Matches lab/utils.ts WeatherInput — client derives this from HourData + weatherCode label
+// Matches lib/utils/weatherInput.ts WeatherInput
 export interface WeatherInput {
   hour: number;
   isDay: boolean;
@@ -12,24 +12,45 @@ export interface WeatherInput {
   dewPoint: number;
 }
 
+export interface RecommendationRow {
+  id: string;
+  user_id: string;
+  slot_datetime: string;
+  run_description: string | null;
+  weather_snapshot: WeatherInput;
+  recommendation: string;
+  feedback: string | null;
+  latitude: number;
+  longitude: number;
+  location_name: string;
+  created_at: string;
+}
+
 export interface RecommendRequest {
   weather: WeatherInput;
   run_description?: string;
+  slot_datetime: string;
+  latitude: number;
+  longitude: number;
+  location_name: string;
 }
 
 export interface RecommendResponse {
+  id: string;
   recommendation: string;
 }
 
 export interface FeedbackRequest {
-  weather: WeatherInput;
-  run_description?: string;
-  original_suggestion?: string;
+  recommendation_id: string;
   feedback: string;
 }
 
 export interface FeedbackResponse {
   memory: string;
+}
+
+export interface GetRecommendationsResponse {
+  recommendations: RecommendationRow[];
 }
 
 export interface Env {

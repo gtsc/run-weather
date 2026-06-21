@@ -50,6 +50,7 @@ src/
     index.ts                       # Worker entry point + routing
     recommend.ts                   # /recommend handler (Claude API)
     feedback.ts                    # /feedback handler (memory update)
+    getRecommendations.ts          # GET /recommendations + /recommendations/history handlers
     supabase.ts                    # Supabase client factory
     prompts.ts                     # System prompts
     weather.ts                     # Weather formatting for prompts
@@ -58,8 +59,9 @@ src/
   lib/
     types.ts                       # Shared TypeScript interfaces
     api/
-      geocoding.ts                 # Free-text location search → lat/lng
+      geocoding.ts                 # Free-text location search → lat/lng + reverse geocode GPS
       forecast.ts                  # 8-day hourly forecast from Open-Meteo
+      recommendations.ts           # fetchSlotRecommendations + fetchHistory (client-side API helpers)
     scoring/
       engine.ts                    # Score each hour 0-100 with misery multiplier
       windows.ts                   # Find best consecutive-hour run windows
@@ -72,6 +74,7 @@ src/
       auth.svelte.ts               # Supabase auth state
     utils/
       format.ts                    # Time/temp/colour formatting helpers
+      weatherInput.ts              # toWeatherInput() — ScoredHour → WeatherInput for API calls
   components/
     LocationInput.svelte           # Location search field + GPS button
     WeekView.svelte                # 8-day stack of DayStrips
@@ -83,6 +86,18 @@ src/
     AuthModal.svelte               # Sign in / sign up modal
     UserButton.svelte              # Header user button
 ```
+
+## Supabase
+
+Migrations live in `supabase/migrations/`. See `0001_user_memory.sql` as the reference pattern.
+
+**Every new table needs three things — not two:**
+
+1. `ALTER TABLE ... ENABLE ROW LEVEL SECURITY;`
+2. RLS policies (`CREATE POLICY ...`)
+3. `GRANT SELECT, INSERT, UPDATE ON public.<table> TO authenticated;`
+
+RLS policies control which rows a user can see/write. The `GRANT` controls whether the role can touch the table at all. Without the grant, all operations return "permission denied" even with valid RLS policies. The Supabase Table Editor adds the grant automatically; raw SQL in the editor does not.
 
 ## Conventions
 

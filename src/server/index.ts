@@ -1,5 +1,6 @@
 import { handleRecommend } from './recommend';
 import { handleFeedback } from './feedback';
+import { handleGetRecommendations, handleGetHistory } from './getRecommendations';
 import { supabaseForUser } from './supabase';
 import type { Env } from './types';
 
@@ -42,19 +43,26 @@ export default {
         return jsonResponse(JSON.stringify({ error: 'Worker not configured' }), 503);
       }
 
-      if (req.method !== 'POST') {
-        return jsonResponse(JSON.stringify({ error: 'Method not allowed' }), 405);
-      }
-
       const authResult = await authenticate(req, env);
       if (authResult instanceof Response) return authResult;
       const { token, userId } = authResult;
 
+      const { method } = req;
       const path = new URL(req.url).pathname;
 
-      if (path === '/recommend') return await handleRecommend(req, env, token);
-      if (path === '/feedback') return await handleFeedback(req, env, token, userId);
-      return jsonResponse(JSON.stringify({ error: 'Not found' }), 404);
+      if (method === 'GET') {
+        if (path === '/recommendations') return await handleGetRecommendations(req, env, token);
+        if (path === '/recommendations/history') return await handleGetHistory(req, env, token);
+        return jsonResponse(JSON.stringify({ error: 'Not found' }), 404);
+      }
+
+      if (method === 'POST') {
+        if (path === '/recommend') return await handleRecommend(req, env, token, userId);
+        if (path === '/feedback') return await handleFeedback(req, env, token, userId);
+        return jsonResponse(JSON.stringify({ error: 'Not found' }), 404);
+      }
+
+      return jsonResponse(JSON.stringify({ error: 'Method not allowed' }), 405);
     } catch (err) {
       console.error(err);
       return jsonResponse(JSON.stringify({ error: 'Internal server error' }), 500);

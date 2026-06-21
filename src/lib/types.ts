@@ -42,3 +42,16 @@ export interface WeatherInfo {
   label: string;
   penalty: number;
 }
+
+export interface Recommendation {
+  id: string;
+  slot_datetime: string;
+  run_description: string | null;
+  weather_snapshot: import('./utils/weatherInput').WeatherInput;
+  recommendation: string;
+  feedback: string | null;
+  latitude: number;
+  longitude: number;
+  location_name: string;
+  created_at: string;
+}
