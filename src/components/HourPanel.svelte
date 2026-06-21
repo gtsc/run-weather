@@ -95,8 +95,8 @@
           location_name: location.name,
         }),
       });
-      const json = (await res.json()) as { id?: string; recommendation?: string; error?: string };
-      if (!res.ok) throw new Error(json.error ?? 'Unknown error');
+      const json = (await res.json()) as { id?: string; recommendation?: string; error?: string; detail?: string };
+      if (!res.ok) throw new Error(json.detail ?? json.error ?? 'Unknown error');
       const newRec: Recommendation = {
         id: json.id!,
         slot_datetime: hour.time,
