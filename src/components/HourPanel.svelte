@@ -210,19 +210,21 @@
               {/if}
             </button>
           {/each}
-          <!-- + new tab -->
-          <button
-            onclick={() => (activeTabIndex = conversations.length)}
-            class="px-2 py-1 rounded-md text-xs transition-colors {isNewTab
-              ? 'bg-run-green/10 text-run-green border border-run-green/30'
-              : 'border border-run-border text-run-muted hover:border-run-green/30 hover:text-run-text'}"
-          >
-            + new
-          </button>
+          <!-- + new tab (upcoming hours only) -->
+          {#if isUpcoming}
+            <button
+              onclick={() => (activeTabIndex = conversations.length)}
+              class="px-2 py-1 rounded-md text-xs transition-colors {isNewTab
+                ? 'bg-run-green/10 text-run-green border border-run-green/30'
+                : 'border border-run-border text-run-muted hover:border-run-green/30 hover:text-run-text'}"
+            >
+              + new
+            </button>
+          {/if}
         </div>
 
         <!-- Active tab content -->
-        {#if isNewTab}
+        {#if isNewTab && isUpcoming}
           <!-- New recommendation form -->
           <div class="flex flex-col gap-2">
             <input
@@ -242,6 +244,8 @@
               <p class="text-xs text-red-500">{recommendError}</p>
             {/if}
           </div>
+        {:else if !isUpcoming && conversations.length === 0}
+          <p class="text-xs text-run-muted">No recommendation was made for this slot.</p>
         {:else if activeConversation}
           <!-- Existing conversation -->
           <div class="flex flex-col gap-2">
