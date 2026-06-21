@@ -23,6 +23,16 @@ body {
   background-color: var(--color-run-bg);
 }
 
+/* Hide number input spinners so °C label doesn't collide */
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type='number'] {
+  -moz-appearance: textfield;
+}
+
 /* Dark mode overrides */
 .dark {
   --color-run-bg: #0f172a;
