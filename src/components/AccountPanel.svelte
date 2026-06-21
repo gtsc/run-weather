@@ -233,19 +233,21 @@
           <div class="flex flex-col gap-2">
             {#each history as rec (rec.id)}
               <div class="border border-run-border rounded-lg p-3 flex flex-col gap-1">
-                <span class="text-xs font-medium text-run-text">{formatSlotLabel(rec)}</span>
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-medium text-run-text">{formatSlotLabel(rec)}</span>
+                  {#if rec.feedback || feedbackDone[rec.id]}
+                    <span class="text-[10px] text-run-green">Feedback ✓</span>
+                  {/if}
+                </div>
                 <span class="text-[10px] text-run-muted">{metaLine(rec)}</span>
                 <p class="text-xs text-run-text leading-relaxed mt-0.5">
                   {truncate(rec.recommendation)}
                 </p>
                 {#if new Date(rec.slot_datetime) < new Date()}
                   {#if rec.feedback || feedbackDone[rec.id]}
-                    <div class="mt-1.5 flex items-baseline gap-1.5">
-                      <span class="text-[10px] text-run-green shrink-0">Feedback ✓</span>
-                      <p class="text-[10px] text-run-muted italic">
-                        "{rec.feedback ?? feedbackInputs[rec.id]}"
-                      </p>
-                    </div>
+                    <p class="text-[10px] text-run-muted mt-1 italic">
+                      "{rec.feedback ?? feedbackInputs[rec.id]}"
+                    </p>
                   {:else}
                     <div class="mt-2 flex gap-1.5">
                       <input
