@@ -34,10 +34,14 @@
           <p class="text-run-muted text-xs">Find the best time to run</p>
         </div>
       </div>
-      <div class="flex items-center gap-1">
-        <DarkModeToggle />
-        <Settings />
-        <UserButton />
+      <div class="flex items-center">
+        <div class="flex items-center gap-1">
+          <DarkModeToggle />
+          <Settings />
+        </div>
+        <div class="ml-2">
+          <UserButton />
+        </div>
       </div>
     </div>
   </header>
