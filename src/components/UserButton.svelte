@@ -12,11 +12,11 @@
 </script>
 
 {#if auth.loading}
-  <div class="w-9 h-9"></div>
+  <div class="w-6 h-6"></div>
 {:else if auth.user}
   <button
     onclick={() => (showPanel = true)}
-    class="w-8 h-8 rounded-full border border-run-border text-xs font-medium text-run-muted flex items-center justify-center hover:bg-run-border/50 transition-colors"
+    class="w-6 h-6 rounded-full border border-run-border text-[10px] font-medium text-run-muted flex items-center justify-center hover:bg-run-border/50 transition-colors"
   >
     {initials}
   </button>
