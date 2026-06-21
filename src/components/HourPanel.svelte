@@ -22,9 +22,10 @@
   const weather = $derived(getWeatherInfo(hour.weatherCode));
   const timeLabel = $derived(`${String(hour.hour).padStart(2, '0')}:00`);
   const isUpcoming = $derived(new Date(hour.time) >= new Date());
-  // Allow new recommendations for any hour on today's date (e.g. 3pm slot at 3:30pm)
+  // Allow new recommendation only for the current hour (e.g. 3:30pm → 15:00 slot only)
   const canGetRecommendation = $derived(
-    hour.time.slice(0, 10) >= new Date().toISOString().slice(0, 10),
+    hour.time.slice(0, 10) === new Date().toISOString().slice(0, 10) &&
+      hour.hour === new Date().getHours(),
   );
 
   // Conversations for this slot
@@ -203,7 +204,7 @@
     {/if}
   </div>
 
-  {#if auth.user}
+  {#if auth.user && (canGetRecommendation || conversations.length > 0 || loadingConversations)}
     <div class="mt-3 pt-3 border-t border-run-border/50">
       {#if loadingConversations}
         <p class="text-xs text-run-muted">Loading…</p>
