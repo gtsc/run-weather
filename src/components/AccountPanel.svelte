@@ -3,7 +3,7 @@
   import { getAuthState, signOut, fetchNotes, saveNotes } from '../lib/stores/auth.svelte';
   import { fetchHistory } from '../lib/api/recommendations';
   import type { Recommendation } from '../lib/types';
-  import { formatDayLabel } from '../lib/utils/format';
+  import { formatDayLabel, formatTemp } from '../lib/utils/format';
 
   let { onClose }: { onClose: () => void } = $props();
 
@@ -37,6 +37,22 @@
 
   function truncate(text: string, max = 80): string {
     return text.length <= max ? text : text.slice(0, max).trimEnd() + '…';
+  }
+
+  function locationLabel(rec: Recommendation): string | null {
+    if (rec.location_name === 'Current location') {
+      const lat = `${Math.abs(rec.latitude).toFixed(1)}°${rec.latitude >= 0 ? 'N' : 'S'}`;
+      const lng = `${Math.abs(rec.longitude).toFixed(1)}°${rec.longitude >= 0 ? 'E' : 'W'}`;
+      return `${lat}, ${lng}`;
+    }
+    return rec.location_name;
+  }
+
+  function weatherSummary(rec: Recommendation): string {
+    const w = rec.weather_snapshot;
+    const parts = [`${formatTemp(w.temperature)}`, w.conditions];
+    if (w.precipProbability > 0) parts.push(`Rain: ${w.precipProbability}%`);
+    return parts.join(' · ');
   }
 
   async function handleSaveNotes() {
@@ -187,14 +203,14 @@
                     <span class="text-[10px] text-run-muted">Awaiting feedback</span>
                   {/if}
                 </div>
-                {#if rec.run_description}
-                  <span class="text-[10px] text-run-muted"
-                    >{rec.run_description} · {rec.location_name}</span
-                  >
-                {:else}
-                  <span class="text-[10px] text-run-muted">{rec.location_name}</span>
-                {/if}
-                <p class="text-xs text-run-text leading-relaxed">{truncate(rec.recommendation)}</p>
+                <span class="text-[10px] text-run-muted">
+                  {#if rec.run_description}{rec.run_description} ·
+                  {/if}{locationLabel(rec)}
+                </span>
+                <span class="text-[10px] text-run-muted">{weatherSummary(rec)}</span>
+                <p class="text-xs text-run-text leading-relaxed mt-0.5">
+                  {truncate(rec.recommendation)}
+                </p>
               </div>
             {/each}
           </div>

@@ -95,7 +95,12 @@
           location_name: location.name,
         }),
       });
-      const json = (await res.json()) as { id?: string; recommendation?: string; error?: string; detail?: string };
+      const json = (await res.json()) as {
+        id?: string;
+        recommendation?: string;
+        error?: string;
+        detail?: string;
+      };
       if (!res.ok) throw new Error(json.detail ?? json.error ?? 'Unknown error');
       const newRec: Recommendation = {
         id: json.id!,
@@ -249,8 +254,6 @@
               <p class="text-xs text-red-500">{recommendError}</p>
             {/if}
           </div>
-        {:else if !isUpcoming && conversations.length === 0}
-          <p class="text-xs text-run-muted">No recommendation was made for this slot.</p>
         {:else if activeConversation}
           <!-- Existing conversation -->
           <div class="flex flex-col gap-2">
