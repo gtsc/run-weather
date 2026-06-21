@@ -67,6 +67,11 @@
     feedbackError = null;
   });
 
+  function tabLabel(desc: string | null): string {
+    const text = desc ?? 'No description';
+    return text.length > 20 ? text.slice(0, 20).trimEnd() + '…' : text;
+  }
+
   async function getToken(): Promise<string | null> {
     const { data } = await supabase.auth.getSession();
     return data.session?.access_token ?? null;
@@ -204,7 +209,7 @@
                 ? 'bg-run-green/10 text-run-green border border-run-green/30'
                 : 'border border-run-border text-run-muted hover:border-run-green/30 hover:text-run-text'}"
             >
-              {conv.run_description ?? 'No description'}
+              {tabLabel(conv.run_description)}
               {#if conv.feedback}
                 <span class="ml-1 opacity-60">✓</span>
               {/if}
