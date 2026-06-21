@@ -22,6 +22,10 @@
   const weather = $derived(getWeatherInfo(hour.weatherCode));
   const timeLabel = $derived(`${String(hour.hour).padStart(2, '0')}:00`);
   const isUpcoming = $derived(new Date(hour.time) >= new Date());
+  // Allow new recommendations for any hour on today's date (e.g. 3pm slot at 3:30pm)
+  const canGetRecommendation = $derived(
+    hour.time.slice(0, 10) >= new Date().toISOString().slice(0, 10),
+  );
 
   // Conversations for this slot
   let conversations = $state<Recommendation[]>([]);
@@ -99,9 +103,8 @@
         id?: string;
         recommendation?: string;
         error?: string;
-        detail?: string;
       };
-      if (!res.ok) throw new Error(json.detail ?? json.error ?? 'Unknown error');
+      if (!res.ok) throw new Error(json.error ?? 'Unknown error');
       const newRec: Recommendation = {
         id: json.id!,
         slot_datetime: hour.time,
@@ -220,8 +223,8 @@
               {/if}
             </button>
           {/each}
-          <!-- + new tab (upcoming hours only) -->
-          {#if isUpcoming}
+          <!-- + new tab (today or future) -->
+          {#if canGetRecommendation}
             <button
               onclick={() => (activeTabIndex = conversations.length)}
               class="px-2 py-1 rounded-md text-xs transition-colors {isNewTab
@@ -234,7 +237,7 @@
         </div>
 
         <!-- Active tab content -->
-        {#if isNewTab && isUpcoming}
+        {#if isNewTab && canGetRecommendation}
           <!-- New recommendation form -->
           <div class="flex flex-col gap-2">
             <input

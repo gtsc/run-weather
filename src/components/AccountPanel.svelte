@@ -1,6 +1,12 @@
 <script lang="ts">
   import { getPreferences, updatePreferences } from '../lib/stores/preferences.svelte';
-  import { getAuthState, signOut, fetchNotes, saveNotes } from '../lib/stores/auth.svelte';
+  import {
+    getAuthState,
+    signOut,
+    fetchNotes,
+    saveNotes,
+    supabase,
+  } from '../lib/stores/auth.svelte';
   import { fetchHistory } from '../lib/api/recommendations';
   import type { Recommendation } from '../lib/types';
   import { formatDayLabel, formatTemp } from '../lib/utils/format';
@@ -17,6 +23,9 @@
 
   let history = $state<Recommendation[]>([]);
   let historyLoaded = $state(false);
+  let feedbackInputs = $state<Record<string, string>>({});
+  let feedbackSubmitting = $state<Record<string, boolean>>({});
+  let feedbackDone = $state<Record<string, boolean>>({});
 
   $effect(() => {
     if (auth.user && !notesLoaded) {
@@ -46,6 +55,28 @@
       return `${lat}, ${lng}`;
     }
     return rec.location_name;
+  }
+
+  async function submitFeedback(rec: Recommendation) {
+    const text = feedbackInputs[rec.id]?.trim();
+    if (!text) return;
+    feedbackSubmitting[rec.id] = true;
+    try {
+      const { data } = await supabase.auth.getSession();
+      const token = data.session?.access_token;
+      if (!token) return;
+      const res = await fetch('/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ recommendation_id: rec.id, feedback: text }),
+      });
+      if (res.ok) {
+        feedbackDone[rec.id] = true;
+        history = history.map((r) => (r.id === rec.id ? { ...r, feedback: text } : r));
+      }
+    } finally {
+      feedbackSubmitting[rec.id] = false;
+    }
   }
 
   function weatherSummary(rec: Recommendation): string {
@@ -199,8 +230,6 @@
                   <span class="text-xs font-medium text-run-text">{formatSlotLabel(rec)}</span>
                   {#if rec.feedback}
                     <span class="text-[10px] text-run-green">Feedback given ✓</span>
-                  {:else if new Date(rec.slot_datetime) < new Date()}
-                    <span class="text-[10px] text-run-muted">Awaiting feedback</span>
                   {/if}
                 </div>
                 <span class="text-[10px] text-run-muted">
@@ -211,6 +240,29 @@
                 <p class="text-xs text-run-text leading-relaxed mt-0.5">
                   {truncate(rec.recommendation)}
                 </p>
+                {#if new Date(rec.slot_datetime) < new Date()}
+                  {#if rec.feedback || feedbackDone[rec.id]}
+                    <p class="text-[10px] text-run-green mt-1">Feedback saved ✓</p>
+                  {:else}
+                    <div class="mt-2 flex gap-1.5">
+                      <input
+                        type="text"
+                        placeholder="How did it go?"
+                        value={feedbackInputs[rec.id] ?? ''}
+                        oninput={(e) =>
+                          (feedbackInputs[rec.id] = (e.target as HTMLInputElement).value)}
+                        class="flex-1 min-w-0 px-2.5 py-1.5 border border-run-border rounded-lg text-xs bg-run-bg text-run-text placeholder:text-run-muted focus:outline-none focus:ring-2 focus:ring-run-green/30 focus:border-run-green transition-shadow"
+                      />
+                      <button
+                        onclick={() => submitFeedback(rec)}
+                        disabled={feedbackSubmitting[rec.id] || !feedbackInputs[rec.id]?.trim()}
+                        class="px-2.5 py-1.5 border border-run-border text-run-muted rounded-lg text-xs hover:border-run-green hover:text-run-green transition-colors disabled:opacity-50 shrink-0"
+                      >
+                        {feedbackSubmitting[rec.id] ? '…' : 'Save'}
+                      </button>
+                    </div>
+                  {/if}
+                {/if}
               </div>
             {/each}
           </div>

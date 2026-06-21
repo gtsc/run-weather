@@ -65,8 +65,7 @@ export default {
       return jsonResponse(JSON.stringify({ error: 'Method not allowed' }), 405);
     } catch (err) {
       console.error(err);
-      const msg = err instanceof Error ? err.message : String(err);
-      return jsonResponse(JSON.stringify({ error: 'Internal server error', detail: msg }), 500);
+      return jsonResponse(JSON.stringify({ error: 'Internal server error' }), 500);
     }
   },
 };
