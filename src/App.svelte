@@ -39,7 +39,7 @@
           <DarkModeToggle />
           <Settings />
         </div>
-        <div class="ml-2">
+        <div class="ml-3">
           <UserButton />
         </div>
       </div>
