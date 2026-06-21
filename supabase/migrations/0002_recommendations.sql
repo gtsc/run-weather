@@ -25,3 +25,5 @@ CREATE POLICY "Users can insert own recommendations"
 CREATE POLICY "Users can update own recommendations"
   ON recommendations FOR UPDATE
   USING (auth.uid() = user_id);
+
+GRANT SELECT, INSERT, UPDATE ON public.recommendations TO authenticated;
