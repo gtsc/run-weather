@@ -59,6 +59,22 @@ export async function geocodeLocation(query: string): Promise<Location> {
   throw new Error(`Could not find location for "${cleaned}"`);
 }
 
+async function reverseGeocode(lat: number, lon: number): Promise<string | null> {
+  try {
+    const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`;
+    const res = await fetch(url, { headers: { 'User-Agent': 'RunWeatherApp/1.0' } });
+    if (!res.ok) return null;
+    const data = (await res.json()) as { address?: Record<string, string> };
+    const addr = data.address ?? {};
+    const parts = [addr.city || addr.town || addr.village || addr.hamlet, addr.country].filter(
+      Boolean,
+    );
+    return parts.length > 0 ? parts.join(', ') : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function geocodeGPS(): Promise<Location> {
   return new Promise((resolve, reject) => {
     if (!navigator.geolocation) {
@@ -68,10 +84,9 @@ export async function geocodeGPS(): Promise<Location> {
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        resolve({
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          name: 'Current location',
+        const { latitude, longitude } = position.coords;
+        reverseGeocode(latitude, longitude).then((name) => {
+          resolve({ latitude, longitude, name: name ?? 'Current location' });
         });
       },
       (err) => {

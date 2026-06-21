@@ -48,13 +48,19 @@
     return text.length <= max ? text : text.slice(0, max).trimEnd() + '…';
   }
 
-  function locationLabel(rec: Recommendation): string | null {
+  function locationLabel(rec: Recommendation): string {
     if (rec.location_name === 'Current location') {
       const lat = `${Math.abs(rec.latitude).toFixed(1)}°${rec.latitude >= 0 ? 'N' : 'S'}`;
       const lng = `${Math.abs(rec.longitude).toFixed(1)}°${rec.longitude >= 0 ? 'E' : 'W'}`;
       return `${lat}, ${lng}`;
     }
     return rec.location_name;
+  }
+
+  function metaLine(rec: Recommendation): string {
+    return [rec.run_description, locationLabel(rec), weatherSummary(rec)]
+      .filter((x): x is string => x != null && x !== '')
+      .join(' · ');
   }
 
   async function submitFeedback(rec: Recommendation) {
@@ -73,6 +79,7 @@
       if (res.ok) {
         feedbackDone[rec.id] = true;
         history = history.map((r) => (r.id === rec.id ? { ...r, feedback: text } : r));
+        fetchNotes().then((n) => (notes = n));
       }
     } finally {
       feedbackSubmitting[rec.id] = false;
@@ -226,23 +233,16 @@
           <div class="flex flex-col gap-2">
             {#each history as rec (rec.id)}
               <div class="border border-run-border rounded-lg p-3 flex flex-col gap-1">
-                <div class="flex items-center justify-between">
-                  <span class="text-xs font-medium text-run-text">{formatSlotLabel(rec)}</span>
-                  {#if rec.feedback}
-                    <span class="text-[10px] text-run-green">Feedback given ✓</span>
-                  {/if}
-                </div>
-                <span class="text-[10px] text-run-muted">
-                  {#if rec.run_description}{rec.run_description} ·
-                  {/if}{locationLabel(rec)}
-                </span>
-                <span class="text-[10px] text-run-muted">{weatherSummary(rec)}</span>
+                <span class="text-xs font-medium text-run-text">{formatSlotLabel(rec)}</span>
+                <span class="text-[10px] text-run-muted">{metaLine(rec)}</span>
                 <p class="text-xs text-run-text leading-relaxed mt-0.5">
                   {truncate(rec.recommendation)}
                 </p>
                 {#if new Date(rec.slot_datetime) < new Date()}
                   {#if rec.feedback || feedbackDone[rec.id]}
-                    <p class="text-[10px] text-run-green mt-1">Feedback saved ✓</p>
+                    <p class="text-[10px] text-run-muted mt-1 italic">
+                      "{rec.feedback ?? feedbackInputs[rec.id]}"
+                    </p>
                   {:else}
                     <div class="mt-2 flex gap-1.5">
                       <input
@@ -256,9 +256,9 @@
                       <button
                         onclick={() => submitFeedback(rec)}
                         disabled={feedbackSubmitting[rec.id] || !feedbackInputs[rec.id]?.trim()}
-                        class="px-2.5 py-1.5 border border-run-border text-run-muted rounded-lg text-xs hover:border-run-green hover:text-run-green transition-colors disabled:opacity-50 shrink-0"
+                        class="px-2.5 py-1.5 border border-run-border text-run-muted rounded-lg text-xs font-medium hover:border-run-green hover:text-run-green transition-colors disabled:opacity-50 shrink-0"
                       >
-                        {feedbackSubmitting[rec.id] ? '…' : 'Save'}
+                        {feedbackSubmitting[rec.id] ? 'Saving…' : '✨  Submit'}
                       </button>
                     </div>
                   {/if}
