@@ -11,11 +11,12 @@
     "wind_gusts_10m",
     "weather_code",
     "snow_depth",
-    "is_day"
+    "is_day",
+    "dew_point_2m"
   ].join(",");
   async function fetchForecast(latitude, longitude, timezone = "Europe/London") {
     const tz = encodeURIComponent(timezone);
-    const url = `${BASE_URL}?latitude=${latitude}&longitude=${longitude}&hourly=${HOURLY_PARAMS}&forecast_days=8&timezone=${tz}`;
+    const url = `${BASE_URL}?latitude=${latitude}&longitude=${longitude}&hourly=${HOURLY_PARAMS}&past_days=2&forecast_days=8&timezone=${tz}`;
     const res = await fetch(url);
     if (!res.ok) throw new Error("Failed to fetch forecast");
     const data = await res.json();
@@ -37,7 +38,8 @@
         windGusts: hourly.wind_gusts_10m[i],
         weatherCode: hourly.weather_code[i],
         snowDepth: hourly.snow_depth[i],
-        isDay: hourly.is_day[i] === 1
+        isDay: hourly.is_day[i] === 1,
+        dewPoint: hourly.dew_point_2m[i]
       });
     }
     return hours;
@@ -104,12 +106,21 @@
     if (!hour.isDay) {
       score -= 10;
     }
+    const dew = hour.dewPoint;
+    if (dew >= 10 && dew < 15) {
+      score -= (dew - 10) / 5 * 10;
+    } else if (dew >= 15 && dew < 20) {
+      score -= 10 + (dew - 15) / 5 * 15;
+    } else if (dew >= 20) {
+      score -= 25;
+    }
     let badFactors = 0;
     if (precipProb > 0.5) badFactors++;
     if (hour.windSpeed > 15) badFactors++;
     if (feelsLike < prefs.tempMin || feelsLike > prefs.tempMax) badFactors++;
     if (weatherInfo.penalty >= 25) badFactors++;
     if (hour.snowDepth >= 0.03) badFactors++;
+    if (dew >= 15) badFactors++;
     if (badFactors >= 2) {
       score *= 1 - (badFactors - 1) * 0.08;
     }
@@ -187,8 +198,7 @@
   var DEFAULT_PREFS = {
     rainTolerance: 0.3,
     tempMin: -2,
-    tempMax: 25,
-    durationHours: 1
+    tempMax: 25
   };
   function toColor(rgb) {
     const m = rgb.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
@@ -210,7 +220,7 @@
       score: scoreHour(h, DEFAULT_PREFS)
     }));
     const scores = scored.map((h) => h.score);
-    const windows = findRunWindows(scored, scores, DEFAULT_PREFS.durationHours);
+    const windows = findRunWindows(scored, scores, 1);
     const best = windows[0];
     const header = widget.addStack();
     header.layoutHorizontally();
