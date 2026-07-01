@@ -2,6 +2,7 @@ import { handleRecommend } from './recommend';
 import { handleFeedback } from './feedback';
 import { handleGetRecommendations, handleGetHistory } from './getRecommendations';
 import { supabaseForUser } from './supabase';
+import { pingSupabase } from './keepAlive';
 import type { Env } from './types';
 
 function jsonResponse(body: string, status: number): Response {
@@ -66,6 +67,14 @@ export default {
     } catch (err) {
       console.error(err);
       return jsonResponse(JSON.stringify({ error: 'Internal server error' }), 500);
+    }
+  },
+
+  async scheduled(_event: ScheduledController, env: Env): Promise<void> {
+    try {
+      await pingSupabase(env);
+    } catch (err) {
+      console.error('Supabase keep-alive cron failed:', err);
     }
   },
 };
