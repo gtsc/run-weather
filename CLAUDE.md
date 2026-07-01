@@ -99,6 +99,8 @@ Migrations live in `supabase/migrations/`. See `0001_user_memory.sql` as the ref
 
 RLS policies control which rows a user can see/write. The `GRANT` controls whether the role can touch the table at all. Without the grant, all operations return "permission denied" even with valid RLS policies. The Supabase Table Editor adds the grant automatically; raw SQL in the editor does not.
 
+**Keep-alive cron:** Supabase auto-pauses free-tier projects after 7 days without real database activity (dashboard visits and API traffic that never reach Postgres don't count). The AI recommendation feature only writes to Supabase when someone actually requests a clothing suggestion, which can go quiet for a week (e.g. in hot weather, when there's no clothing decision to make). `src/server/keepAlive.ts` runs on a `scheduled` handler (Mon/Thu, see `wrangler.jsonc` `triggers.crons`) and issues a real `select` against `user_memory` using the service-role key to bypass RLS, so the project is never paused for lack of traffic.
+
 ## Conventions
 
 - All `.svelte` files use `<script lang="ts">`

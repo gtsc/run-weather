@@ -59,6 +59,16 @@ export default [
       },
     },
   },
+  // Cloudflare Worker entry (ambient runtime types from @cloudflare/workers-types)
+  {
+    files: ['src/server/**/*.ts'],
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+        ScheduledController: 'readonly',
+      },
+    },
+  },
   {
     rules: {
       'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],

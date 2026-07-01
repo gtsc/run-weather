@@ -21,6 +21,9 @@ dist-ssr
 # Git worktrees
 .worktrees
 
+# Wrangler local dev state
+.wrangler/
+
 # Playwright MCP screenshots / snapshots
 .playwright-mcp/
 

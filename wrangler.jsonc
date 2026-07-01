@@ -8,8 +8,15 @@
     "directory": "./dist",
   },
 
+  // Mon & Thu 04:00 UTC — pings Supabase to prevent free-tier pausing after
+  // 7 days of inactivity. See src/server/keepAlive.ts for why this exists.
+  "triggers": {
+    "crons": ["0 4 * * 1,4"],
+  },
+
   // Secrets (set via `wrangler secret put` or Cloudflare dashboard):
   // ANTHROPIC_API_KEY
   // SUPABASE_URL
   // SUPABASE_ANON_KEY
+  // SUPABASE_SERVICE_ROLE_KEY  (used only by the keep-alive cron, bypasses RLS)
 }
