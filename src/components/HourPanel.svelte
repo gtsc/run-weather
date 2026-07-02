@@ -21,11 +21,10 @@
   const location = $derived(getLocation());
   const weather = $derived(getWeatherInfo(hour.weatherCode));
   const timeLabel = $derived(`${String(hour.hour).padStart(2, '0')}:00`);
-  const isUpcoming = $derived(new Date(hour.time) >= new Date());
-  // Allow new recommendation only for the current hour (e.g. 3:30pm → 15:00 slot only)
-  const canGetRecommendation = $derived(
-    hour.time.slice(0, 10) === new Date().toISOString().slice(0, 10) &&
-      hour.hour === new Date().getHours(),
+  // "Upcoming" = this hour hasn't finished yet (covers the current hour, whose
+  // start timestamp is already in the past for most of the hour) or a future hour.
+  const isUpcoming = $derived(
+    new Date(new Date(hour.time).getTime() + 60 * 60 * 1000) > new Date(),
   );
 
   // Conversations for this slot
@@ -204,7 +203,7 @@
     {/if}
   </div>
 
-  {#if auth.user && (canGetRecommendation || conversations.length > 0 || loadingConversations)}
+  {#if auth.user && (isUpcoming || conversations.length > 0)}
     <div class="mt-3 pt-3 border-t border-run-border/50">
       {#if loadingConversations}
         <p class="text-xs text-run-muted">Loading…</p>
@@ -224,8 +223,8 @@
               {/if}
             </button>
           {/each}
-          <!-- + new tab (today or future) -->
-          {#if canGetRecommendation}
+          <!-- + new tab (current or future hours) -->
+          {#if isUpcoming}
             <button
               onclick={() => (activeTabIndex = conversations.length)}
               class="px-2 py-1 rounded-md text-xs transition-colors {isNewTab
@@ -238,7 +237,7 @@
         </div>
 
         <!-- Active tab content -->
-        {#if isNewTab && canGetRecommendation}
+        {#if isNewTab && isUpcoming}
           <!-- New recommendation form -->
           <div class="flex flex-col gap-2">
             <input
