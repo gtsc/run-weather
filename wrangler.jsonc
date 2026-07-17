@@ -8,6 +8,12 @@
     "directory": "./dist",
   },
 
+  // Lets scheduled (cron) invocations show up in the dashboard Logs tab —
+  // otherwise there's no way to confirm after the fact that a cron fired.
+  "observability": {
+    "enabled": true,
+  },
+
   // Mon & Thu 04:00 UTC — pings Supabase to prevent free-tier pausing after
   // 7 days of inactivity. See src/server/keepAlive.ts for why this exists.
   "triggers": {
