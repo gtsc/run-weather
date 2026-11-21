@@ -148,61 +148,37 @@
     return Math.max(0, Math.min(100, Math.round(score)));
   }
 
-  // src/lib/scoring/windows.ts
-  function findRunWindows(dayHours, scores, durationHours) {
-    const stepsNeeded = Math.ceil(durationHours);
-    if (dayHours.length < stepsNeeded) return [];
-    const now = /* @__PURE__ */ new Date();
-    const windows = [];
-    for (let i = 0; i <= dayHours.length - stepsNeeded; i++) {
-      const windowHours = dayHours.slice(i, i + stepsNeeded);
-      const windowScores = scores.slice(i, i + stepsNeeded);
-      if (new Date(windowHours[0].time) < now) continue;
-      if (windowScores.some((s) => s < 20)) continue;
-      const avgScore = Math.round(windowScores.reduce((sum, s) => sum + s, 0) / windowScores.length);
-      windows.push({
-        startHour: windowHours[0].hour,
-        endHour: (windowHours[windowHours.length - 1].hour + 1) % 24,
-        startTime: windowHours[0].time,
-        endTime: windowHours[windowHours.length - 1].time,
-        score: avgScore,
-        hours: windowHours,
-        scores: windowScores
-      });
+  // src/lib/scoring/days.ts
+  var WINDOW_TOLERANCE = 3;
+  var MAX_WINDOW_HOURS = 3;
+  function bestWindow(hours, now) {
+    const upcoming = (i) => i >= 0 && i < hours.length && hours[i].time >= now;
+    let peak = -1;
+    hours.forEach((h, i) => {
+      if (upcoming(i) && (peak === -1 || h.score > hours[peak].score)) peak = i;
+    });
+    if (peak === -1) return null;
+    const score = hours[peak].score;
+    const fits = (i) => upcoming(i) && hours[i].score >= score - WINDOW_TOLERANCE;
+    let start = peak;
+    let end = peak + 1;
+    while (end - start < MAX_WINDOW_HOURS && (fits(end) || fits(start - 1))) {
+      if (fits(end)) end++;
+      else start--;
     }
-    windows.sort((a, b) => b.score - a.score);
-    return windows.slice(0, 3);
+    return { start, end, score };
   }
 
-  // src/lib/utils/format.ts
-  function formatHour(hour) {
-    return `${hour.toString().padStart(2, "0")}:00`;
+  // src/lib/utils/chart.ts
+  var GREAT_SCORE = 85;
+  var POOR_BELOW = 65;
+  function bandOf(score) {
+    return score >= GREAT_SCORE ? "great" : score < POOR_BELOW ? "poor" : "ok";
   }
-  var COLOR_STOPS = [
-    [215, 48, 39],
-    // 0   — red
-    [244, 109, 67],
-    // 25  — orange
-    [253, 204, 92],
-    // 50  — yellow
-    [166, 217, 106],
-    // 75  — lime
-    [39, 166, 75]
-    // 100 — green
-  ];
-  function lerp(a, b, t) {
-    return Math.round(a + (b - a) * t);
-  }
-  function scoreColorHex(score) {
-    const t = Math.max(0, Math.min(1, score / 100));
-    const scaled = t * (COLOR_STOPS.length - 1);
-    const i = Math.min(Math.floor(scaled), COLOR_STOPS.length - 2);
-    const frac = scaled - i;
-    const r = lerp(COLOR_STOPS[i][0], COLOR_STOPS[i + 1][0], frac);
-    const g = lerp(COLOR_STOPS[i][1], COLOR_STOPS[i + 1][1], frac);
-    const b = lerp(COLOR_STOPS[i][2], COLOR_STOPS[i + 1][2], frac);
-    return `rgb(${r}, ${g}, ${b})`;
-  }
+  var BAND_HEX = {
+    light: { great: "#2f5fd0", ok: "#8593a8", poor: "#cc5f1f" },
+    dark: { great: "#6690e6", ok: "#5a6a80", poor: "#d4783a" }
+  };
 
   // src/scriptable/widget.ts
   {
@@ -221,12 +197,6 @@
     tempMin: -2,
     tempMax: 25
   };
-  function toColor(rgb) {
-    const m = rgb.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
-    if (!m) return new Color("#888888");
-    const h = (n) => parseInt(n).toString(16).padStart(2, "0");
-    return new Color(`#${h(m[1])}${h(m[2])}${h(m[3])}`);
-  }
   function dayLabel(dateStr) {
     const today = wallClock().slice(0, 10);
     const tomorrow = addDays(today, 1);
@@ -235,50 +205,43 @@
     const [y, m, d] = dateStr.split("-").map(Number);
     return new Date(y, m - 1, d).toLocaleDateString(void 0, { weekday: "long" });
   }
-  function renderDay(widget, date, dayHours, theme) {
-    const scored = dayHours.map((h) => ({
-      ...h,
-      score: scoreHour(h, DEFAULT_PREFS)
-    }));
-    const scores = scored.map((h) => h.score);
-    const windows = findRunWindows(scored, scores, 1);
-    const best = windows[0];
+  function renderDay(widget, date, dayHours, now, theme) {
+    const scored = dayHours.map((h) => ({ ...h, score: scoreHour(h, DEFAULT_PREFS) }));
+    const best = bestWindow(scored, now);
     const header = widget.addStack();
     header.layoutHorizontally();
     const label = header.addText(dayLabel(date));
     label.font = Font.boldSystemFont(13);
     label.textColor = new Color(theme.label);
     header.addSpacer();
-    const bestLabel = best ? `${formatHour(best.startHour)}\u2013${formatHour(best.endHour)} \xB7 ${best.score}` : "\u2013";
-    const bestText = header.addText(bestLabel);
+    const bestText = header.addText(best ? `best ${best.start}\u2013${best.end}, ${best.score}` : "\u2013");
     bestText.font = Font.systemFont(12);
     bestText.textColor = new Color(theme.muted);
-    widget.addSpacer(1);
+    widget.addSpacer(2);
     const BAR_W = 288;
-    const BAR_H = 16;
+    const BAR_H = 20;
     const segW = BAR_W / scored.length;
-    const now = /* @__PURE__ */ new Date();
     const dc = new DrawContext();
     dc.size = new Size(BAR_W, BAR_H);
     dc.opaque = false;
-    for (let i = 0; i < scored.length; i++) {
-      const isPast = new Date(scored[i].time) < now;
-      dc.setFillColor(isPast ? new Color(theme.pastSeg) : toColor(scoreColorHex(scored[i].score)));
-      dc.fillRect(new Rect(Math.round(i * segW), 0, Math.max(1, Math.ceil(segW) - 1), BAR_H));
-    }
+    scored.forEach((h, i) => {
+      const height = Math.max(2, Math.round(Math.max(h.score, 6) / 100 * BAR_H));
+      dc.setFillColor(new Color(theme.bands[bandOf(h.score)]));
+      dc.fillRect(new Rect(Math.round(i * segW), BAR_H - height, Math.max(1, Math.ceil(segW) - 1), height));
+    });
     const barStack = widget.addStack();
     barStack.layoutHorizontally();
-    const barImg = barStack.addImage(dc.getImage());
-    barImg.cornerRadius = 3;
+    barStack.addImage(dc.getImage());
   }
   async function run() {
     const widget = new ListWidget();
     const isDark = Device.isUsingDarkAppearance();
     const theme = {
-      bg: isDark ? "#1c1c1e" : "#f2f2f7",
-      label: isDark ? "#ffffff" : "#000000",
-      muted: isDark ? "#8e8e93" : "#6c6c70",
-      pastSeg: isDark ? "#48484a" : "#c7c7cc"
+      bg: isDark ? "#0d1520" : "#eef2f7",
+      label: isDark ? "#e8eef6" : "#13202e",
+      muted: isDark ? "#9aa9bb" : "#4d5c6d",
+      accent: isDark ? "#8fb4ff" : "#2f5fd0",
+      bands: BAND_HEX[isDark ? "dark" : "light"]
     };
     widget.backgroundColor = new Color(theme.bg);
     widget.setPadding(0, 14, 0, 14);
@@ -290,7 +253,7 @@
     sym.applyFont(Font.systemFont(11));
     const symImg = titleRow.addImage(sym.image);
     symImg.imageSize = new Size(13, 13);
-    symImg.tintColor = new Color("#26a65b");
+    symImg.tintColor = new Color(theme.accent);
     titleRow.addSpacer(5);
     const titleText = titleRow.addText("Run Weather");
     titleText.font = Font.boldSystemFont(11);
@@ -304,15 +267,15 @@
       const tomorrow = addDays(today, 1);
       const dayAfterTomorrow = addDays(today, 2);
       titleRow.addSpacer();
-      const nowHour = hours.find((h) => h.date === today && h.hour === (/* @__PURE__ */ new Date()).getHours());
+      const nowHour = hours.find((h) => h.date === today && h.hour === Number(wallClock(timezone).slice(11, 13)));
       if (nowHour) {
         const condParts = [
-          `${getWeatherInfo(nowHour.weatherCode).label} \xB7 ${Math.round(nowHour.temperature)}\xB0`,
+          `${getWeatherInfo(nowHour.weatherCode).label}, ${Math.round(nowHour.temperature)}\xB0`,
           `feels ${Math.round(nowHour.feelsLike)}\xB0`,
           `${Math.round(nowHour.windSpeed)} km/h`
         ];
         if (nowHour.precipProbability > 0) condParts.push(`${nowHour.precipProbability}% rain`);
-        const condEl = titleRow.addText(condParts.join(" \xB7 "));
+        const condEl = titleRow.addText(condParts.join(", "));
         condEl.font = Font.systemFont(10);
         condEl.textColor = new Color(theme.muted);
       }
@@ -320,7 +283,7 @@
       for (const [i, date] of [today, tomorrow, dayAfterTomorrow].entries()) {
         if (i > 0) widget.addSpacer(4);
         const dayHours = hours.filter((h) => h.date === date);
-        renderDay(widget, date, dayHours, theme);
+        renderDay(widget, date, dayHours, wallClock(timezone), theme);
       }
     } catch (e) {
       widget.addSpacer(4);
@@ -329,7 +292,7 @@
       const isLocationDenied = msg.includes("kCLErrorDomain error 1");
       const displayMsg = isLocationDenied ? "Location access denied. Go to Settings \u2192 Privacy \u2192 Location Services \u2192 Scriptable \u2192 Always or While Using." : `Error: ${msg}`;
       const errText = errStack.addText(displayMsg);
-      errText.textColor = new Color("#8e8e93");
+      errText.textColor = new Color(theme.muted);
       errText.font = Font.systemFont(12);
     }
     if (config.runsInWidget) {

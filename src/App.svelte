@@ -41,13 +41,22 @@
   </main>
 
   <footer class="text-center text-[11px] text-run-muted py-6 border-t border-run-border">
-    Weather data by <a
+    Weather data by
+    <a
       href="https://open-meteo.com/"
       class="underline hover:text-run-text transition-colors"
       target="_blank"
       rel="noreferrer"
     >
       Open-Meteo.com
-    </a>
+    </a>. Place search ©
+    <a
+      href="https://www.openstreetmap.org/copyright"
+      class="underline hover:text-run-text transition-colors"
+      target="_blank"
+      rel="noreferrer"
+    >
+      OpenStreetMap contributors
+    </a>.
   </footer>
 </div>

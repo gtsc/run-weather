@@ -1,10 +1,12 @@
 import { fetchForecast } from '../lib/api/forecast';
 import { wallClock, addDays } from '../lib/utils/dates';
 import { scoreHour } from '../lib/scoring/engine';
-import { findRunWindows } from '../lib/scoring/windows';
-import { scoreColorHex, formatHour } from '../lib/utils/format';
+import { bestWindow } from '../lib/scoring/days';
+import { BAND_HEX, bandOf } from '../lib/utils/chart';
 import { getWeatherInfo } from '../lib/scoring/weatherCodes';
 import type { HourData, Preferences, ScoredHour } from '../lib/types';
+
+type Theme = { bg: string; label: string; muted: string; accent: string; bands: Record<'great' | 'ok' | 'poor', string> };
 
 // ── Scriptable global declarations ──────────────────────────────────────────
 // These objects are injected by the Scriptable runtime; they are not imports.
@@ -50,14 +52,6 @@ const DEFAULT_PREFS: Preferences = {
   tempMax: 25,
 };
 
-/** Convert "rgb(r, g, b)" from scoreColorHex() to a Scriptable Color object. */
-function toColor(rgb: string): InstanceType<typeof Color> {
-  const m = rgb.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
-  if (!m) return new Color('#888888');
-  const h = (n: string) => parseInt(n).toString(16).padStart(2, '0');
-  return new Color(`#${h(m[1])}${h(m[2])}${h(m[3])}`);
-}
-
 function dayLabel(dateStr: string): string {
   const today = wallClock().slice(0, 10);
   const tomorrow = addDays(today, 1);
@@ -67,21 +61,11 @@ function dayLabel(dateStr: string): string {
   return new Date(y, m - 1, d).toLocaleDateString(undefined, { weekday: 'long' });
 }
 
-function renderDay(
-  widget: any,
-  date: string,
-  dayHours: HourData[],
-  theme: { label: string; muted: string; pastSeg: string }
-): void {
-  const scored: ScoredHour[] = dayHours.map((h) => ({
-    ...h,
-    score: scoreHour(h, DEFAULT_PREFS),
-  }));
-  const scores = scored.map((h) => h.score);
-  const windows = findRunWindows(scored, scores, 1);
-  const best = windows[0];
+function renderDay(widget: any, date: string, dayHours: HourData[], now: string, theme: Theme): void {
+  const scored: ScoredHour[] = dayHours.map((h) => ({ ...h, score: scoreHour(h, DEFAULT_PREFS) }));
+  const best = bestWindow(scored, now);
 
-  // Row 1: day label + best window time
+  // Row 1: day label + best window ("11–14, 100"), same wording as the web app
   const header = widget.addStack();
   header.layoutHorizontally();
 
@@ -91,40 +75,39 @@ function renderDay(
 
   header.addSpacer();
 
-  const bestLabel = best ? `${formatHour(best.startHour)}–${formatHour(best.endHour)} · ${best.score}` : '–';
-  const bestText = header.addText(bestLabel);
+  const bestText = header.addText(best ? `best ${best.start}–${best.end}, ${best.score}` : '–');
   bestText.font = Font.systemFont(12);
   bestText.textColor = new Color(theme.muted);
 
-  widget.addSpacer(1);
+  widget.addSpacer(2);
 
-  // Row 2: 24 coloured hour segments drawn as an image
+  // Row 2: 24 hourly bars — height = score, colour = Great / OK / Poor (as in the app)
   const BAR_W = 288;
-  const BAR_H = 16;
+  const BAR_H = 20;
   const segW = BAR_W / scored.length;
-  const now = new Date();
   const dc = new DrawContext();
   dc.size = new Size(BAR_W, BAR_H);
   dc.opaque = false;
-  for (let i = 0; i < scored.length; i++) {
-    const isPast = new Date(scored[i].time) < now;
-    dc.setFillColor(isPast ? new Color(theme.pastSeg) : toColor(scoreColorHex(scored[i].score)));
-    dc.fillRect(new Rect(Math.round(i * segW), 0, Math.max(1, Math.ceil(segW) - 1), BAR_H));
-  }
+  scored.forEach((h, i) => {
+    const height = Math.max(2, Math.round((Math.max(h.score, 6) / 100) * BAR_H));
+    dc.setFillColor(new Color(theme.bands[bandOf(h.score)]));
+    dc.fillRect(new Rect(Math.round(i * segW), BAR_H - height, Math.max(1, Math.ceil(segW) - 1), height));
+  });
   const barStack = widget.addStack();
   barStack.layoutHorizontally();
-  const barImg = barStack.addImage(dc.getImage());
-  barImg.cornerRadius = 3;
+  barStack.addImage(dc.getImage());
 }
 
 async function run(): Promise<void> {
   const widget = new ListWidget();
   const isDark = Device.isUsingDarkAppearance();
-  const theme = {
-    bg:      isDark ? '#1c1c1e' : '#f2f2f7',
-    label:   isDark ? '#ffffff' : '#000000',
-    muted:   isDark ? '#8e8e93' : '#6c6c70',
-    pastSeg: isDark ? '#48484a' : '#c7c7cc',
+  // Same palette as the web app (app.css).
+  const theme: Theme = {
+    bg: isDark ? '#0d1520' : '#eef2f7',
+    label: isDark ? '#e8eef6' : '#13202e',
+    muted: isDark ? '#9aa9bb' : '#4d5c6d',
+    accent: isDark ? '#8fb4ff' : '#2f5fd0',
+    bands: BAND_HEX[isDark ? 'dark' : 'light'],
   };
   widget.backgroundColor = new Color(theme.bg);
   widget.setPadding(0, 14, 0, 14);
@@ -137,7 +120,7 @@ async function run(): Promise<void> {
   sym.applyFont(Font.systemFont(11));
   const symImg = titleRow.addImage(sym.image);
   symImg.imageSize = new Size(13, 13);
-  symImg.tintColor = new Color('#26a65b');
+  symImg.tintColor = new Color(theme.accent);
   titleRow.addSpacer(5);
   const titleText = titleRow.addText('Run Weather');
   titleText.font = Font.boldSystemFont(11);
@@ -154,15 +137,15 @@ async function run(): Promise<void> {
     const dayAfterTomorrow = addDays(today, 2);
 
     titleRow.addSpacer();
-    const nowHour = hours.find((h: HourData) => h.date === today && h.hour === new Date().getHours());
+    const nowHour = hours.find((h: HourData) => h.date === today && h.hour === Number(wallClock(timezone).slice(11, 13)));
     if (nowHour) {
       const condParts = [
-        `${getWeatherInfo(nowHour.weatherCode).label} · ${Math.round(nowHour.temperature)}°`,
+        `${getWeatherInfo(nowHour.weatherCode).label}, ${Math.round(nowHour.temperature)}°`,
         `feels ${Math.round(nowHour.feelsLike)}°`,
         `${Math.round(nowHour.windSpeed)} km/h`,
       ];
       if (nowHour.precipProbability > 0) condParts.push(`${nowHour.precipProbability}% rain`);
-      const condEl = titleRow.addText(condParts.join(' · '));
+      const condEl = titleRow.addText(condParts.join(', '));
       condEl.font = Font.systemFont(10);
       condEl.textColor = new Color(theme.muted);
     }
@@ -171,7 +154,7 @@ async function run(): Promise<void> {
     for (const [i, date] of [today, tomorrow, dayAfterTomorrow].entries()) {
       if (i > 0) widget.addSpacer(4);
       const dayHours = hours.filter((h: HourData) => h.date === date);
-      renderDay(widget, date, dayHours, theme);
+      renderDay(widget, date, dayHours, wallClock(timezone), theme);
     }
   } catch (e) {
     widget.addSpacer(4);
@@ -182,7 +165,7 @@ async function run(): Promise<void> {
       ? 'Location access denied. Go to Settings → Privacy → Location Services → Scriptable → Always or While Using.'
       : `Error: ${msg}`;
     const errText = errStack.addText(displayMsg);
-    errText.textColor = new Color('#8e8e93');
+    errText.textColor = new Color(theme.muted);
     errText.font = Font.systemFont(12);
   }
 
