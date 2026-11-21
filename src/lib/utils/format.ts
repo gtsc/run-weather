@@ -27,6 +27,13 @@ export function formatDayLabel(dateStr: string, dayIndex: number): string {
   });
 }
 
+/** Compact label for narrow rows: "Today", "Sun 22". */
+export function formatShortDayLabel(dateStr: string, dayIndex: number): string {
+  if (dayIndex === 0) return 'Today';
+  const d = new Date(`${dateStr}T00:00:00Z`);
+  return `${d.toLocaleDateString('en-GB', { weekday: 'short', timeZone: 'UTC' })} ${d.getUTCDate()}`;
+}
+
 // RdYlGn-inspired colourmap: red → orange → yellow → lime → green
 // 5 stops at 0%, 25%, 50%, 75%, 100% with RGB interpolation between them
 const COLOR_STOPS: [number, number, number][] = [

@@ -48,6 +48,15 @@
   --color-run-border: light-dark(var(--run-border-l), var(--run-border-d));
   /* Night hours in charts: a step darker than the card in both themes. */
   --color-run-night: light-dark(var(--run-night-l), var(--run-night-d));
+  /* Score bands behind the day curves (80+ and 90+); stronger in dark so they separate. */
+  --color-run-good: light-dark(
+    color-mix(in oklab, #16a34a 20%, transparent),
+    color-mix(in oklab, #16a34a 30%, transparent)
+  );
+  --color-run-great: light-dark(
+    color-mix(in oklab, #16a34a 42%, transparent),
+    color-mix(in oklab, #16a34a 62%, transparent)
+  );
 }
 
 /* Fallback for browsers without light-dark() (Safari < 17.5): follow the system preference. */
@@ -60,6 +69,8 @@
     --color-run-muted: var(--run-muted-l);
     --color-run-border: var(--run-border-l);
     --color-run-night: var(--run-night-l);
+    --color-run-good: color-mix(in oklab, #16a34a 20%, transparent);
+    --color-run-great: color-mix(in oklab, #16a34a 42%, transparent);
 
     @media (prefers-color-scheme: dark) {
       --color-run-green-light: var(--run-green-light-d);
@@ -69,6 +80,8 @@
       --color-run-muted: var(--run-muted-d);
       --color-run-border: var(--run-border-d);
       --color-run-night: var(--run-night-d);
+      --color-run-good: color-mix(in oklab, #16a34a 30%, transparent);
+      --color-run-great: color-mix(in oklab, #16a34a 62%, transparent);
     }
   }
 }

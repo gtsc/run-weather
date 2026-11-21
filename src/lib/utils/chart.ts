@@ -4,8 +4,9 @@ export const VIEW_W = 240;
 export const VIEW_H = 100;
 /** Scores below this sit on the baseline; most of the interesting range is 40–100. */
 export const SCORE_FLOOR = 40;
-/** Reference line for a "good" hour. */
+/** Score bands shaded behind the curve. */
 export const GOOD_SCORE = 80;
+export const GREAT_SCORE = 90;
 
 const PAD_TOP = 6;
 

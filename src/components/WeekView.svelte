@@ -3,9 +3,9 @@
   import { weather } from '../lib/stores/weather.svelte';
   import { minutesOfDay } from '../lib/utils/dates';
   import { nextBestRun } from '../lib/scoring/days';
-  import { GOOD_SCORE } from '../lib/utils/chart';
+  import { GOOD_SCORE, GREAT_SCORE } from '../lib/utils/chart';
   import BestRun from './BestRun.svelte';
-  import DayChart from './DayChart.svelte';
+  import DayRow from './DayRow.svelte';
   import HourPanel from './HourPanel.svelte';
 
   let selectedHourTime = $state<string | null>(null);
@@ -61,20 +61,39 @@
     {#if next}
       <BestRun day={next.day} window={next.window} onShow={showBest} />
     {/if}
-    {#each weather.days as day (day.date)}
-      <DayChart
-        {day}
-        {selectedHourTime}
-        onHourSelect={(hour) => (selectedHourTime = hour?.time ?? null)}
-        nowMinutes={day.dayIndex === 0 ? minutesOfDay(weather.now) : undefined}
-      >
-        {#snippet panel(hour, score)}
-          <HourPanel {hour} {score} onClose={() => (selectedHourTime = null)} />
-        {/snippet}
-      </DayChart>
-    {/each}
-    <p class="text-xs text-run-muted mt-1">
-      Higher is better. Shaded hours are dark; the dashed line marks a good score ({GOOD_SCORE}).
+    <section
+      aria-label="Week overview"
+      class="rounded-xl bg-run-card border border-run-border p-3 grid grid-cols-[3.25rem_minmax(0,1fr)_4.25rem] gap-x-3 gap-y-3 items-center"
+    >
+      <span></span>
+      <div class="flex justify-between text-[10px] text-run-muted tabular-nums" aria-hidden="true">
+        <span>00</span><span>06</span><span>12</span><span>18</span><span>24</span>
+      </div>
+      <span class="text-right text-[10px] text-run-muted">Best</span>
+      {#each weather.days as day (day.date)}
+        <DayRow
+          {day}
+          {selectedHourTime}
+          onHourSelect={(hour) => (selectedHourTime = hour?.time ?? null)}
+          nowMinutes={day.dayIndex === 0 ? minutesOfDay(weather.now) : undefined}
+        >
+          {#snippet panel(hour, score)}
+            <HourPanel {hour} {score} onClose={() => (selectedHourTime = null)} />
+          {/snippet}
+        </DayRow>
+      {/each}
+    </section>
+    <p class="text-xs text-run-muted mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+      <span class="inline-flex items-center gap-1.5">
+        <span class="size-2.5 rounded-sm bg-run-great"></span>{GREAT_SCORE}+
+      </span>
+      <span class="inline-flex items-center gap-1.5">
+        <span class="size-2.5 rounded-sm bg-run-good"></span>{GOOD_SCORE}+
+      </span>
+      <span class="inline-flex items-center gap-1.5">
+        <span class="w-3 h-[3px] rounded-full bg-run-green"></span>best window
+      </span>
+      <span>Line: score through the day. Later days are less certain.</span>
     </p>
   </div>
 {/if}
