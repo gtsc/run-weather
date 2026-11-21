@@ -12,7 +12,7 @@
   let dialog: HTMLDialogElement;
 
   const inputClass =
-    'w-full px-2.5 py-2 border border-run-border rounded-lg text-sm bg-run-bg text-run-text focus:outline-none focus:ring-2 focus:ring-run-accent/30 focus:border-run-accent transition-shadow';
+    'w-full px-2.5 py-2 border border-run-border rounded-lg text-sm pointer-coarse:text-base bg-run-bg text-run-text focus:outline-none focus:ring-2 focus:ring-run-accent/30 focus:border-run-accent transition-shadow';
 
   function updateTemp(key: 'tempMin' | 'tempMax', e: Event) {
     const value = (e.currentTarget as HTMLInputElement).valueAsNumber;
