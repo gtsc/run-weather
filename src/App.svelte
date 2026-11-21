@@ -46,7 +46,9 @@
       href="https://open-meteo.com/"
       class="underline hover:text-run-text transition-colors"
       target="_blank"
-      rel="noreferrer">Open-Meteo.com</a
+      rel="noreferrer"
     >
+      Open-Meteo.com
+    </a>
   </footer>
 </div>

@@ -84,8 +84,9 @@
                 />
                 <span
                   class="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-run-muted pointer-events-none"
-                  >°C</span
                 >
+                  °C
+                </span>
               </div>
             </label>
             <label class="flex-1 flex flex-col gap-1">
@@ -104,8 +105,9 @@
                 />
                 <span
                   class="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-run-muted pointer-events-none"
-                  >°C</span
                 >
+                  °C
+                </span>
               </div>
             </label>
           </div>

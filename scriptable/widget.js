@@ -16,7 +16,7 @@
   ].join(",");
   async function fetchForecast(latitude, longitude, timezone = "Europe/London") {
     const tz = encodeURIComponent(timezone);
-    const url = `${BASE_URL}?latitude=${latitude}&longitude=${longitude}&hourly=${HOURLY_PARAMS}&past_days=2&forecast_days=8&timezone=${tz}`;
+    const url = `${BASE_URL}?latitude=${latitude}&longitude=${longitude}&hourly=${HOURLY_PARAMS}&forecast_days=8&timezone=${tz}`;
     const res = await fetch(url);
     if (!res.ok) throw new Error("Failed to fetch forecast");
     const data = await res.json();
