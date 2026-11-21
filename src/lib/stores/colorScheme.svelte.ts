@@ -1,4 +1,4 @@
-import { nextOverride, type Scheme } from './colorScheme';
+export type Scheme = 'light' | 'dark';
 
 const STORAGE_KEY = 'color-scheme';
 const LEGACY_KEY = 'run-weather-dark';
@@ -56,10 +56,11 @@ class ColorScheme {
     });
   }
 
-  toggle(): void {
-    this.override = nextOverride(this.rendered, this.system);
-    writeStored(this.override);
-    applyToDocument(this.override);
+  /** Pin light or dark, or pass null to follow the system again. */
+  set(value: Scheme | null): void {
+    this.override = value;
+    writeStored(value);
+    applyToDocument(value);
   }
 }
 

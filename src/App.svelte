@@ -2,7 +2,6 @@
   import LocationInput from './components/LocationInput.svelte';
   import WeekView from './components/WeekView.svelte';
   import Settings from './components/Settings.svelte';
-  import DarkModeToggle from './components/DarkModeToggle.svelte';
 </script>
 
 <div class="min-h-screen bg-run-bg text-run-text">
@@ -29,7 +28,6 @@
         </div>
       </div>
       <div class="flex items-center gap-1">
-        <DarkModeToggle />
         <Settings />
       </div>
     </div>
