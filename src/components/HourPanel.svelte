@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { ScoredHour } from '../lib/types';
-  import { formatHour, formatTemp, formatWind, scoreColorHex } from '../lib/utils/format';
+  import { formatHour, formatTemp, formatWind } from '../lib/utils/format';
   import { getWeatherInfo } from '../lib/scoring/weatherCodes';
 
   let {
@@ -22,13 +22,12 @@
   <div class="flex items-center justify-between mb-1">
     <div class="flex items-center gap-2">
       <span class="text-xs font-semibold">{timeLabel}</span>
-      <span
-        class="inline-block w-1.5 h-1.5 rounded-full shrink-0"
-        style="background-color: {scoreColorHex(score)}"
-      ></span>
-      <span class="text-xs text-run-muted">Score: {score}</span>
+      <span class="text-xs text-run-muted">
+        Score <span class="text-run-text font-semibold">{score}</span>
+      </span>
     </div>
     <button
+      type="button"
       onclick={onClose}
       class="text-run-muted hover:text-run-text transition-colors p-0.5 -mr-0.5 shrink-0"
       aria-label="Close"
@@ -46,22 +45,16 @@
     </button>
   </div>
 
-  <!-- Weather summary -->
-  <div class="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-run-muted">
-    <span>{weather.label}</span>
-    <span class="opacity-30">·</span>
-    <span>{formatTemp(hour.temperature)} (feels {formatTemp(hour.feelsLike)})</span>
-    <span class="opacity-30">·</span>
-    <span>Wind: {formatWind(hour.windSpeed)}</span>
-    <span class="opacity-30">·</span>
-    <span>Rain: {hour.precipProbability}%</span>
-    {#if hour.snowDepth > 0}
-      <span class="opacity-30">·</span>
-      <span>Snow: {Math.round(hour.snowDepth * 100)} cm</span>
-    {/if}
-    {#if !hour.isDay}
-      <span class="opacity-30">·</span>
-      <span>Dark</span>
-    {/if}
-  </div>
+  <p class="text-xs text-run-muted">
+    {[
+      weather.label,
+      `${formatTemp(hour.temperature)} (feels ${formatTemp(hour.feelsLike)})`,
+      `wind ${formatWind(hour.windSpeed)}`,
+      `rain ${hour.precipProbability}%`,
+      hour.snowDepth > 0 ? `snow ${Math.round(hour.snowDepth * 100)} cm` : null,
+      hour.isDay ? null : 'dark',
+    ]
+      .filter(Boolean)
+      .join(', ')}
+  </p>
 </div>

@@ -55,7 +55,7 @@
         aria-label="Location"
         autocomplete="off"
         enterkeyhint="search"
-        placeholder="City, postcode, or place name"
+        placeholder="Search a place"
         class="w-full pl-9 pr-3 py-2.5 rounded-xl border border-run-border text-sm focus:outline-none focus:ring-2 focus:ring-run-green/30 focus:border-run-green bg-run-card text-run-text transition-shadow"
         disabled={searching}
       />

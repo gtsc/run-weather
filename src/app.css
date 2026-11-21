@@ -18,6 +18,8 @@
   --run-muted-d: #94a3b8;
   --run-border-l: #e5e7eb;
   --run-border-d: #334155;
+  --run-night-l: #eef1f4;
+  --run-night-d: #131c2e;
 
   /* Follow the system unless the <meta name="color-scheme"> override says otherwise. */
   color-scheme: light dark;
@@ -44,6 +46,8 @@
   --color-run-text: light-dark(var(--run-text-l), var(--run-text-d));
   --color-run-muted: light-dark(var(--run-muted-l), var(--run-muted-d));
   --color-run-border: light-dark(var(--run-border-l), var(--run-border-d));
+  /* Night hours in charts: a step darker than the card in both themes. */
+  --color-run-night: light-dark(var(--run-night-l), var(--run-night-d));
 }
 
 /* Fallback for browsers without light-dark() (Safari < 17.5): follow the system preference. */
@@ -55,6 +59,7 @@
     --color-run-text: var(--run-text-l);
     --color-run-muted: var(--run-muted-l);
     --color-run-border: var(--run-border-l);
+    --color-run-night: var(--run-night-l);
 
     @media (prefers-color-scheme: dark) {
       --color-run-green-light: var(--run-green-light-d);
@@ -63,6 +68,7 @@
       --color-run-text: var(--run-text-d);
       --color-run-muted: var(--run-muted-d);
       --color-run-border: var(--run-border-d);
+      --color-run-night: var(--run-night-d);
     }
   }
 }

@@ -1,10 +1,22 @@
 <script lang="ts">
+  import { tick } from 'svelte';
   import { weather } from '../lib/stores/weather.svelte';
   import { minutesOfDay } from '../lib/utils/dates';
-  import DayStrip from './DayStrip.svelte';
+  import { nextBestRun } from '../lib/scoring/days';
+  import { GOOD_SCORE } from '../lib/utils/chart';
+  import BestRun from './BestRun.svelte';
+  import DayChart from './DayChart.svelte';
   import HourPanel from './HourPanel.svelte';
 
   let selectedHourTime = $state<string | null>(null);
+  const next = $derived(nextBestRun(weather.days));
+
+  async function showBest() {
+    if (!next) return;
+    selectedHourTime = next.day.hours[next.window.start].time;
+    await tick();
+    document.getElementById(`day-${next.day.date}`)?.scrollIntoView({ block: 'nearest' });
+  }
 </script>
 
 {#if weather.loading}
@@ -46,8 +58,11 @@
   </div>
 {:else}
   <div class="flex flex-col gap-2">
+    {#if next}
+      <BestRun day={next.day} window={next.window} onShow={showBest} />
+    {/if}
     {#each weather.days as day (day.date)}
-      <DayStrip
+      <DayChart
         {day}
         {selectedHourTime}
         onHourSelect={(hour) => (selectedHourTime = hour?.time ?? null)}
@@ -56,7 +71,10 @@
         {#snippet panel(hour, score)}
           <HourPanel {hour} {score} onClose={() => (selectedHourTime = null)} />
         {/snippet}
-      </DayStrip>
+      </DayChart>
     {/each}
+    <p class="text-xs text-run-muted mt-1">
+      Higher is better. Shaded hours are dark; the dashed line marks a good score ({GOOD_SCORE}).
+    </p>
   </div>
 {/if}
