@@ -17,3 +17,12 @@ export const BAND_BG: Record<Band, string> = {
   ok: 'bg-run-ok',
   poor: 'bg-run-poor',
 };
+
+/**
+ * Band colours as hex, for places that can't use the CSS tokens (the Scriptable widget).
+ * Keep in sync with --run-great/ok/poor-{l,d} in app.css.
+ */
+export const BAND_HEX: Record<'light' | 'dark', Record<Band, string>> = {
+  light: { great: '#2f5fd0', ok: '#8593a8', poor: '#cc5f1f' },
+  dark: { great: '#6690e6', ok: '#5a6a80', poor: '#d4783a' },
+};

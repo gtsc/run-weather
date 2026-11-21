@@ -1,31 +1,22 @@
 # Future Improvements
 
-Ideas and improvements to revisit after real-world usage.
+Ideas to revisit after real-world use.
 
-## Scoring & Data
+## Scoring & data
 
-- **Gradual sunrise/sunset scoring** — Currently `is_day` is binary. Open-Meteo provides daily `sunrise`/`sunset` times for a softer twilight penalty.
-- **UV index** — High UV in summer could be a factor for midday runs (`uv_index` daily parameter).
-- **Air quality** — Open-Meteo has an air quality API that could flag high-pollution hours.
-- **Scoring calibration** — After a few weeks of use, compare predicted scores against actual "how did the run feel?" ratings and adjust weights.
+- **Twilight** — `is_day` is binary; Open-Meteo's daily `sunrise`/`sunset` would allow a softer dusk/dawn penalty.
+- **UV index** — high UV could count against summer midday runs.
+- **Air quality** — Open-Meteo's air-quality API could flag high-pollution hours.
+- **Calibration** — compare scores with how runs actually felt for a few weeks and adjust the weights.
 
-## UI & UX
+## UI
 
-- **Svelte transitions** — Animate day expand/collapse and run-window cards appearing.
-- **Mobile improvements** — Test thoroughly on small screens; tooltip positioning may need adjustment on touch devices.
-- **Preferred hours filter** — Optional setting to grey out hours you'd never run (e.g. 22:00–06:00).
-- **Weekly summary** — A "best day this week" callout at the top for at-a-glance planning.
-- **Share a window** — Copy a shareable text snippet like "Best run: Tuesday 14:00–15:00, score 87, 12 °C partly cloudy".
+- **Preferred hours** — optionally hide hours you'd never run (e.g. 22:00–06:00).
+- **Share a window** — copy "Best run: Tue 14:00–15:00, score 87, 12°C partly cloudy".
+- **Favourite locations** — save a few places and switch between them.
 
-## Performance & Caching
+## Stretch
 
-- **Forecast caching** — Cache forecast data in sessionStorage with a 30-min TTL keyed by lat/lng.
-- **Service worker** — For offline support: cache the app shell and last forecast.
-- **Debounce location search** — Short debounce on the search input to avoid hammering the geocoding API.
-
-## Stretch Ideas
-
-- **Multi-location comparison** — Save 2–3 favourite locations and see them side by side.
-- **Garmin/Strava integration** — Pull in actual run data to correlate weather conditions with performance.
-- **Push notifications** — "Your best run window today is in 2 hours".
-- **Historical accuracy** — After a day passes, compare forecast vs actual weather to show prediction reliability.
+- **Garmin/Strava** — correlate conditions with actual run data.
+- **Notifications** — "Your best window today starts in 2 hours".
+- **Forecast accuracy** — compare yesterday's forecast with what actually happened.
