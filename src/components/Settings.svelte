@@ -1,6 +1,13 @@
 <script lang="ts">
   import { preferences, updatePreferences, TEMP_LIMITS } from '../lib/stores/preferences.svelte';
   import { lightDismiss } from '../lib/utils/lightDismiss';
+  import { colorScheme, type Scheme } from '../lib/stores/colorScheme.svelte';
+
+  const schemes: { value: Scheme | null; label: string }[] = [
+    { value: null, label: 'System' },
+    { value: 'light', label: 'Light' },
+    { value: 'dark', label: 'Dark' },
+  ];
 
   let dialog: HTMLDialogElement;
 
@@ -128,6 +135,29 @@
               </span>
             </span>
           </label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend class="text-xs font-medium text-run-text">Appearance</legend>
+        <p class="text-[10px] text-run-muted mt-0.5 mb-2">
+          System follows your device (currently {colorScheme.system})
+        </p>
+        <div class="grid grid-cols-3 gap-1 p-1 rounded-lg bg-run-bg border border-run-border">
+          {#each schemes as option (option.label)}
+            <label
+              class="text-center text-sm py-1.5 rounded-md cursor-pointer text-run-muted has-checked:bg-run-card has-checked:text-run-text has-checked:font-medium has-checked:shadow-sm has-focus-visible:outline-2 has-focus-visible:outline-run-accent"
+            >
+              <input
+                type="radio"
+                name="color-scheme"
+                class="sr-only"
+                checked={colorScheme.override === option.value}
+                onchange={() => colorScheme.set(option.value)}
+              />
+              {option.label}
+            </label>
+          {/each}
         </div>
       </fieldset>
     </div>
