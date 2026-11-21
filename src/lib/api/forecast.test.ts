@@ -68,7 +68,7 @@ describe('fetchForecast', () => {
 
   it('uses the provided timezone when supplied', async () => {
     const mock = mockFetch();
-    await fetchForecast(48.1, 11.6, 'Europe/Berlin');
+    await fetchForecast(48.1, 11.6, { timezone: 'Europe/Berlin' });
     const url: string = mock.mock.calls[0][0];
     expect(url).toContain('timezone=Europe%2FBerlin');
   });

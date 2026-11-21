@@ -1,7 +1,13 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import type { DayData, ScoredHour } from '../lib/types';
-  import { formatDayLabel, formatTemp, formatWind, scoreColorHex } from '../lib/utils/format';
+  import {
+    formatDayLabel,
+    formatHour,
+    formatTemp,
+    formatWind,
+    scoreColorHex,
+  } from '../lib/utils/format';
   import { getWeatherInfo } from '../lib/scoring/weatherCodes';
 
   let {
@@ -71,6 +77,7 @@
       {#each day.hours as hour, i (hour.time)}
         {@const selected = selectedHourTime === hour.time}
         <button
+          type="button"
           class="flex-1 focus:outline-none hover:opacity-80 {selected
             ? 'ring-2 ring-black/40 ring-inset'
             : ''}"
@@ -78,7 +85,8 @@
           onclick={() => handleSegmentClick(hour)}
           onmouseenter={() => (hoveredIndex = i)}
           onmouseleave={() => (hoveredIndex = null)}
-          aria-label="{String(hour.hour).padStart(2, '0')}:00"
+          aria-label="{formatHour(hour.hour)}, score {day.scores[i]}"
+          aria-pressed={selected}
         ></button>
       {/each}
     </div>
@@ -90,7 +98,7 @@
         style="left: {tooltipLeft}"
       >
         <div class="flex items-center gap-1.5 mb-1">
-          <span class="font-medium">{String(hoveredHour.hour).padStart(2, '0')}:00</span>
+          <span class="font-medium">{formatHour(hoveredHour.hour)}</span>
           <span
             class="inline-block w-1.5 h-1.5 rounded-full"
             style="background-color: {scoreColorHex(hoveredScore)}"
@@ -99,11 +107,9 @@
         </div>
         <div class="text-gray-300 flex flex-col gap-0.5">
           <span>{weather.label}</span>
-          <span
-            >{formatTemp(hoveredHour.temperature)}, feels like {formatTemp(
-              hoveredHour.feelsLike,
-            )}</span
-          >
+          <span>
+            {formatTemp(hoveredHour.temperature)}, feels like {formatTemp(hoveredHour.feelsLike)}
+          </span>
           <span>Wind: {formatWind(hoveredHour.windSpeed)}</span>
           <span>Rain: {hoveredHour.precipProbability}%</span>
           {#if hoveredHour.snowDepth > 0}

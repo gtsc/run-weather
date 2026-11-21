@@ -13,58 +13,51 @@ const HOURLY_PARAMS = [
   'snow_depth',
   'is_day',
   'dew_point_2m',
-].join(',');
+] as const;
 
-interface HourlyResponse {
-  time: string[];
-  temperature_2m: number[];
-  apparent_temperature: number[];
-  precipitation_probability: number[];
-  precipitation: number[];
-  wind_speed_10m: number[];
-  wind_gusts_10m: number[];
-  weather_code: number[];
-  snow_depth: number[];
-  is_day: number[];
-  dew_point_2m: number[];
+type HourlyResponse = { time: string[] } & Record<(typeof HOURLY_PARAMS)[number], number[]>;
+
+export interface ForecastOptions {
+  timezone?: string;
+  signal?: AbortSignal;
 }
 
 export async function fetchForecast(
   latitude: number,
   longitude: number,
-  timezone = 'Europe/London',
+  { timezone = 'Europe/London', signal }: ForecastOptions = {},
 ): Promise<HourData[]> {
-  const tz = encodeURIComponent(timezone);
-  const url = `${BASE_URL}?latitude=${latitude}&longitude=${longitude}&hourly=${HOURLY_PARAMS}&forecast_days=8&timezone=${tz}`;
+  const params = new URLSearchParams({
+    latitude: String(latitude),
+    longitude: String(longitude),
+    hourly: HOURLY_PARAMS.join(','),
+    forecast_days: '8',
+    timezone,
+  });
 
-  const res = await fetch(url);
-  if (!res.ok) throw new Error('Failed to fetch forecast');
-  const data = await res.json();
+  // No AbortSignal construction here: this module is also bundled into the Scriptable
+  // widget, whose runtime has no AbortSignal. Callers pass a signal if they want one.
+  const res = await fetch(`${BASE_URL}?${params}`, signal ? { signal } : undefined);
+  if (!res.ok) throw new Error(`Failed to fetch forecast (HTTP ${res.status})`);
+  const data = (await res.json()) as { hourly: HourlyResponse };
 
   return reshapeHourly(data.hourly);
 }
 
 function reshapeHourly(hourly: HourlyResponse): HourData[] {
-  const count = hourly.time.length;
-  const hours: HourData[] = [];
-
-  for (let i = 0; i < count; i++) {
-    hours.push({
-      time: hourly.time[i],
-      date: hourly.time[i].slice(0, 10),
-      hour: new Date(hourly.time[i]).getHours(),
-      temperature: hourly.temperature_2m[i],
-      feelsLike: hourly.apparent_temperature[i],
-      precipProbability: hourly.precipitation_probability[i],
-      precipitation: hourly.precipitation[i],
-      windSpeed: hourly.wind_speed_10m[i],
-      windGusts: hourly.wind_gusts_10m[i],
-      weatherCode: hourly.weather_code[i],
-      snowDepth: hourly.snow_depth[i],
-      isDay: hourly.is_day[i] === 1,
-      dewPoint: hourly.dew_point_2m[i],
-    });
-  }
-
-  return hours;
+  return hourly.time.map((time, i) => ({
+    time,
+    date: time.slice(0, 10),
+    hour: Number(time.slice(11, 13)),
+    temperature: hourly.temperature_2m[i],
+    feelsLike: hourly.apparent_temperature[i],
+    precipProbability: hourly.precipitation_probability[i],
+    precipitation: hourly.precipitation[i],
+    windSpeed: hourly.wind_speed_10m[i],
+    windGusts: hourly.wind_gusts_10m[i],
+    weatherCode: hourly.weather_code[i],
+    snowDepth: hourly.snow_depth[i],
+    isDay: hourly.is_day[i] === 1,
+    dewPoint: hourly.dew_point_2m[i],
+  }));
 }

@@ -1,17 +1,9 @@
 <script lang="ts">
-  import type { ScoredHour } from '../lib/types';
-  import { getWeatherState } from '../lib/stores/weather.svelte';
+  import { weather } from '../lib/stores/weather.svelte';
   import DayStrip from './DayStrip.svelte';
   import HourPanel from './HourPanel.svelte';
 
   let selectedHourTime = $state<string | null>(null);
-
-  const weather = $derived(getWeatherState());
-  const forecastDays = $derived(weather.days.filter((d) => d.dayIndex >= 0));
-
-  function handleHourSelect(hour: ScoredHour | null) {
-    selectedHourTime = hour ? hour.time : null;
-  }
 </script>
 
 {#if weather.loading}
@@ -31,7 +23,7 @@
   </div>
 {:else if weather.error}
   <div class="text-center py-12">
-    <p class="text-run-red text-sm">{weather.error}</p>
+    <p class="text-run-red text-sm" role="alert">{weather.error}</p>
   </div>
 {:else if weather.days.length === 0}
   <div class="flex flex-col items-center justify-center py-16 gap-2 text-run-muted">
@@ -53,18 +45,14 @@
   </div>
 {:else}
   <div class="flex flex-col gap-2">
-    {#each forecastDays as day (day.date)}
-      {@const selectedInThisDay =
-        selectedHourTime && day.hours.some((h) => h.time === selectedHourTime)
-          ? selectedHourTime
-          : null}
+    {#each weather.days as day (day.date)}
       <DayStrip
         {day}
-        selectedHourTime={selectedInThisDay}
-        onHourSelect={handleHourSelect}
+        {selectedHourTime}
+        onHourSelect={(hour) => (selectedHourTime = hour?.time ?? null)}
         isToday={day.dayIndex === 0}
       >
-        {#snippet panel(hour: ScoredHour, score: number)}
+        {#snippet panel(hour, score)}
           <HourPanel {hour} {score} onClose={() => (selectedHourTime = null)} />
         {/snippet}
       </DayStrip>

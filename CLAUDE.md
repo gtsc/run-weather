@@ -4,13 +4,13 @@ A webapp to find the best time to run based on weather forecasts.
 
 ## Tech Stack
 
-- **Framework**: Svelte 5 + Vite 7
+- **Framework**: Svelte 5 + Vite 8
 - **Language**: TypeScript (strict mode)
 - **Styling**: Tailwind CSS v4 with custom theme tokens
 - **API**: Open-Meteo (free, no key required)
 - **State**: Svelte 5 runes (`$state`, `$derived`) with localStorage persistence
 - **Hosting**: Cloudflare Workers static assets (no server code)
-- **Linting**: ESLint 9 + `eslint-plugin-svelte` + `@typescript-eslint/parser` + Prettier
+- **Linting**: ESLint 10 + `eslint-plugin-svelte` + `@typescript-eslint/parser` + Prettier
 
 ## Commands
 
@@ -57,16 +57,17 @@ src/
       preferences.svelte.ts        # User prefs (localStorage-backed)
       weather.svelte.ts            # Forecast data + derived scores
       location.svelte.ts           # Current lat/lng/name
-      darkMode.svelte.ts           # Dark mode toggle (localStorage-backed)
+      colorScheme.svelte.ts        # Light/dark override (system by default, localStorage-backed)
+      colorScheme.ts               # Pure toggle logic (unit-tested)
     utils/
       format.ts                    # Time/temp/colour formatting helpers
+      lightDismiss.ts              # <dialog closedby="any"> fallback for Safari
   components/
     LocationInput.svelte           # Location search field + GPS button
     WeekView.svelte                # 8-day stack of DayStrips
     DayStrip.svelte                # Single day: 24 coloured hour segments + hover tooltip + click panel
     HourPanel.svelte               # Persistent click panel: weather detail for one hour
-    Settings.svelte                # Settings button → PreferencesDialog
-    PreferencesDialog.svelte       # Rain tolerance, temp range
+    Settings.svelte                # Settings button + native <dialog>: rain tolerance, temp range
     DarkModeToggle.svelte          # Light/dark mode toggle
   scriptable/
     widget.ts                      # iOS Scriptable widget source (npm run build:widget)
@@ -78,6 +79,8 @@ src/
 - Store files use `.svelte.ts` extension for Svelte 5 rune support
 - Imports use extensionless paths (Vite resolves them)
 - Theme colours defined in `app.css` under `@theme` (run-green, run-bg, run-card, etc.)
-- Dark mode uses CSS custom property overrides via `.dark` class on `<html>`
+- Dark mode: `color-scheme` + `light-dark()` tokens in `app.css`; a manual override is written to `<meta name="color-scheme">` (inline script in `index.html` applies it before first paint). Don't reintroduce a `.dark` class.
+- Stores export reactive objects/class instances (`weather`, `preferences`, `location`, `colorScheme`) — read fields directly
+- Use native platform features (`<dialog>`, `URLSearchParams`, `AbortSignal`) before custom code; `src/lib/api/forecast.ts` is shared with the Scriptable widget, so keep it free of browser-only APIs
 - All components use `run-*` theme tokens (not hardcoded `bg-white` / `bg-gray-*`)
 - See FUTURE.md for planned improvements

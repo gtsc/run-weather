@@ -13,36 +13,36 @@
     "snow_depth",
     "is_day",
     "dew_point_2m"
-  ].join(",");
-  async function fetchForecast(latitude, longitude, timezone = "Europe/London") {
-    const tz = encodeURIComponent(timezone);
-    const url = `${BASE_URL}?latitude=${latitude}&longitude=${longitude}&hourly=${HOURLY_PARAMS}&past_days=2&forecast_days=8&timezone=${tz}`;
-    const res = await fetch(url);
-    if (!res.ok) throw new Error("Failed to fetch forecast");
+  ];
+  async function fetchForecast(latitude, longitude, { timezone = "Europe/London", signal } = {}) {
+    const params = new URLSearchParams({
+      latitude: String(latitude),
+      longitude: String(longitude),
+      hourly: HOURLY_PARAMS.join(","),
+      forecast_days: "8",
+      timezone
+    });
+    const res = await fetch(`${BASE_URL}?${params}`, signal ? { signal } : void 0);
+    if (!res.ok) throw new Error(`Failed to fetch forecast (HTTP ${res.status})`);
     const data = await res.json();
     return reshapeHourly(data.hourly);
   }
   function reshapeHourly(hourly) {
-    const count = hourly.time.length;
-    const hours = [];
-    for (let i = 0; i < count; i++) {
-      hours.push({
-        time: hourly.time[i],
-        date: hourly.time[i].slice(0, 10),
-        hour: new Date(hourly.time[i]).getHours(),
-        temperature: hourly.temperature_2m[i],
-        feelsLike: hourly.apparent_temperature[i],
-        precipProbability: hourly.precipitation_probability[i],
-        precipitation: hourly.precipitation[i],
-        windSpeed: hourly.wind_speed_10m[i],
-        windGusts: hourly.wind_gusts_10m[i],
-        weatherCode: hourly.weather_code[i],
-        snowDepth: hourly.snow_depth[i],
-        isDay: hourly.is_day[i] === 1,
-        dewPoint: hourly.dew_point_2m[i]
-      });
-    }
-    return hours;
+    return hourly.time.map((time, i) => ({
+      time,
+      date: time.slice(0, 10),
+      hour: Number(time.slice(11, 13)),
+      temperature: hourly.temperature_2m[i],
+      feelsLike: hourly.apparent_temperature[i],
+      precipProbability: hourly.precipitation_probability[i],
+      precipitation: hourly.precipitation[i],
+      windSpeed: hourly.wind_speed_10m[i],
+      windGusts: hourly.wind_gusts_10m[i],
+      weatherCode: hourly.weather_code[i],
+      snowDepth: hourly.snow_depth[i],
+      isDay: hourly.is_day[i] === 1,
+      dewPoint: hourly.dew_point_2m[i]
+    }));
   }
 
   // src/lib/scoring/weatherCodes.ts
@@ -278,7 +278,7 @@
       Location.setAccuracyToHundredMeters();
       const loc = await Location.current();
       const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      const hours = await fetchForecast(loc.latitude, loc.longitude, timezone);
+      const hours = await fetchForecast(loc.latitude, loc.longitude, { timezone });
       const today = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
       const tomorrow = new Date(Date.now() + 864e5).toISOString().slice(0, 10);
       const dayAfterTomorrow = new Date(Date.now() + 2 * 864e5).toISOString().slice(0, 10);
