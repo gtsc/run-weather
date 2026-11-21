@@ -1,4 +1,5 @@
 import { fetchForecast } from '../lib/api/forecast';
+import { wallClock, addDays } from '../lib/utils/dates';
 import { scoreHour } from '../lib/scoring/engine';
 import { findRunWindows } from '../lib/scoring/windows';
 import { scoreColorHex, formatHour } from '../lib/utils/format';
@@ -58,8 +59,8 @@ function toColor(rgb: string): InstanceType<typeof Color> {
 }
 
 function dayLabel(dateStr: string): string {
-  const today = new Date().toISOString().slice(0, 10);
-  const tomorrow = new Date(Date.now() + 86_400_000).toISOString().slice(0, 10);
+  const today = wallClock().slice(0, 10);
+  const tomorrow = addDays(today, 1);
   if (dateStr === today) return 'Today';
   if (dateStr === tomorrow) return 'Tomorrow';
   const [y, m, d] = dateStr.split('-').map(Number);
@@ -146,11 +147,11 @@ async function run(): Promise<void> {
     Location.setAccuracyToHundredMeters();
     const loc = await Location.current();
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const hours = await fetchForecast(loc.latitude, loc.longitude, { timezone });
+    const { hours } = await fetchForecast(loc.latitude, loc.longitude, { timezone });
 
-    const today = new Date().toISOString().slice(0, 10);
-    const tomorrow = new Date(Date.now() + 86_400_000).toISOString().slice(0, 10);
-    const dayAfterTomorrow = new Date(Date.now() + 2 * 86_400_000).toISOString().slice(0, 10);
+    const today = wallClock(timezone).slice(0, 10);
+    const tomorrow = addDays(today, 1);
+    const dayAfterTomorrow = addDays(today, 2);
 
     titleRow.addSpacer();
     const nowHour = hours.find((h: HourData) => h.date === today && h.hour === new Date().getHours());

@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import '@fontsource-variable/inter/wght.css';
 
 /*
  * Colour tokens. Each themed token has a light and dark raw value; the
@@ -68,7 +69,7 @@
 
 body {
   font-family:
-    'Inter',
+    'Inter Variable',
     system-ui,
     -apple-system,
     sans-serif;

@@ -1,77 +1,21 @@
 # Run Weather
 
-Find the best time to go for a run based on weather forecasts. Enter any location worldwide and get an 8-day hourly breakdown of running conditions, colour-coded from red (awful) to green (perfect).
+Find the best time to run. Search any location and get an 8-day hourly forecast, with each hour scored 0–100 for running conditions (rain, temperature, wind, humidity, darkness). Rain tolerance and comfortable temperature range are adjustable in Settings; the scoring lives in `src/lib/scoring/engine.ts`.
 
-## Features
+Weather data by [Open-Meteo](https://open-meteo.com/). Hosted as static assets on Cloudflare Workers.
 
-- **8-day hourly forecast** with colour-coded "runnability" scores (0–100)
-- **Global location search** — city names, postcodes, or place names anywhere in the world
-- **GPS location** — one click to use your current position
-- **Customisable preferences** — rain tolerance, comfortable temperature range
-- **Smart scoring** with a "misery multiplier" that compounds penalties when rain + wind + cold stack together
-- **Dark mode** — respects system preference, toggleable in the header
-- **iOS widget** — Scriptable widget showing today/tomorrow as coloured hour bars
-
-## Getting Started
+## Development
 
 ```bash
 npm install
-npm run dev
+npm run dev      # http://localhost:5173
+npm run deploy   # build + wrangler deploy
 ```
 
-Open http://localhost:5173 and search for a location.
+## iOS widget
 
-## Commands
+A [Scriptable](https://apps.apple.com/app/scriptable/id1405459188) widget shows today and tomorrow as coloured hour bars, using the same scoring.
 
-| Command          | Description                            |
-| ---------------- | -------------------------------------- |
-| `npm run build`  | Production build                       |
-| `npm run deploy` | Build + deploy everything via wrangler |
-| `npm run check`  | TypeScript + Svelte type checking      |
-| `npm run lint`   | ESLint + Prettier checks               |
-| `npm run format` | Auto-format all files                  |
-
-## Tech Stack
-
-- **Svelte 5** with runes (`$state`, `$derived`, `$props`)
-- **Vite 7** for dev/build
-- **Tailwind CSS v4** with custom theme tokens
-- **TypeScript** in strict mode
-- **Open-Meteo API** — free, no API key required, CORS-friendly
-- **Cloudflare Workers** — static asset hosting
-
-## How Scoring Works
-
-Each hour is scored 0–100 based on:
-
-| Factor           | Max penalty | Notes                                                     |
-| ---------------- | ----------- | --------------------------------------------------------- |
-| Rain probability | 65 pts      | Squared curve, scaled by rain tolerance preference        |
-| Rain amount      | 25 pts      | Saturates at 2 mm/h                                       |
-| Temperature      | 30 pts      | 4 pts per degree outside your comfort range               |
-| Wind             | 30 pts      | Kicks in above 8 km/h                                     |
-| Dew point        | 20 pts      | High humidity makes warm runs miserable                   |
-| Weather severity | 25 pts      | Based on WMO weather code (fog, snow, thunderstorm, etc.) |
-| Darkness         | 10 pts      | Binary, from Open-Meteo `is_day` field                    |
-
-When 2+ bad factors stack simultaneously, a **misery multiplier** compounds the penalty by 8% per additional factor.
-
-## iOS Home Screen Widget
-
-A Scriptable widget shows today and tomorrow as coloured hour bars with the best run window time, using the same scoring logic as the web app.
-
-### Requirements
-
-- [Scriptable](https://apps.apple.com/app/scriptable/id1405459188) (free, App Store)
-- The built widget file: `scriptable/widget.js` in this repo
-
-### Setup
-
-1. Copy the full contents of `scriptable/widget.js`. In Scriptable, tap **+**, paste the code, and rename the script **"Run Weather"**.
-2. Tap the play button inside Scriptable to trigger the location permission prompt.
-3. Long-press the home screen → **+** → search **Scriptable** → choose **Medium** size → **Add Widget**.
-4. Long-press the widget → **Edit Widget** → set **Script** to **Run Weather**.
-
-## Data Sources
-
-Weather data provided by [Open-Meteo.com](https://open-meteo.com/).
+1. `npm run build:widget`, then copy `scriptable/widget.js` into a new Scriptable script named **Run Weather**.
+2. Run it once in Scriptable to grant location access.
+3. Add a **Medium** Scriptable widget to the home screen and set its script to **Run Weather**.

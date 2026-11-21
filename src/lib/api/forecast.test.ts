@@ -18,7 +18,7 @@ const emptyHourly = {
 function mockFetch() {
   const mock = vi.fn().mockResolvedValue({
     ok: true,
-    json: async () => ({ hourly: emptyHourly }),
+    json: async () => ({ timezone: 'Europe/London', hourly: emptyHourly }),
   });
   vi.stubGlobal('fetch', mock);
   return mock;
@@ -38,6 +38,7 @@ describe('fetchForecast', () => {
     const mock = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({
+        timezone: 'Europe/London',
         hourly: {
           ...emptyHourly,
           time: ['2024-01-01T12:00'],
@@ -55,15 +56,16 @@ describe('fetchForecast', () => {
       }),
     });
     vi.stubGlobal('fetch', mock);
-    const hours = await fetchForecast(51.5, -0.1);
+    const { hours } = await fetchForecast(51.5, -0.1);
     expect(hours[0].dewPoint).toBe(12.5);
   });
 
-  it('uses Europe/London as the default timezone', async () => {
+  it("defaults to the location's own timezone", async () => {
     const mock = mockFetch();
-    await fetchForecast(51.5, -0.1);
+    const { timezone } = await fetchForecast(51.5, -0.1);
     const url: string = mock.mock.calls[0][0];
-    expect(url).toContain('timezone=Europe%2FLondon');
+    expect(url).toContain('timezone=auto');
+    expect(timezone).toBe('Europe/London');
   });
 
   it('uses the provided timezone when supplied', async () => {
