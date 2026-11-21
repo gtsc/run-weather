@@ -4,6 +4,11 @@ updates:
     directory: /
     schedule:
       interval: monthly
+    ignore:
+      # TypeScript 7 (native compiler) isn't supported by typescript-eslint or
+      # svelte-check yet — `npm ci` fails. Remove once they support it.
+      - dependency-name: typescript
+        update-types: ['version-update:semver-major']
     groups:
       # One PR for all minor/patch bumps; majors get their own PRs.
       minor-and-patch:
