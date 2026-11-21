@@ -25,7 +25,8 @@
     const res = await fetch(`${BASE_URL}?${params}`, signal ? { signal } : void 0);
     if (!res.ok) throw new Error(`Failed to fetch forecast (HTTP ${res.status})`);
     const data = await res.json();
-    return { timezone: data.timezone, hours: reshapeHourly(data.hourly) };
+    const cachedAt = Number(res.headers?.get("x-sw-cached-at")) || void 0;
+    return { timezone: data.timezone, hours: reshapeHourly(data.hourly), cachedAt };
   }
   function reshapeHourly(hourly) {
     return hourly.time.map((time, i) => ({

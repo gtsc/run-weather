@@ -59,6 +59,15 @@ export default [
       },
     },
   },
+  // Service worker
+  {
+    files: ['public/sw.js'],
+    languageOptions: {
+      globals: {
+        ...globals.serviceworker,
+      },
+    },
+  },
   {
     rules: {
       'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
@@ -70,6 +79,6 @@ export default [
     },
   },
   {
-    ignores: ['dist/', 'node_modules/', '.svelte-kit/', '.worktrees/', 'scriptable/'],
+    ignores: ['dist/', 'node_modules/', '.svelte-kit/', '.worktrees/', '.wrangler/', 'scriptable/'],
   },
 ];
