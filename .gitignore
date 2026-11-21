@@ -15,7 +15,6 @@ dist-ssr
 # Environment variables (secrets)
 .env
 .env.*
-!.env.example
 .dev.vars
 
 # Git worktrees

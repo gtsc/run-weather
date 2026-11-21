@@ -9,17 +9,15 @@ A webapp to find the best time to run based on weather forecasts.
 - **Styling**: Tailwind CSS v4 with custom theme tokens
 - **API**: Open-Meteo (free, no key required)
 - **State**: Svelte 5 runes (`$state`, `$derived`) with localStorage persistence
-- **Backend**: Cloudflare Worker (`src/server/`) — AI proxy + Supabase auth
+- **Hosting**: Cloudflare Workers static assets (no server code)
 - **Linting**: ESLint 9 + `eslint-plugin-svelte` + `@typescript-eslint/parser` + Prettier
 
 ## Commands
 
 - `npm run dev` -- Start Vite dev server (http://localhost:5173)
-- `npm run dev:worker` -- Start Wrangler worker locally (http://localhost:8787, proxied from Vite)
 - `npm run build` -- Production build
-- `npm run deploy` -- Build frontend + deploy everything via wrangler
+- `npm run deploy` -- Build + deploy static assets via wrangler
 - `npm run check` -- TypeScript + Svelte type checking (svelte-check)
-- `npm run check:server` -- TypeScript type check for src/server/
 - `npm run lint` -- ESLint + Prettier checks
 - `npm run format` -- Auto-format all files with Prettier
 
@@ -35,8 +33,8 @@ A webapp to find the best time to run based on weather forecasts.
 Before committing, ensure:
 
 1. `npm run check` passes with 0 errors
-2. `npm run check:server` passes with 0 errors
-3. `npm run lint` passes (or run `npm run format` first)
+2. `npm run lint` passes (or run `npm run format` first)
+3. `npm test` passes
 4. `npm run build` succeeds
 
 ## Project Structure
@@ -46,60 +44,33 @@ src/
   main.ts                          # App entry point
   app.css                          # Tailwind + theme tokens + dark mode overrides
   App.svelte                       # Root layout
-  server/                          # Cloudflare Worker (backend)
-    index.ts                       # Worker entry point + routing
-    recommend.ts                   # /recommend handler (Claude API)
-    feedback.ts                    # /feedback handler (memory update)
-    getRecommendations.ts          # GET /recommendations + /recommendations/history handlers
-    supabase.ts                    # Supabase client factory
-    prompts.ts                     # System prompts
-    weather.ts                     # Weather formatting for prompts
-    types.ts                       # Env + request/response types
-    tsconfig.json                  # Separate tsconfig (workers-types, not vite/client)
   lib/
     types.ts                       # Shared TypeScript interfaces
     api/
       geocoding.ts                 # Free-text location search → lat/lng + reverse geocode GPS
       forecast.ts                  # 8-day hourly forecast from Open-Meteo
-      recommendations.ts           # fetchSlotRecommendations + fetchHistory (client-side API helpers)
     scoring/
       engine.ts                    # Score each hour 0-100 with misery multiplier
-      windows.ts                   # Find best consecutive-hour run windows
+      windows.ts                   # Find best consecutive-hour run windows (used by widget)
       weatherCodes.ts              # WMO code → label + penalty
     stores/
       preferences.svelte.ts        # User prefs (localStorage-backed)
       weather.svelte.ts            # Forecast data + derived scores
       location.svelte.ts           # Current lat/lng/name
       darkMode.svelte.ts           # Dark mode toggle (localStorage-backed)
-      auth.svelte.ts               # Supabase auth state
     utils/
       format.ts                    # Time/temp/colour formatting helpers
-      weatherInput.ts              # toWeatherInput() — ScoredHour → WeatherInput for API calls
   components/
     LocationInput.svelte           # Location search field + GPS button
     WeekView.svelte                # 8-day stack of DayStrips
     DayStrip.svelte                # Single day: 24 coloured hour segments + hover tooltip + click panel
-    HourPanel.svelte               # Persistent click panel: weather detail + AI clothing recommendation
-    Settings.svelte                # Rain tolerance, temp range
+    HourPanel.svelte               # Persistent click panel: weather detail for one hour
+    Settings.svelte                # Settings button → PreferencesDialog
+    PreferencesDialog.svelte       # Rain tolerance, temp range
     DarkModeToggle.svelte          # Light/dark mode toggle
-    AccountPanel.svelte            # User account + running notes
-    AuthModal.svelte               # Sign in / sign up modal
-    UserButton.svelte              # Header user button
+  scriptable/
+    widget.ts                      # iOS Scriptable widget source (npm run build:widget)
 ```
-
-## Supabase
-
-Migrations live in `supabase/migrations/`. See `0001_user_memory.sql` as the reference pattern.
-
-**Every new table needs three things — not two:**
-
-1. `ALTER TABLE ... ENABLE ROW LEVEL SECURITY;`
-2. RLS policies (`CREATE POLICY ...`)
-3. `GRANT SELECT, INSERT, UPDATE ON public.<table> TO authenticated;`
-
-RLS policies control which rows a user can see/write. The `GRANT` controls whether the role can touch the table at all. Without the grant, all operations return "permission denied" even with valid RLS policies. The Supabase Table Editor adds the grant automatically; raw SQL in the editor does not.
-
-**Keep-alive cron:** Supabase auto-pauses free-tier projects after 7 days without database activity (dashboard visits and API traffic that never reach Postgres don't count). The AI recommendation feature only writes to Supabase when someone actually requests a clothing suggestion, which can go quiet for a week (e.g. in hot weather, when there's no clothing decision to make). `src/server/keepAlive.ts` runs on a `scheduled` handler (Mon/Thu, see `wrangler.jsonc` `triggers.crons`) and upserts into a dedicated `keep_alive` table using the service-role key. A read-only `select` was tried first — it reached Postgres successfully (confirmed in Supabase's request logs) but Supabase's pause check still fired, so the ping must be a write, not a read.
 
 ## Conventions
 
@@ -109,5 +80,4 @@ RLS policies control which rows a user can see/write. The `GRANT` controls wheth
 - Theme colours defined in `app.css` under `@theme` (run-green, run-bg, run-card, etc.)
 - Dark mode uses CSS custom property overrides via `.dark` class on `<html>`
 - All components use `run-*` theme tokens (not hardcoded `bg-white` / `bg-gray-*`)
-- `src/server/` uses its own `tsconfig.json` with `@cloudflare/workers-types` (excluded from root tsconfig)
 - See FUTURE.md for planned improvements

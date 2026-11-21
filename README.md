@@ -9,9 +9,6 @@ Find the best time to go for a run based on weather forecasts. Enter any locatio
 - **GPS location** — one click to use your current position
 - **Customisable preferences** — rain tolerance, comfortable temperature range
 - **Smart scoring** with a "misery multiplier" that compounds penalties when rain + wind + cold stack together
-- **AI clothing recommendations** — click any hour to get a "what to wear" suggestion from Claude, personalised over time via a per-user memory
-- **Run feedback** — rate past hours; the AI learns what works for you
-- **Accounts** — email/password sign-up so your memory persists across devices
 - **Dark mode** — respects system preference, toggleable in the header
 - **iOS widget** — Scriptable widget showing today/tomorrow as coloured hour bars
 
@@ -26,35 +23,13 @@ Open http://localhost:5173 and search for a location.
 
 ## Commands
 
-### Local development
-
-Run both processes in separate terminals:
-
-```bash
-npm run dev          # Vite frontend at localhost:5173
-npm run dev:worker   # Wrangler worker at localhost:8787
-```
-
-Vite proxies `/recommend` and `/feedback` to the worker automatically.
-
-### Other commands
-
-| Command                | Description                            |
-| ---------------------- | -------------------------------------- |
-| `npm run build`        | Production build                       |
-| `npm run deploy`       | Build + deploy everything via wrangler |
-| `npm run check`        | TypeScript + Svelte type checking      |
-| `npm run check:server` | TypeScript check for src/server/       |
-| `npm run lint`         | ESLint + Prettier checks               |
-| `npm run format`       | Auto-format all files                  |
-
-### Secrets
-
-Set once via `wrangler secret put` or in the Cloudflare dashboard:
-
-- `ANTHROPIC_API_KEY`
-- `SUPABASE_URL`
-- `SUPABASE_ANON_KEY`
+| Command          | Description                            |
+| ---------------- | -------------------------------------- |
+| `npm run build`  | Production build                       |
+| `npm run deploy` | Build + deploy everything via wrangler |
+| `npm run check`  | TypeScript + Svelte type checking      |
+| `npm run lint`   | ESLint + Prettier checks               |
+| `npm run format` | Auto-format all files                  |
 
 ## Tech Stack
 
@@ -63,9 +38,7 @@ Set once via `wrangler secret put` or in the Cloudflare dashboard:
 - **Tailwind CSS v4** with custom theme tokens
 - **TypeScript** in strict mode
 - **Open-Meteo API** — free, no API key required, CORS-friendly
-- **Cloudflare Workers** — AI proxy (keeps Anthropic key server-side)
-- **Supabase** — auth + Postgres for per-user AI memory
-- **Claude Sonnet** — clothing recommendations + memory updates
+- **Cloudflare Workers** — static asset hosting
 
 ## How Scoring Works
 

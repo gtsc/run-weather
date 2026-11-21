@@ -32,7 +32,7 @@ export function getWeatherState(): { days: DayData[]; loading: boolean; error: s
       (new Date(date + 'T00:00:00').getTime() - new Date(todayStr + 'T00:00:00').getTime()) /
         msPerDay,
     );
-    const bestScore = dayIndex < 0 ? Math.max(...scores) : Math.max(...futureScores, 0);
+    const bestScore = Math.max(...futureScores, 0);
     return { date, dayIndex, hours, scores, bestScore };
   });
 
