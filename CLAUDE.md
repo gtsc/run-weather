@@ -5,7 +5,7 @@ Svelte 5 + Vite + Tailwind v4 SPA, served as static assets by a Cloudflare Worke
 ## Workflow
 
 - Never commit to `main`. Branch (`feat/…`, `fix/…`, `chore/…`) and open a PR.
-- Before committing: `npm run check`, `npm run lint` (`npm run format` fixes style), `npm test`, `npm run build`.
+- Before committing (CI runs the same on every PR): `npm run check`, `npm run lint` (`npm run format` fixes style), `npm test`, `npm run build`.
 
 ## Gotchas
 
