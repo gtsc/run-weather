@@ -1,197 +1,145 @@
 <script lang="ts">
-  import type { Snippet } from 'svelte';
   import type { DayData, ScoredHour } from '../lib/types';
   import { formatDayLabel, formatHour, formatShortDayLabel } from '../lib/utils/format';
   import { getWeatherInfo } from '../lib/scoring/weatherCodes';
-  import {
-    VIEW_W,
-    VIEW_H,
-    GOOD_SCORE,
-    GREAT_SCORE,
-    linePath,
-    runs,
-    xOf,
-    yOf,
-  } from '../lib/utils/chart';
+  import { BAND_BG, BAND_LABEL, bandOf } from '../lib/utils/chart';
 
   let {
     day,
-    selectedHourTime = null,
-    onHourSelect,
-    panel,
+    activeTime = null,
+    pinnedTime = null,
+    onHover,
+    onPin,
     nowMinutes,
   }: {
     day: DayData;
-    selectedHourTime?: string | null;
-    onHourSelect: (_hour: ScoredHour | null) => void;
-    panel?: Snippet<[ScoredHour, number]>;
+    /** Hour currently shown in the readout (hovered or pinned). */
+    activeTime?: string | null;
+    pinnedTime?: string | null;
+    onHover: (_hour: ScoredHour | null) => void;
+    onPin: (_hour: ScoredHour | null) => void;
     /** Minutes since local midnight at the location, for today's "now" marker. */
     nowMinutes?: number;
   } = $props();
 
-  let hovered = $state<number | null>(null);
   let dragged = false;
 
   const label = $derived(formatDayLabel(day.date, day.dayIndex));
-  const shortLabel = $derived(formatShortDayLabel(day.date, day.dayIndex));
-  const uncertain = $derived(day.dayIndex > 4);
-  const selected = $derived(day.hours.findIndex((h) => h.time === selectedHourTime));
-  const active = $derived(hovered ?? (selected >= 0 ? selected : null));
-  // Full-height columns behind the curve: the at-a-glance "when is it good" layer.
-  const good = $derived(runs(day.scores.map((s) => s >= GOOD_SCORE && s < GREAT_SCORE)));
-  const great = $derived(runs(day.scores.map((s) => s >= GREAT_SCORE)));
+  const certainty = $derived(day.dayIndex > 4 ? 'uncertain' : day.dayIndex > 1 ? 'approx.' : null);
+  const active = $derived(day.hours.findIndex((h) => h.time === activeTime));
+  const pinned = $derived(day.hours.findIndex((h) => h.time === pinnedTime));
+  const sliderValue = $derived(pinned >= 0 ? pinned : (day.best?.start ?? 12));
   const summary = $derived(
-    `${label}: score through the day` +
+    `${label}: ` +
+      (['great', 'ok', 'poor'] as const)
+        .map((b) => `${day.scores.filter((s) => bandOf(s) === b).length} ${BAND_LABEL[b]} hours`)
+        .join(', ') +
       (day.best
-        ? `, best ${formatHour(day.best.start)} to ${formatHour(day.best.end % 24)} at ${day.best.score}`
-        : ', no hours left'),
+        ? `; best ${formatHour(day.best.start)} to ${formatHour(day.best.end % 24)}, score ${day.best.score}`
+        : ''),
   );
-  const sliderValue = $derived(selected >= 0 ? selected : (day.best?.start ?? 12));
 
   function describe(i: number): string {
     const h = day.hours[i];
-    return `${formatHour(h.hour)}, score ${h.score}, ${getWeatherInfo(h.weatherCode).label}, ${Math.round(h.temperature)}°`;
+    return `${formatHour(h.hour)}, ${BAND_LABEL[bandOf(h.score)]}, score ${h.score}, ${getWeatherInfo(h.weatherCode).label}, ${Math.round(h.temperature)}°`;
   }
 
-  function hourAt(e: PointerEvent | MouseEvent): number {
+  function hourAt(e: PointerEvent | MouseEvent): ScoredHour {
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-    return Math.min(23, Math.max(0, Math.floor(((e.clientX - rect.left) / rect.width) * 24)));
+    const i = Math.floor(((e.clientX - rect.left) / rect.width) * 24);
+    return day.hours[Math.min(23, Math.max(0, i))];
   }
 
-  function select(i: number) {
-    if (day.hours[i].time !== selectedHourTime) onHourSelect(day.hours[i]);
-  }
-
-  // Mouse: hover previews, click pins/unpins. Touch/pen: drag along the row to scan.
+  // Mouse: hover shows the hour in the readout, click pins it (click again to unpin).
+  // Touch/pen: drag along the day and the readout follows your finger; lifting keeps it.
   function onpointermove(e: PointerEvent) {
-    if (e.pointerType === 'mouse') hovered = hourAt(e);
+    if (e.pointerType === 'mouse') onHover(hourAt(e));
     else if (e.buttons) {
       dragged = true;
-      select(hourAt(e));
+      onPin(hourAt(e));
     }
   }
   function onclick(e: MouseEvent) {
     if (dragged) return;
-    const i = hourAt(e);
-    if (i === selected) onHourSelect(null);
-    else select(i);
+    const hour = hourAt(e);
+    onPin(hour.time === pinnedTime ? null : hour);
   }
 </script>
 
-<div id="day-{day.date}" class="contents">
-  <span
-    class="text-[13px] whitespace-nowrap {active !== null ? 'font-semibold' : 'text-run-muted'}"
-  >
-    {shortLabel}
+<span id="day-{day.date}" class="scroll-mt-40 flex flex-col leading-tight">
+  <span class="text-[13px] whitespace-nowrap {active >= 0 ? 'font-semibold' : 'text-run-muted'}">
+    {formatShortDayLabel(day.date, day.dayIndex)}
   </span>
-
-  <figure class="m-0 min-w-0">
-    <!-- svelte-ignore a11y_no_static_element_interactions, a11y_click_events_have_key_events (keyboard uses the range input below) -->
-    <div
-      class="chart relative h-9 rounded-sm bg-run-night cursor-crosshair touch-pan-y select-none {uncertain
-        ? 'opacity-60'
-        : ''}"
-      {onpointermove}
-      onpointerdown={() => (dragged = false)}
-      onpointerleave={() => (hovered = null)}
-      {onclick}
-    >
-      <svg
-        viewBox="0 0 {VIEW_W} {VIEW_H}"
-        preserveAspectRatio="none"
-        class="absolute inset-0 w-full h-full overflow-visible rounded-sm"
-        role="img"
-        aria-label={summary}
-      >
-        {#each good as [start, end] (start)}
-          <rect
-            x={(start / 24) * VIEW_W}
-            width={((end - start) / 24) * VIEW_W}
-            y="0"
-            height={VIEW_H}
-            class="fill-run-good"
-          />
-        {/each}
-        {#each great as [start, end] (start)}
-          <rect
-            x={(start / 24) * VIEW_W}
-            width={((end - start) / 24) * VIEW_W}
-            y="0"
-            height={VIEW_H}
-            class="fill-run-great"
-          />
-        {/each}
-        <path
-          d={linePath(day.scores)}
-          class="fill-none stroke-run-accent"
-          stroke-width="2"
-          stroke-linejoin="round"
-          vector-effect="non-scaling-stroke"
-        />
-      </svg>
-
-      {#if day.best}
-        <span
-          class="absolute -bottom-1 h-[3px] rounded-full bg-run-accent pointer-events-none"
-          style:left="{(day.best.start / 24) * 100}%"
-          style:width="{((day.best.end - day.best.start) / 24) * 100}%"
-        ></span>
-      {/if}
-      {#if nowMinutes !== undefined}
-        <span
-          class="absolute -inset-y-1 w-0.5 -translate-x-1/2 bg-run-text/60 pointer-events-none"
-          style:left="{(nowMinutes / 1440) * 100}%"
-        ></span>
-      {/if}
-      {#if active !== null}
-        <span
-          class="absolute size-2.5 -translate-1/2 rounded-full pointer-events-none ring-2 ring-run-card {active ===
-          selected
-            ? 'bg-run-accent'
-            : 'bg-run-card border-2 border-run-accent'}"
-          style:left="{(xOf(active) / VIEW_W) * 100}%"
-          style:top="{(yOf(day.scores[active]) / VIEW_H) * 100}%"
-        ></span>
-      {/if}
-    </div>
-
-    <label class="sr-only">
-      {label}, choose an hour
-      <input
-        type="range"
-        min="0"
-        max="23"
-        step="1"
-        value={sliderValue}
-        aria-valuetext={describe(sliderValue)}
-        oninput={(e) => select(e.currentTarget.valueAsNumber)}
-      />
-    </label>
-  </figure>
-
-  <span class="text-right text-xs tabular-nums whitespace-nowrap">
-    {#if active !== null}
-      <span class="font-medium">{formatHour(active)}</span>
-      <span class="font-semibold ml-1">{day.scores[active]}</span>
-    {:else if day.best}
-      <span class="text-run-muted">{day.best.start}–{day.best.end}</span>
-      <span class="font-semibold ml-1">{day.best.score}</span>
-    {:else}
-      <span class="text-run-muted">–</span>
-    {/if}
-  </span>
-
-  {#if selected >= 0 && panel}
-    <div class="col-span-3 -mt-1 mb-1">
-      {@render panel(day.hours[selected], day.scores[selected])}
-    </div>
+  {#if certainty}
+    <span class="text-[10px] text-run-muted/80 whitespace-nowrap">{certainty}</span>
   {/if}
-</div>
+</span>
+
+<figure class="m-0 min-w-0">
+  <!-- svelte-ignore a11y_no_noninteractive_element_interactions, a11y_click_events_have_key_events (keyboard uses the range input below) -->
+  <div
+    class="bars relative h-10 cursor-crosshair touch-pan-y select-none"
+    role="img"
+    aria-label={summary}
+    {onpointermove}
+    onpointerdown={() => (dragged = false)}
+    onpointerleave={() => onHover(null)}
+    {onclick}
+  >
+    {#if active >= 0}
+      <span
+        class="absolute -inset-y-1.5 rounded bg-run-text/20 ring-1 ring-run-text/30 pointer-events-none"
+        style:left="{(active / 24) * 100}%"
+        style:width="{100 / 24}%"
+      ></span>
+    {/if}
+    <div class="absolute inset-0 flex items-end gap-px pointer-events-none">
+      {#each day.scores as score, i (i)}
+        <span
+          class="flex-1 rounded-t-[2px] {BAND_BG[bandOf(score)]}"
+          style:height="{Math.max(score, 6)}%"
+        ></span>
+      {/each}
+    </div>
+    {#if nowMinutes !== undefined}
+      <span
+        class="absolute -inset-y-1.5 w-0.5 -translate-x-1/2 rounded-full bg-run-text pointer-events-none"
+        style:left="{(nowMinutes / 1440) * 100}%"
+      ></span>
+    {/if}
+  </div>
+
+  <label class="sr-only">
+    {label}, choose an hour
+    <input
+      type="range"
+      min="0"
+      max="23"
+      step="1"
+      value={sliderValue}
+      aria-valuetext={describe(sliderValue)}
+      oninput={(e) => onPin(day.hours[e.currentTarget.valueAsNumber])}
+    />
+  </label>
+</figure>
+
+<span class="text-right text-xs tabular-nums whitespace-nowrap">
+  {#if active >= 0}
+    <span class="font-medium">{formatHour(active)}</span>
+    <span class="font-semibold ml-1">{day.scores[active]}</span>
+  {:else if day.best}
+    <span class="text-run-muted">{day.best.start}–{day.best.end}</span>
+    <span class="font-semibold ml-1">{day.best.score}</span>
+  {:else}
+    <span class="text-run-muted">–</span>
+  {/if}
+</span>
 
 <style>
-  /* Keyboard focus lands on the visually hidden range input; show it on the chart. */
-  figure:has(input:focus-visible) .chart {
+  /* Keyboard focus lands on the visually hidden range input; show it on the bars. */
+  figure:has(input:focus-visible) .bars {
     outline: 2px solid var(--color-run-accent);
-    outline-offset: 3px;
+    outline-offset: 4px;
+    border-radius: 2px;
   }
 </style>

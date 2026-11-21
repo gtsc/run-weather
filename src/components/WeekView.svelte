@@ -1,22 +1,26 @@
 <script lang="ts">
-  import { tick } from 'svelte';
+  import type { ScoredHour } from '../lib/types';
   import { weather } from '../lib/stores/weather.svelte';
   import { minutesOfDay } from '../lib/utils/dates';
   import { nextBestRun } from '../lib/scoring/days';
-  import { GOOD_SCORE, GREAT_SCORE } from '../lib/utils/chart';
-  import BestRun from './BestRun.svelte';
+  import { formatDayLabel, formatHour } from '../lib/utils/format';
+  import { BAND_BG, BAND_LABEL, GREAT_SCORE, POOR_BELOW } from '../lib/utils/chart';
+  import Readout from './Readout.svelte';
   import DayRow from './DayRow.svelte';
-  import HourPanel from './HourPanel.svelte';
 
-  let selectedHourTime = $state<string | null>(null);
+  let hovered = $state<ScoredHour | null>(null);
+  let pinned = $state<ScoredHour | null>(null);
+
   const next = $derived(nextBestRun(weather.days));
+  const shown = $derived(hovered ?? pinned);
+  const dayOf = (hour: ScoredHour) => weather.days.find((d) => d.date === hour.date);
 
-  async function showBest() {
-    if (!next) return;
-    selectedHourTime = next.day.hours[next.window.start].time;
-    await tick();
-    document.getElementById(`day-${next.day.date}`)?.scrollIntoView({ block: 'nearest' });
-  }
+  // Forget a pinned hour that's no longer in the forecast (new location, refresh).
+  $effect(() => {
+    if (pinned && !weather.days.some((d) => d.hours.some((h) => h.time === pinned!.time))) {
+      pinned = null;
+    }
+  });
 </script>
 
 {#if weather.loading}
@@ -58,9 +62,26 @@
   </div>
 {:else}
   <div class="flex flex-col gap-2">
-    {#if next}
-      <BestRun day={next.day} window={next.window} onShow={showBest} />
+    {#if shown}
+      {@const day = dayOf(shown)}
+      <Readout
+        kicker={hovered ? 'Hour' : 'Pinned hour'}
+        title="{day ? formatDayLabel(day.date, day.dayIndex) : ''}, {formatHour(shown.hour)}"
+        hour={shown}
+        score={shown.score}
+        onClear={pinned ? () => (pinned = null) : undefined}
+      />
+    {:else if next}
+      <Readout
+        kicker="Best time to run"
+        title="{formatDayLabel(next.day.date, next.day.dayIndex)}, {formatHour(
+          next.window.start,
+        )}–{formatHour(next.window.end % 24)}"
+        hour={next.day.hours[next.window.start]}
+        score={next.window.score}
+      />
     {/if}
+
     <section
       aria-label="Week overview"
       class="rounded-xl bg-run-card border border-run-border p-3 grid grid-cols-[3.25rem_minmax(0,1fr)_4.25rem] gap-x-3 gap-y-3 items-center"
@@ -73,27 +94,31 @@
       {#each weather.days as day (day.date)}
         <DayRow
           {day}
-          {selectedHourTime}
-          onHourSelect={(hour) => (selectedHourTime = hour?.time ?? null)}
+          activeTime={shown?.time ?? null}
+          pinnedTime={pinned?.time ?? null}
+          onHover={(hour) => (hovered = hour)}
+          onPin={(hour) => {
+            pinned = hour;
+            hovered = null;
+          }}
           nowMinutes={day.dayIndex === 0 ? minutesOfDay(weather.now) : undefined}
-        >
-          {#snippet panel(hour, score)}
-            <HourPanel {hour} {score} onClose={() => (selectedHourTime = null)} />
-          {/snippet}
-        </DayRow>
+        />
       {/each}
     </section>
-    <p class="text-xs text-run-muted mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
-      <span class="inline-flex items-center gap-1.5">
-        <span class="size-2.5 rounded-sm bg-run-great"></span>{GREAT_SCORE}+
-      </span>
-      <span class="inline-flex items-center gap-1.5">
-        <span class="size-2.5 rounded-sm bg-run-good"></span>{GOOD_SCORE}+
-      </span>
-      <span class="inline-flex items-center gap-1.5">
-        <span class="w-3 h-[3px] rounded-full bg-run-accent"></span>best window
-      </span>
-      <span>Line: score through the day. Later days are less certain.</span>
-    </p>
+
+    <div class="text-xs text-run-muted flex flex-col gap-1.5 mt-1">
+      <p class="flex flex-wrap items-center gap-x-4 gap-y-1">
+        {#each [['great', `${GREAT_SCORE}+`], ['ok', `${POOR_BELOW}–${GREAT_SCORE - 1}`], ['poor', `below ${POOR_BELOW}`]] as const as [band, range] (band)}
+          <span class="inline-flex items-center gap-1.5">
+            <span class="size-2.5 rounded-sm {BAND_BG[band]}"></span>
+            <span><span class="text-run-text font-medium">{BAND_LABEL[band]}</span> {range}</span>
+          </span>
+        {/each}
+      </p>
+      <p>
+        Taller bars are better hours. Hover, or drag along a day, to see that hour above; tap to
+        keep it there.
+      </p>
+    </div>
   </div>
 {/if}

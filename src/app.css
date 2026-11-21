@@ -23,10 +23,13 @@
   --run-border-d: #243245;
   --run-night-l: #e6ecf3;
   --run-night-d: #0f1926;
-  --run-good-l: rgb(47 95 208 / 0.16);
-  --run-good-d: rgb(143 180 255 / 0.2);
-  --run-great-l: rgb(47 95 208 / 0.36);
-  --run-great-d: rgb(143 180 255 / 0.42);
+  /* Score bands (validated for colour-blind separation): blue good, grey neutral, orange bad. */
+  --run-great-l: #2f5fd0;
+  --run-great-d: #6690e6;
+  --run-ok-l: #8593a8;
+  --run-ok-d: #5a6a80;
+  --run-poor-l: #cc5f1f;
+  --run-poor-d: #d4783a;
 
   /* Follow the system unless the <meta name="color-scheme"> override says otherwise. */
   color-scheme: light dark;
@@ -56,9 +59,9 @@
   --color-run-border: light-dark(var(--run-border-l), var(--run-border-d));
   /* Chart background: a step darker than the card in both themes. */
   --color-run-night: light-dark(var(--run-night-l), var(--run-night-d));
-  /* Score bands behind the day curves (80+ and 90+). */
-  --color-run-good: light-dark(var(--run-good-l), var(--run-good-d));
   --color-run-great: light-dark(var(--run-great-l), var(--run-great-d));
+  --color-run-ok: light-dark(var(--run-ok-l), var(--run-ok-d));
+  --color-run-poor: light-dark(var(--run-poor-l), var(--run-poor-d));
 
   --font-sans: 'Bricolage Grotesque Variable', system-ui, -apple-system, sans-serif;
 }
@@ -74,8 +77,9 @@
     --color-run-muted: var(--run-muted-l);
     --color-run-border: var(--run-border-l);
     --color-run-night: var(--run-night-l);
-    --color-run-good: var(--run-good-l);
     --color-run-great: var(--run-great-l);
+    --color-run-ok: var(--run-ok-l);
+    --color-run-poor: var(--run-poor-l);
 
     @media (prefers-color-scheme: dark) {
       --color-run-accent: var(--run-accent-d);
@@ -86,8 +90,9 @@
       --color-run-muted: var(--run-muted-d);
       --color-run-border: var(--run-border-d);
       --color-run-night: var(--run-night-d);
-      --color-run-good: var(--run-good-d);
       --color-run-great: var(--run-great-d);
+      --color-run-ok: var(--run-ok-d);
+      --color-run-poor: var(--run-poor-d);
     }
   }
 }
