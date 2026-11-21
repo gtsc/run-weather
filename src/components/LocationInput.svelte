@@ -56,7 +56,7 @@
         autocomplete="off"
         enterkeyhint="search"
         placeholder="Search a place"
-        class="w-full pl-9 pr-3 py-2.5 rounded-xl border border-run-border text-sm focus:outline-none focus:ring-2 focus:ring-run-accent/30 focus:border-run-accent bg-run-card text-run-text transition-shadow"
+        class="w-full pl-9 pr-3 py-2.5 rounded-xl border border-run-border text-sm pointer-coarse:text-base focus:outline-none focus:ring-2 focus:ring-run-accent/30 focus:border-run-accent bg-run-card text-run-text transition-shadow"
         disabled={searching}
       />
     </div>
