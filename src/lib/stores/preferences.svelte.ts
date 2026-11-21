@@ -2,29 +2,26 @@ import type { Preferences } from '../types';
 
 const STORAGE_KEY = 'run-weather-prefs';
 
-const defaults: Preferences = {
+export const DEFAULT_PREFERENCES: Readonly<Preferences> = {
   rainTolerance: 0.3,
   tempMin: -2,
   tempMax: 25,
 };
 
-function loadFromStorage(): Preferences {
+function load(): Preferences {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) return { ...defaults, ...JSON.parse(stored) };
+    if (stored) return { ...DEFAULT_PREFERENCES, ...JSON.parse(stored) };
   } catch {}
-  return { ...defaults };
+  return { ...DEFAULT_PREFERENCES };
 }
 
-let prefs = $state<Preferences>(loadFromStorage());
-
-export function getPreferences(): Preferences {
-  return prefs;
-}
+/** Reactive user preferences. Read fields directly; write via `updatePreferences`. */
+export const preferences = $state<Preferences>(load());
 
 export function updatePreferences(updates: Partial<Preferences>): void {
-  Object.assign(prefs, updates);
+  Object.assign(preferences, updates);
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(prefs));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(preferences));
   } catch {}
 }

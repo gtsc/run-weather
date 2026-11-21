@@ -1,51 +1,74 @@
 import type { Location } from '../types';
 
 const OPEN_METEO_URL = 'https://geocoding-api.open-meteo.com/v1/search';
-const NOMINATIM_URL = 'https://nominatim.openstreetmap.org/search';
+const NOMINATIM_SEARCH_URL = 'https://nominatim.openstreetmap.org/search';
+const NOMINATIM_REVERSE_URL = 'https://nominatim.openstreetmap.org/reverse';
+const TIMEOUT_MS = 10_000;
+
+interface OpenMeteoResult {
+  name: string;
+  latitude: number;
+  longitude: number;
+  admin1?: string;
+  country?: string;
+}
+
+type NominatimAddress = Partial<
+  Record<'city' | 'town' | 'village' | 'hamlet' | 'state' | 'county' | 'country', string>
+>;
+
+interface NominatimResult {
+  lat: string;
+  lon: string;
+  name?: string;
+  address?: NominatimAddress;
+}
+
+async function getJson<T>(url: string, params: Record<string, string>): Promise<T | null> {
+  const res = await fetch(`${url}?${new URLSearchParams(params)}`, {
+    signal: AbortSignal.timeout(TIMEOUT_MS),
+  });
+  return res.ok ? ((await res.json()) as T) : null;
+}
+
+const settlement = (a: NominatimAddress) => a.city || a.town || a.village || a.hamlet;
+const joinParts = (parts: (string | undefined)[]) => parts.filter(Boolean).join(', ');
 
 async function geocodeOpenMeteo(query: string): Promise<Location | null> {
-  const url = `${OPEN_METEO_URL}?name=${encodeURIComponent(query)}&count=5&language=en&format=json`;
-  const res = await fetch(url);
-  if (!res.ok) return null;
-  const data = await res.json();
-
-  if (data.results?.length) {
-    const result = data.results[0];
-    const parts = [result.name];
-    if (result.admin1 && result.admin1 !== result.name) parts.push(result.admin1);
-    if (result.country) parts.push(result.country);
-    return {
-      latitude: result.latitude,
-      longitude: result.longitude,
-      name: parts.join(', '),
-    };
-  }
-  return null;
+  const data = await getJson<{ results?: OpenMeteoResult[] }>(OPEN_METEO_URL, {
+    name: query,
+    count: '1',
+    language: 'en',
+    format: 'json',
+  });
+  const result = data?.results?.[0];
+  if (!result) return null;
+  return {
+    latitude: result.latitude,
+    longitude: result.longitude,
+    name: joinParts([
+      result.name,
+      result.admin1 !== result.name ? result.admin1 : undefined,
+      result.country,
+    ]),
+  };
 }
 
 async function geocodeNominatim(query: string): Promise<Location | null> {
-  const url = `${NOMINATIM_URL}?q=${encodeURIComponent(query)}&format=json&limit=1&addressdetails=1`;
-  const res = await fetch(url, {
-    headers: { 'User-Agent': 'RunWeatherApp/1.0' },
+  const data = await getJson<NominatimResult[]>(NOMINATIM_SEARCH_URL, {
+    q: query,
+    format: 'json',
+    limit: '1',
+    addressdetails: '1',
   });
-  if (!res.ok) return null;
-  const data = await res.json();
-
-  if (data.length) {
-    const result = data[0];
-    const addr = result.address ?? {};
-    const parts = [
-      addr.city || addr.town || addr.village || addr.hamlet || result.name,
-      addr.state || addr.county,
-      addr.country,
-    ].filter(Boolean);
-    return {
-      latitude: parseFloat(result.lat),
-      longitude: parseFloat(result.lon),
-      name: parts.join(', '),
-    };
-  }
-  return null;
+  const result = data?.[0];
+  if (!result) return null;
+  const addr = result.address ?? {};
+  return {
+    latitude: Number(result.lat),
+    longitude: Number(result.lon),
+    name: joinParts([settlement(addr) ?? result.name, addr.state || addr.county, addr.country]),
+  };
 }
 
 export async function geocodeLocation(query: string): Promise<Location> {
@@ -61,38 +84,34 @@ export async function geocodeLocation(query: string): Promise<Location> {
 
 async function reverseGeocode(lat: number, lon: number): Promise<string | null> {
   try {
-    const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`;
-    const res = await fetch(url, { headers: { 'User-Agent': 'RunWeatherApp/1.0' } });
-    if (!res.ok) return null;
-    const data = (await res.json()) as { address?: Record<string, string> };
-    const addr = data.address ?? {};
-    const parts = [addr.city || addr.town || addr.village || addr.hamlet, addr.country].filter(
-      Boolean,
-    );
-    return parts.length > 0 ? parts.join(', ') : null;
+    const data = await getJson<{ address?: NominatimAddress }>(NOMINATIM_REVERSE_URL, {
+      lat: String(lat),
+      lon: String(lon),
+      format: 'json',
+    });
+    const addr = data?.address ?? {};
+    return joinParts([settlement(addr), addr.country]) || null;
   } catch {
     return null;
   }
 }
 
-export async function geocodeGPS(): Promise<Location> {
+function getCurrentPosition(): Promise<GeolocationPosition> {
   return new Promise((resolve, reject) => {
-    if (!navigator.geolocation) {
+    if (!('geolocation' in navigator)) {
       reject(new Error('Geolocation is not supported by your browser'));
       return;
     }
-
     navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        reverseGeocode(latitude, longitude).then((name) => {
-          resolve({ latitude, longitude, name: name ?? 'Current location' });
-        });
-      },
-      (err) => {
-        reject(new Error(`Could not get your location: ${err.message}`));
-      },
-      { enableHighAccuracy: false, timeout: 10000 },
+      resolve,
+      (err) => reject(new Error(`Could not get your location: ${err.message}`, { cause: err })),
+      { enableHighAccuracy: false, timeout: TIMEOUT_MS },
     );
   });
+}
+
+export async function geocodeGPS(): Promise<Location> {
+  const { latitude, longitude } = (await getCurrentPosition()).coords;
+  const name = await reverseGeocode(latitude, longitude);
+  return { latitude, longitude, name: name ?? 'Current location' };
 }

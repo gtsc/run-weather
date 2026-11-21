@@ -146,7 +146,7 @@ async function run(): Promise<void> {
     Location.setAccuracyToHundredMeters();
     const loc = await Location.current();
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const hours = await fetchForecast(loc.latitude, loc.longitude, timezone);
+    const hours = await fetchForecast(loc.latitude, loc.longitude, { timezone });
 
     const today = new Date().toISOString().slice(0, 10);
     const tomorrow = new Date(Date.now() + 86_400_000).toISOString().slice(0, 10);

@@ -1,52 +1,38 @@
 <script lang="ts">
+  import type { Location } from '../lib/types';
   import { geocodeLocation, geocodeGPS } from '../lib/api/geocoding';
-  import { getLocation, setLocation } from '../lib/stores/location.svelte';
-  import { loadForecast } from '../lib/stores/weather.svelte';
+  import { location } from '../lib/stores/location.svelte';
+  import { weather } from '../lib/stores/weather.svelte';
 
   let query = $state('');
   let searching = $state(false);
   let errorMsg = $state('');
 
-  const location = $derived(getLocation());
-
-  async function handleSearch(): Promise<void> {
-    if (!query.trim()) return;
+  async function run(resolve: () => Promise<Location>): Promise<void> {
     searching = true;
     errorMsg = '';
     try {
-      const loc = await geocodeLocation(query);
-      setLocation(loc);
-      await loadForecast(loc.latitude, loc.longitude);
+      const loc = await resolve();
+      location.current = loc;
+      await weather.load(loc.latitude, loc.longitude);
     } catch (e) {
-      errorMsg = (e as Error).message;
+      errorMsg = e instanceof Error ? e.message : String(e);
     } finally {
       searching = false;
     }
   }
 
-  async function handleGPS(): Promise<void> {
-    searching = true;
-    errorMsg = '';
-    try {
-      const loc = await geocodeGPS();
-      setLocation(loc);
-      await loadForecast(loc.latitude, loc.longitude);
-    } catch (e) {
-      errorMsg = (e as Error).message;
-    } finally {
-      searching = false;
-    }
-  }
-
-  function handleKeydown(e: KeyboardEvent): void {
-    if (e.key === 'Enter') handleSearch();
+  function handleSubmit(e: SubmitEvent): void {
+    e.preventDefault();
+    if (query.trim()) run(() => geocodeLocation(query));
   }
 </script>
 
 <div class="flex flex-col gap-2">
-  <div class="flex gap-2">
+  <form class="flex gap-2" role="search" onsubmit={handleSubmit}>
     <div class="relative flex-1">
       <svg
+        aria-hidden="true"
         xmlns="http://www.w3.org/2000/svg"
         class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-run-muted pointer-events-none"
         fill="none"
@@ -61,16 +47,18 @@
         />
       </svg>
       <input
-        type="text"
+        type="search"
         bind:value={query}
-        onkeydown={handleKeydown}
+        aria-label="Location"
+        autocomplete="off"
+        enterkeyhint="search"
         placeholder="City, postcode, or place name"
         class="w-full pl-9 pr-3 py-2.5 rounded-xl border border-run-border text-sm focus:outline-none focus:ring-2 focus:ring-run-green/30 focus:border-run-green bg-run-card text-run-text transition-shadow"
         disabled={searching}
       />
     </div>
     <button
-      onclick={handleSearch}
+      type="submit"
       disabled={searching || !query.trim()}
       class="px-5 py-2.5 bg-run-green text-white rounded-xl text-sm font-medium hover:bg-run-green/90 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed transition-all"
     >
@@ -94,12 +82,15 @@
       {/if}
     </button>
     <button
-      onclick={handleGPS}
+      type="button"
+      onclick={() => run(geocodeGPS)}
       disabled={searching}
       class="px-3 py-2.5 bg-run-card border border-run-border rounded-xl text-sm hover:bg-run-border/30 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed transition-all"
       title="Use my location"
+      aria-label="Use my location"
     >
       <svg
+        aria-hidden="true"
         xmlns="http://www.w3.org/2000/svg"
         class="w-4 h-4 text-run-muted"
         fill="none"
@@ -115,15 +106,16 @@
         <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
       </svg>
     </button>
-  </div>
+  </form>
 
   {#if errorMsg}
-    <p class="text-run-red text-sm">{errorMsg}</p>
+    <p class="text-run-red text-sm" role="alert">{errorMsg}</p>
   {/if}
 
-  {#if location}
+  {#if location.current}
     <div class="flex items-center gap-1.5 text-run-muted text-sm">
       <svg
+        aria-hidden="true"
         xmlns="http://www.w3.org/2000/svg"
         class="w-3.5 h-3.5"
         fill="none"
@@ -138,7 +130,7 @@
         />
         <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
       </svg>
-      <span>{location.name}</span>
+      <span>{location.current.name}</span>
     </div>
   {/if}
 </div>

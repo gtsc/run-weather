@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { ScoredHour } from '../lib/types';
-  import { formatTemp, formatWind, scoreColorHex } from '../lib/utils/format';
+  import { formatHour, formatTemp, formatWind, scoreColorHex } from '../lib/utils/format';
   import { getWeatherInfo } from '../lib/scoring/weatherCodes';
 
   let {
@@ -14,7 +14,7 @@
   } = $props();
 
   const weather = $derived(getWeatherInfo(hour.weatherCode));
-  const timeLabel = $derived(`${String(hour.hour).padStart(2, '0')}:00`);
+  const timeLabel = $derived(`${formatHour(hour.hour)}`);
 </script>
 
 <div class="mt-3 pt-3 border-t border-run-border">

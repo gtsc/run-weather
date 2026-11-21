@@ -1,53 +1,65 @@
-import type { HourData, DayData } from '../types';
+import type { HourData, DayData, ScoredHour } from '../types';
 import { fetchForecast } from '../api/forecast';
 import { scoreHour } from '../scoring/engine';
-import { getPreferences } from './preferences.svelte';
+import { preferences } from './preferences.svelte';
 
-let rawHours = $state<HourData[]>([]);
-let loading = $state(false);
-let error = $state<string | null>(null);
+const MS_PER_DAY = 86_400_000;
+const FETCH_TIMEOUT_MS = 15_000;
 
-export function getWeatherState(): { days: DayData[]; loading: boolean; error: string | null } {
-  const prefs = getPreferences();
-
-  const scored = rawHours.map((h) => ({
-    ...h,
-    score: scoreHour(h, prefs),
-  }));
-
-  const dayMap = new Map<string, typeof scored>();
-  for (const h of scored) {
-    if (!dayMap.has(h.date)) dayMap.set(h.date, []);
-    dayMap.get(h.date)!.push(h);
-  }
-
-  const now = new Date();
+function groupIntoDays(hours: ScoredHour[], now: Date): DayData[] {
   const todayStr = new Date().toISOString().slice(0, 10);
+  const byDate = Map.groupBy(hours, (h) => h.date);
 
-  const days: DayData[] = [...dayMap.entries()].map(([date, hours]) => {
-    const scores = hours.map((h) => h.score);
-    const futureScores = hours.map((h, i) => (new Date(h.time) >= now ? scores[i] : -1));
-    const msPerDay = 86400000;
+  return [...byDate].map(([date, dayHours]) => {
+    const scores = dayHours.map((h) => h.score);
+    const futureScores = dayHours.map((h, i) => (new Date(h.time) >= now ? scores[i] : -1));
     const dayIndex = Math.round(
-      (new Date(date + 'T00:00:00').getTime() - new Date(todayStr + 'T00:00:00').getTime()) /
-        msPerDay,
+      (new Date(`${date}T00:00:00`).getTime() - new Date(`${todayStr}T00:00:00`).getTime()) /
+        MS_PER_DAY,
     );
     const bestScore = Math.max(...futureScores, 0);
-    return { date, dayIndex, hours, scores, bestScore };
+    return { date, dayIndex, hours: dayHours, scores, bestScore };
+  });
+}
+
+class WeatherStore {
+  #rawHours = $state<HourData[]>([]);
+  #controller: AbortController | null = null;
+
+  loading = $state(false);
+  error = $state<string | null>(null);
+
+  /** Hours scored against the current preferences, grouped by day. */
+  days = $derived.by(() => {
+    const scored = this.#rawHours.map((h) => ({ ...h, score: scoreHour(h, preferences) }));
+    return groupIntoDays(scored, new Date());
   });
 
-  return { days, loading, error };
-}
+  async load(latitude: number, longitude: number): Promise<void> {
+    // A newer search supersedes any request still in flight.
+    this.#controller?.abort();
+    const controller = new AbortController();
+    this.#controller = controller;
 
-export async function loadForecast(latitude: number, longitude: number): Promise<void> {
-  loading = true;
-  error = null;
-  try {
-    rawHours = await fetchForecast(latitude, longitude);
-  } catch (e) {
-    error = (e as Error).message;
-    rawHours = [];
-  } finally {
-    loading = false;
+    this.loading = true;
+    this.error = null;
+    try {
+      this.#rawHours = await fetchForecast(latitude, longitude, {
+        signal: AbortSignal.any([controller.signal, AbortSignal.timeout(FETCH_TIMEOUT_MS)]),
+      });
+    } catch (e) {
+      if (controller.signal.aborted) return; // superseded by a newer search
+      this.error =
+        e instanceof DOMException && e.name === 'TimeoutError'
+          ? 'The forecast took too long to load. Please try again.'
+          : e instanceof Error
+            ? e.message
+            : String(e);
+      this.#rawHours = [];
+    } finally {
+      if (this.#controller === controller) this.loading = false;
+    }
   }
 }
+
+export const weather = new WeatherStore();

@@ -1,15 +1,19 @@
 <script lang="ts">
-  import { isDark, toggleDarkMode } from '../lib/stores/darkMode.svelte';
+  import { colorScheme } from '../lib/stores/colorScheme.svelte';
 
-  const dark = $derived(isDark());
+  const label = $derived(
+    colorScheme.rendered === 'dark' ? 'Switch to light mode' : 'Switch to dark mode',
+  );
 </script>
 
 <button
-  onclick={toggleDarkMode}
+  type="button"
+  onclick={() => colorScheme.toggle()}
   class="p-1 rounded-lg hover:bg-run-border/50 transition-colors cursor-pointer"
-  title={dark ? 'Switch to light mode' : 'Switch to dark mode'}
+  title={label}
+  aria-label={label}
 >
-  {#if dark}
+  {#if colorScheme.rendered === 'dark'}
     <svg
       xmlns="http://www.w3.org/2000/svg"
       class="w-5 h-5 text-run-muted"
@@ -17,6 +21,7 @@
       viewBox="0 0 24 24"
       stroke="currentColor"
       stroke-width="2"
+      aria-hidden="true"
     >
       <path
         stroke-linecap="round"
@@ -32,6 +37,7 @@
       viewBox="0 0 24 24"
       stroke="currentColor"
       stroke-width="2"
+      aria-hidden="true"
     >
       <path
         stroke-linecap="round"
