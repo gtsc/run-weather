@@ -13,12 +13,12 @@
     <div class="max-w-2xl mx-auto px-4 py-5 flex items-center justify-between">
       <div class="flex items-center gap-3">
         <svg class="w-9 h-9 shrink-0" viewBox="0 0 64 64" aria-hidden="true">
-          <rect width="64" height="64" rx="15" fill="#166534" />
-          <circle cx="40" cy="22" r="7" fill="#fde68a" />
+          <rect width="64" height="64" rx="15" class="fill-run-tile" />
+          <circle cx="40" cy="22" r="7" fill="#f2c14e" />
           <path
             d="M8 46 C 18 46, 22 30, 32 30 S 46 40, 56 34"
             fill="none"
-            stroke="#fff"
+            stroke="#8fb4ff"
             stroke-width="5"
             stroke-linecap="round"
           />

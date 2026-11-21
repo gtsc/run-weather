@@ -123,7 +123,7 @@
         {/each}
         <path
           d={linePath(day.scores)}
-          class="fill-none stroke-run-green"
+          class="fill-none stroke-run-accent"
           stroke-width="2"
           stroke-linejoin="round"
           vector-effect="non-scaling-stroke"
@@ -132,7 +132,7 @@
 
       {#if day.best}
         <span
-          class="absolute -bottom-1 h-[3px] rounded-full bg-run-green pointer-events-none"
+          class="absolute -bottom-1 h-[3px] rounded-full bg-run-accent pointer-events-none"
           style:left="{(day.best.start / 24) * 100}%"
           style:width="{((day.best.end - day.best.start) / 24) * 100}%"
         ></span>
@@ -147,8 +147,8 @@
         <span
           class="absolute size-2.5 -translate-1/2 rounded-full pointer-events-none ring-2 ring-run-card {active ===
           selected
-            ? 'bg-run-green'
-            : 'bg-run-card border-2 border-run-green'}"
+            ? 'bg-run-accent'
+            : 'bg-run-card border-2 border-run-accent'}"
           style:left="{(xOf(active) / VIEW_W) * 100}%"
           style:top="{(yOf(day.scores[active]) / VIEW_H) * 100}%"
         ></span>
@@ -191,7 +191,7 @@
 <style>
   /* Keyboard focus lands on the visually hidden range input; show it on the chart. */
   figure:has(input:focus-visible) .chart {
-    outline: 2px solid var(--color-run-green);
+    outline: 2px solid var(--color-run-accent);
     outline-offset: 3px;
   }
 </style>

@@ -22,7 +22,7 @@
 {#if weather.loading}
   <div class="flex flex-col items-center justify-center py-12 gap-3">
     <svg
-      class="w-6 h-6 animate-spin text-run-green"
+      class="w-6 h-6 animate-spin text-run-accent"
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"
@@ -91,7 +91,7 @@
         <span class="size-2.5 rounded-sm bg-run-good"></span>{GOOD_SCORE}+
       </span>
       <span class="inline-flex items-center gap-1.5">
-        <span class="w-3 h-[3px] rounded-full bg-run-green"></span>best window
+        <span class="w-3 h-[3px] rounded-full bg-run-accent"></span>best window
       </span>
       <span>Line: score through the day. Later days are less certain.</span>
     </p>

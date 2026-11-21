@@ -2,9 +2,9 @@
 import sharp from 'sharp';
 import { mkdirSync, writeFileSync } from 'node:fs';
 
-const TILE = '#166534';
-const SUN = '#fde68a';
-const CURVE = '#ffffff';
+const TILE = '#13202e';
+const SUN = '#f2c14e';
+const CURVE = '#8fb4ff';
 
 /** @param {{ rounded: boolean, scale?: number, bold?: boolean }} opts */
 function icon({ rounded, scale = 1, bold = false }) {

@@ -18,7 +18,7 @@
 <button
   type="button"
   onclick={onShow}
-  class="w-full text-left rounded-xl bg-run-card border border-run-border p-4 hover:border-run-green/50 transition-colors cursor-pointer"
+  class="w-full text-left rounded-xl bg-run-card border border-run-border p-4 hover:border-run-accent/50 transition-colors cursor-pointer"
 >
   <span class="block text-xs text-run-muted">Best time to run</span>
   <span class="block mt-1 text-xl font-semibold tracking-tight tabular-nums">{when}</span>
