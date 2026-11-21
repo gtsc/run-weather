@@ -1,5 +1,5 @@
 <script lang="ts">
-  import AccountPanel from './AccountPanel.svelte';
+  import PreferencesDialog from './PreferencesDialog.svelte';
 
   let open = $state(false);
 </script>
@@ -27,5 +27,5 @@
 </button>
 
 {#if open}
-  <AccountPanel onClose={() => (open = false)} />
+  <PreferencesDialog onClose={() => (open = false)} />
 {/if}

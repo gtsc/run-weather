@@ -3,11 +3,6 @@
   import WeekView from './components/WeekView.svelte';
   import Settings from './components/Settings.svelte';
   import DarkModeToggle from './components/DarkModeToggle.svelte';
-  import UserButton from './components/UserButton.svelte';
-  import SetPasswordModal from './components/SetPasswordModal.svelte';
-  import { getIsRecovery } from './lib/stores/auth.svelte';
-
-  const isRecovery = $derived(getIsRecovery());
 </script>
 
 <div class="min-h-screen bg-run-bg text-run-text">
@@ -34,14 +29,9 @@
           <p class="text-run-muted text-xs">Find the best time to run</p>
         </div>
       </div>
-      <div class="flex items-center">
-        <div class="flex items-center gap-1">
-          <DarkModeToggle />
-          <Settings />
-        </div>
-        <div class="ml-3">
-          <UserButton />
-        </div>
+      <div class="flex items-center gap-1">
+        <DarkModeToggle />
+        <Settings />
       </div>
     </div>
   </header>
@@ -60,7 +50,3 @@
     >
   </footer>
 </div>
-
-{#if isRecovery}
-  <SetPasswordModal onClose={() => {}} />
-{/if}

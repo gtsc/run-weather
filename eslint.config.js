@@ -50,22 +50,12 @@ export default [
       },
     },
   },
-  // Node.js scripts and lab
+  // Node.js scripts
   {
-    files: ['lab/**/*.ts', 'scripts/**/*.mjs', 'scripts/**/*.js'],
+    files: ['scripts/**/*.mjs', 'scripts/**/*.js'],
     languageOptions: {
       globals: {
         ...globals.node,
-      },
-    },
-  },
-  // Cloudflare Worker entry (ambient runtime types from @cloudflare/workers-types)
-  {
-    files: ['src/server/**/*.ts'],
-    languageOptions: {
-      globals: {
-        ...globals.browser,
-        ScheduledController: 'readonly',
       },
     },
   },
