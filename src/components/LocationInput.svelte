@@ -55,15 +55,15 @@
         aria-label="Location"
         autocomplete="off"
         enterkeyhint="search"
-        placeholder="City, postcode, or place name"
-        class="w-full pl-9 pr-3 py-2.5 rounded-xl border border-run-border text-sm focus:outline-none focus:ring-2 focus:ring-run-green/30 focus:border-run-green bg-run-card text-run-text transition-shadow"
+        placeholder="Search a place"
+        class="w-full pl-9 pr-3 py-2.5 rounded-xl border border-run-border text-sm focus:outline-none focus:ring-2 focus:ring-run-accent/30 focus:border-run-accent bg-run-card text-run-text transition-shadow"
         disabled={searching}
       />
     </div>
     <button
       type="submit"
       disabled={searching || !query.trim()}
-      class="px-5 py-2.5 bg-run-green text-white rounded-xl text-sm font-medium hover:bg-run-green/90 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed transition-all"
+      class="px-5 py-2.5 bg-run-accent text-run-on-accent rounded-xl text-sm font-medium hover:bg-run-accent/90 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed transition-all"
     >
       {#if searching}
         <svg

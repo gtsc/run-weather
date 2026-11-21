@@ -1,23 +1,35 @@
 @import 'tailwindcss';
-@import '@fontsource-variable/inter/wght.css';
+@import '@fontsource-variable/bricolage-grotesque/standard.css';
 
 /*
- * Colour tokens. Each themed token has a light and dark raw value; the
- * `--color-run-*` token Tailwind generates utilities from resolves between them.
+ * Colour tokens ("daylight": slate ink on pale sky, one blue accent). Each themed
+ * token has a light and dark raw value; the `--color-run-*` token Tailwind generates
+ * utilities from resolves between them.
  */
 :root {
-  --run-green-light-l: #dcfce7;
-  --run-green-light-d: #14532d;
-  --run-bg-l: #f9fafb;
-  --run-bg-d: #0f172a;
+  --run-accent-l: #2f5fd0;
+  --run-accent-d: #8fb4ff;
+  --run-on-accent-l: #ffffff;
+  --run-on-accent-d: #0d1520;
+  --run-bg-l: #eef2f7;
+  --run-bg-d: #0d1520;
   --run-card-l: #ffffff;
-  --run-card-d: #1e293b;
-  --run-text-l: #111827;
-  --run-text-d: #f1f5f9;
-  --run-muted-l: #6b7280;
-  --run-muted-d: #94a3b8;
-  --run-border-l: #e5e7eb;
-  --run-border-d: #334155;
+  --run-card-d: #142030;
+  --run-text-l: #13202e;
+  --run-text-d: #e8eef6;
+  --run-muted-l: #4d5c6d;
+  --run-muted-d: #9aa9bb;
+  --run-border-l: #d3dbe5;
+  --run-border-d: #243245;
+  --run-night-l: #e6ecf3;
+  --run-night-d: #0f1926;
+  /* Score bands (validated for colour-blind separation): blue good, grey neutral, orange bad. */
+  --run-great-l: #2f5fd0;
+  --run-great-d: #6690e6;
+  --run-ok-l: #8593a8;
+  --run-ok-d: #5a6a80;
+  --run-poor-l: #cc5f1f;
+  --run-poor-d: #d4783a;
 
   /* Follow the system unless the <meta name="color-scheme"> override says otherwise. */
   color-scheme: light dark;
@@ -29,50 +41,64 @@
     color-scheme: light;
   }
 
-  accent-color: var(--color-run-green);
+  accent-color: var(--color-run-accent);
 }
 
 @theme {
-  --color-run-green: #16a34a;
   --color-run-amber: #f59e0b;
-  --color-run-red: #ef4444;
-  --color-run-grey: #9ca3af;
+  --color-run-red: #dc2626;
+  --color-run-sun: #f2c14e;
+  --color-run-tile: light-dark(#13202e, #22344d);
 
-  --color-run-green-light: light-dark(var(--run-green-light-l), var(--run-green-light-d));
+  --color-run-accent: light-dark(var(--run-accent-l), var(--run-accent-d));
+  --color-run-on-accent: light-dark(var(--run-on-accent-l), var(--run-on-accent-d));
   --color-run-bg: light-dark(var(--run-bg-l), var(--run-bg-d));
   --color-run-card: light-dark(var(--run-card-l), var(--run-card-d));
   --color-run-text: light-dark(var(--run-text-l), var(--run-text-d));
   --color-run-muted: light-dark(var(--run-muted-l), var(--run-muted-d));
   --color-run-border: light-dark(var(--run-border-l), var(--run-border-d));
+  /* Chart background: a step darker than the card in both themes. */
+  --color-run-night: light-dark(var(--run-night-l), var(--run-night-d));
+  --color-run-great: light-dark(var(--run-great-l), var(--run-great-d));
+  --color-run-ok: light-dark(var(--run-ok-l), var(--run-ok-d));
+  --color-run-poor: light-dark(var(--run-poor-l), var(--run-poor-d));
+
+  --font-sans: 'Bricolage Grotesque Variable', system-ui, -apple-system, sans-serif;
 }
 
 /* Fallback for browsers without light-dark() (Safari < 17.5): follow the system preference. */
 @supports not (color: light-dark(white, black)) {
   :root {
-    --color-run-green-light: var(--run-green-light-l);
+    --color-run-accent: var(--run-accent-l);
+    --color-run-on-accent: var(--run-on-accent-l);
     --color-run-bg: var(--run-bg-l);
     --color-run-card: var(--run-card-l);
     --color-run-text: var(--run-text-l);
     --color-run-muted: var(--run-muted-l);
     --color-run-border: var(--run-border-l);
+    --color-run-night: var(--run-night-l);
+    --color-run-great: var(--run-great-l);
+    --color-run-ok: var(--run-ok-l);
+    --color-run-poor: var(--run-poor-l);
 
     @media (prefers-color-scheme: dark) {
-      --color-run-green-light: var(--run-green-light-d);
+      --color-run-accent: var(--run-accent-d);
+      --color-run-on-accent: var(--run-on-accent-d);
       --color-run-bg: var(--run-bg-d);
       --color-run-card: var(--run-card-d);
       --color-run-text: var(--run-text-d);
       --color-run-muted: var(--run-muted-d);
       --color-run-border: var(--run-border-d);
+      --color-run-night: var(--run-night-d);
+      --color-run-great: var(--run-great-d);
+      --color-run-ok: var(--run-ok-d);
+      --color-run-poor: var(--run-poor-d);
     }
   }
 }
 
 body {
-  font-family:
-    'Inter Variable',
-    system-ui,
-    -apple-system,
-    sans-serif;
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   background-color: var(--color-run-bg);
 }
