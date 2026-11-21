@@ -51,16 +51,19 @@ src/
       forecast.ts                  # 8-day hourly forecast from Open-Meteo
     scoring/
       engine.ts                    # Score each hour 0-100 with misery multiplier
+      days.ts                      # Group scored hours into days (location-local "now")
       windows.ts                   # Find best consecutive-hour run windows (used by widget)
       weatherCodes.ts              # WMO code → label + penalty
     stores/
       preferences.svelte.ts        # User prefs (localStorage-backed)
+      preferences.ts               # Defaults + sanitizePreferences (unit-tested)
       weather.svelte.ts            # Forecast data + derived scores
-      location.svelte.ts           # Current lat/lng/name
+      location.svelte.ts           # Current location (remembered in localStorage)
       colorScheme.svelte.ts        # Light/dark override (system by default, localStorage-backed)
       colorScheme.ts               # Pure toggle logic (unit-tested)
     utils/
       format.ts                    # Time/temp/colour formatting helpers
+      dates.ts                     # Wall-clock helpers in the forecast location's time zone
       lightDismiss.ts              # <dialog closedby="any"> fallback for Safari
   components/
     LocationInput.svelte           # Location search field + GPS button
@@ -71,6 +74,8 @@ src/
     DarkModeToggle.svelte          # Light/dark mode toggle
   scriptable/
     widget.ts                      # iOS Scriptable widget source (npm run build:widget)
+public/
+  _headers                         # Security headers (CSP etc.) + asset caching for Cloudflare
 ```
 
 ## Conventions
@@ -83,4 +88,7 @@ src/
 - Stores export reactive objects/class instances (`weather`, `preferences`, `location`, `colorScheme`) — read fields directly
 - Use native platform features (`<dialog>`, `URLSearchParams`, `AbortSignal`) before custom code; `src/lib/api/forecast.ts` is shared with the Scriptable widget, so keep it free of browser-only APIs
 - All components use `run-*` theme tokens (not hardcoded `bg-white` / `bg-gray-*`)
+- Forecast times are wall-clock strings in the **location's** time zone (`timezone=auto`); compare them with `weather.now`, never with `new Date()` / `toISOString()`
+- Pure logic lives in plain `.ts` files next to the `.svelte.ts` store (Vitest runs without the Svelte compiler)
+- CSP lives in `public/_headers`. Inline scripts are allowed by hash only; `src/security.test.ts` fails if `index.html` and the hash drift. New API origins must be added to `connect-src`
 - See FUTURE.md for planned improvements

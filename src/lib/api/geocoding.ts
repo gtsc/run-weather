@@ -110,8 +110,13 @@ function getCurrentPosition(): Promise<GeolocationPosition> {
   });
 }
 
+/** ~1 km precision: plenty for a weather forecast, and avoids sharing an exact position. */
+const coarsen = (deg: number) => Math.round(deg * 100) / 100;
+
 export async function geocodeGPS(): Promise<Location> {
-  const { latitude, longitude } = (await getCurrentPosition()).coords;
+  const { coords } = await getCurrentPosition();
+  const latitude = coarsen(coords.latitude);
+  const longitude = coarsen(coords.longitude);
   const name = await reverseGeocode(latitude, longitude);
   return { latitude, longitude, name: name ?? 'Current location' };
 }

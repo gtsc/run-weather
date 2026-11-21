@@ -18,15 +18,22 @@ const HOURLY_PARAMS = [
 type HourlyResponse = { time: string[] } & Record<(typeof HOURLY_PARAMS)[number], number[]>;
 
 export interface ForecastOptions {
+  /** IANA time zone for the returned wall-clock times. Default: the location's own (`auto`). */
   timezone?: string;
   signal?: AbortSignal;
+}
+
+export interface Forecast {
+  /** IANA time zone the hourly times are expressed in. */
+  timezone: string;
+  hours: HourData[];
 }
 
 export async function fetchForecast(
   latitude: number,
   longitude: number,
-  { timezone = 'Europe/London', signal }: ForecastOptions = {},
-): Promise<HourData[]> {
+  { timezone = 'auto', signal }: ForecastOptions = {},
+): Promise<Forecast> {
   const params = new URLSearchParams({
     latitude: String(latitude),
     longitude: String(longitude),
@@ -39,9 +46,9 @@ export async function fetchForecast(
   // widget, whose runtime has no AbortSignal. Callers pass a signal if they want one.
   const res = await fetch(`${BASE_URL}?${params}`, signal ? { signal } : undefined);
   if (!res.ok) throw new Error(`Failed to fetch forecast (HTTP ${res.status})`);
-  const data = (await res.json()) as { hourly: HourlyResponse };
+  const data = (await res.json()) as { timezone: string; hourly: HourlyResponse };
 
-  return reshapeHourly(data.hourly);
+  return { timezone: data.timezone, hours: reshapeHourly(data.hourly) };
 }
 
 function reshapeHourly(hourly: HourlyResponse): HourData[] {

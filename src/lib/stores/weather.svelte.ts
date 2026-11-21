@@ -1,41 +1,47 @@
-import type { HourData, DayData, ScoredHour } from '../types';
+import type { HourData, Location } from '../types';
 import { fetchForecast } from '../api/forecast';
 import { scoreHour } from '../scoring/engine';
+import { groupIntoDays } from '../scoring/days';
+import { wallClock } from '../utils/dates';
 import { preferences } from './preferences.svelte';
 
-const MS_PER_DAY = 86_400_000;
 const FETCH_TIMEOUT_MS = 15_000;
-
-function groupIntoDays(hours: ScoredHour[], now: Date): DayData[] {
-  const todayStr = new Date().toISOString().slice(0, 10);
-  const byDate = Map.groupBy(hours, (h) => h.date);
-
-  return [...byDate].map(([date, dayHours]) => {
-    const scores = dayHours.map((h) => h.score);
-    const futureScores = dayHours.map((h, i) => (new Date(h.time) >= now ? scores[i] : -1));
-    const dayIndex = Math.round(
-      (new Date(`${date}T00:00:00`).getTime() - new Date(`${todayStr}T00:00:00`).getTime()) /
-        MS_PER_DAY,
-    );
-    const bestScore = Math.max(...futureScores, 0);
-    return { date, dayIndex, hours: dayHours, scores, bestScore };
-  });
-}
+const CLOCK_TICK_MS = 60_000;
+/** Refetch when the tab becomes visible again and the data is older than this. */
+const STALE_AFTER_MS = 60 * 60_000;
 
 class WeatherStore {
   #rawHours = $state<HourData[]>([]);
+  #clock = $state(Date.now());
   #controller: AbortController | null = null;
+  #lastLoad: { location: Location; at: number } | null = null;
 
   loading = $state(false);
   error = $state<string | null>(null);
+  /** IANA time zone of the loaded forecast. */
+  timezone = $state<string | undefined>(undefined);
 
-  /** Hours scored against the current preferences, grouped by day. */
+  /** Current wall-clock time at the forecast location ("YYYY-MM-DDTHH:MM"). */
+  now = $derived(wallClock(this.timezone, new Date(this.#clock)));
+
+  /** Hours scored against the current preferences, grouped by day, from today onwards. */
   days = $derived.by(() => {
     const scored = this.#rawHours.map((h) => ({ ...h, score: scoreHour(h, preferences) }));
-    return groupIntoDays(scored, new Date());
+    return groupIntoDays(scored, this.now).filter((d) => d.dayIndex >= 0);
   });
 
-  async load(latitude: number, longitude: number): Promise<void> {
+  constructor() {
+    setInterval(() => (this.#clock = Date.now()), CLOCK_TICK_MS);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState !== 'visible') return;
+      this.#clock = Date.now();
+      if (this.#lastLoad && Date.now() - this.#lastLoad.at > STALE_AFTER_MS) {
+        this.load(this.#lastLoad.location);
+      }
+    });
+  }
+
+  async load(location: Location): Promise<void> {
     // A newer search supersedes any request still in flight.
     this.#controller?.abort();
     const controller = new AbortController();
@@ -44,9 +50,13 @@ class WeatherStore {
     this.loading = true;
     this.error = null;
     try {
-      this.#rawHours = await fetchForecast(latitude, longitude, {
+      const forecast = await fetchForecast(location.latitude, location.longitude, {
         signal: AbortSignal.any([controller.signal, AbortSignal.timeout(FETCH_TIMEOUT_MS)]),
       });
+      this.#rawHours = forecast.hours;
+      this.timezone = forecast.timezone;
+      this.#clock = Date.now();
+      this.#lastLoad = { location, at: Date.now() };
     } catch (e) {
       if (controller.signal.aborted) return; // superseded by a newer search
       this.error =

@@ -1,17 +1,14 @@
 import type { Preferences } from '../types';
+import { DEFAULT_PREFERENCES, sanitizePreferences } from './preferences';
+
+export { DEFAULT_PREFERENCES, TEMP_LIMITS } from './preferences';
 
 const STORAGE_KEY = 'run-weather-prefs';
-
-export const DEFAULT_PREFERENCES: Readonly<Preferences> = {
-  rainTolerance: 0.3,
-  tempMin: -2,
-  tempMax: 25,
-};
 
 function load(): Preferences {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) return { ...DEFAULT_PREFERENCES, ...JSON.parse(stored) };
+    if (stored) return sanitizePreferences(JSON.parse(stored));
   } catch {}
   return { ...DEFAULT_PREFERENCES };
 }
@@ -20,7 +17,7 @@ function load(): Preferences {
 export const preferences = $state<Preferences>(load());
 
 export function updatePreferences(updates: Partial<Preferences>): void {
-  Object.assign(preferences, updates);
+  Object.assign(preferences, sanitizePreferences({ ...preferences, ...updates }));
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(preferences));
   } catch {}

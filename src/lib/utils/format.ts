@@ -14,22 +14,17 @@ export function formatWind(speed: number): string {
   return `${Math.round(speed)} km/h`;
 }
 
-export function formatDayLabel(dateStr: string): string {
-  const date = new Date(dateStr + 'T00:00:00');
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const tomorrow = new Date(today);
-  tomorrow.setDate(tomorrow.getDate() + 1);
-
-  const yesterday = new Date(today);
-  yesterday.setDate(yesterday.getDate() - 1);
-
-  if (date.getTime() === today.getTime()) return 'Today';
-  if (date.getTime() === tomorrow.getTime()) return 'Tomorrow';
-  if (date.getTime() === yesterday.getTime()) return 'Yesterday';
-
-  return date.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+/** "Today", "Tomorrow", or e.g. "Mon 23 Nov". `dayIndex` is days from today at the location. */
+export function formatDayLabel(dateStr: string, dayIndex: number): string {
+  if (dayIndex === 0) return 'Today';
+  if (dayIndex === 1) return 'Tomorrow';
+  // Parse and format in UTC so the calendar date can't shift with the browser's zone.
+  return new Date(`${dateStr}T00:00:00Z`).toLocaleDateString('en-GB', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    timeZone: 'UTC',
+  });
 }
 
 // RdYlGn-inspired colourmap: red → orange → yellow → lime → green

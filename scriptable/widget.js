@@ -14,7 +14,7 @@
     "is_day",
     "dew_point_2m"
   ];
-  async function fetchForecast(latitude, longitude, { timezone = "Europe/London", signal } = {}) {
+  async function fetchForecast(latitude, longitude, { timezone = "auto", signal } = {}) {
     const params = new URLSearchParams({
       latitude: String(latitude),
       longitude: String(longitude),
@@ -25,7 +25,7 @@
     const res = await fetch(`${BASE_URL}?${params}`, signal ? { signal } : void 0);
     if (!res.ok) throw new Error(`Failed to fetch forecast (HTTP ${res.status})`);
     const data = await res.json();
-    return reshapeHourly(data.hourly);
+    return { timezone: data.timezone, hours: reshapeHourly(data.hourly) };
   }
   function reshapeHourly(hourly) {
     return hourly.time.map((time, i) => ({
@@ -43,6 +43,27 @@
       isDay: hourly.is_day[i] === 1,
       dewPoint: hourly.dew_point_2m[i]
     }));
+  }
+
+  // src/lib/utils/dates.ts
+  var MS_PER_DAY = 864e5;
+  function wallClock(timeZone, date = /* @__PURE__ */ new Date()) {
+    const parts = Object.fromEntries(
+      new Intl.DateTimeFormat("en-CA", {
+        timeZone,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        hourCycle: "h23"
+      }).formatToParts(date).map((p) => [p.type, p.value])
+    );
+    return `${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}`;
+  }
+  var toUtcMs = (date) => Date.parse(`${date.slice(0, 10)}T00:00:00Z`);
+  function addDays(date, days) {
+    return new Date(toUtcMs(date) + days * MS_PER_DAY).toISOString().slice(0, 10);
   }
 
   // src/lib/scoring/weatherCodes.ts
@@ -207,8 +228,8 @@
     return new Color(`#${h(m[1])}${h(m[2])}${h(m[3])}`);
   }
   function dayLabel(dateStr) {
-    const today = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
-    const tomorrow = new Date(Date.now() + 864e5).toISOString().slice(0, 10);
+    const today = wallClock().slice(0, 10);
+    const tomorrow = addDays(today, 1);
     if (dateStr === today) return "Today";
     if (dateStr === tomorrow) return "Tomorrow";
     const [y, m, d] = dateStr.split("-").map(Number);
@@ -278,10 +299,10 @@
       Location.setAccuracyToHundredMeters();
       const loc = await Location.current();
       const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      const hours = await fetchForecast(loc.latitude, loc.longitude, { timezone });
-      const today = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
-      const tomorrow = new Date(Date.now() + 864e5).toISOString().slice(0, 10);
-      const dayAfterTomorrow = new Date(Date.now() + 2 * 864e5).toISOString().slice(0, 10);
+      const { hours } = await fetchForecast(loc.latitude, loc.longitude, { timezone });
+      const today = wallClock(timezone).slice(0, 10);
+      const tomorrow = addDays(today, 1);
+      const dayAfterTomorrow = addDays(today, 2);
       titleRow.addSpacer();
       const nowHour = hours.find((h) => h.date === today && h.hour === (/* @__PURE__ */ new Date()).getHours());
       if (nowHour) {

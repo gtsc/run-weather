@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Location } from '../lib/types';
   import { geocodeLocation, geocodeGPS } from '../lib/api/geocoding';
-  import { location } from '../lib/stores/location.svelte';
+  import { location, setLocation } from '../lib/stores/location.svelte';
   import { weather } from '../lib/stores/weather.svelte';
 
   let query = $state('');
@@ -13,14 +13,17 @@
     errorMsg = '';
     try {
       const loc = await resolve();
-      location.current = loc;
-      await weather.load(loc.latitude, loc.longitude);
+      setLocation(loc);
+      await weather.load(loc);
     } catch (e) {
       errorMsg = e instanceof Error ? e.message : String(e);
     } finally {
       searching = false;
     }
   }
+
+  // Reload the forecast for the remembered location on startup.
+  if (location.current) weather.load(location.current);
 
   function handleSubmit(e: SubmitEvent): void {
     e.preventDefault();

@@ -15,13 +15,14 @@
     selectedHourTime = null,
     onHourSelect,
     panel,
-    isToday = false,
+    nowMinutes,
   }: {
     day: DayData;
     selectedHourTime?: string | null;
     onHourSelect: (_hour: ScoredHour | null) => void;
     panel?: Snippet<[ScoredHour, number]>;
-    isToday?: boolean;
+    /** Minutes since local midnight at the location, for today's "now" marker. */
+    nowMinutes?: number;
   } = $props();
 
   let hoveredIndex = $state<number | null>(null);
@@ -50,7 +51,7 @@
 <div class="rounded-xl bg-run-card border border-run-border p-4">
   <div class="flex items-center justify-between mb-2.5">
     <div class="flex items-center gap-2">
-      <span class="font-medium text-sm">{formatDayLabel(day.date)}</span>
+      <span class="font-medium text-sm">{formatDayLabel(day.date, day.dayIndex)}</span>
       {#if confidence}
         <span
           class="text-[10px] px-1.5 py-0.5 rounded {confidence === 'low'
@@ -122,8 +123,8 @@
       </div>
     {/if}
 
-    {#if isToday}
-      {@const nowPct = ((new Date().getHours() * 60 + new Date().getMinutes()) / 1440) * 100}
+    {#if nowMinutes !== undefined}
+      {@const nowPct = (nowMinutes / 1440) * 100}
       <div
         class="absolute bottom-full mb-0.5 pointer-events-none z-10 -translate-x-1/2"
         style="left: {nowPct}%"

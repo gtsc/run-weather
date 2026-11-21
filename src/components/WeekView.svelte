@@ -1,5 +1,6 @@
 <script lang="ts">
   import { weather } from '../lib/stores/weather.svelte';
+  import { minutesOfDay } from '../lib/utils/dates';
   import DayStrip from './DayStrip.svelte';
   import HourPanel from './HourPanel.svelte';
 
@@ -50,7 +51,7 @@
         {day}
         {selectedHourTime}
         onHourSelect={(hour) => (selectedHourTime = hour?.time ?? null)}
-        isToday={day.dayIndex === 0}
+        nowMinutes={day.dayIndex === 0 ? minutesOfDay(weather.now) : undefined}
       >
         {#snippet panel(hour, score)}
           <HourPanel {hour} {score} onClose={() => (selectedHourTime = null)} />

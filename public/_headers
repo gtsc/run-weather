@@ -1,0 +1,21 @@
+# Cloudflare Workers static assets: response headers.
+# https://developers.cloudflare.com/workers/static-assets/headers/
+# Max 100 rules, 2,000 chars per line. Not served publicly.
+
+/*
+  # script-src: the bundle is same-origin and the only inline script is the theme
+  # snippet in index.html, allowed by hash. If you edit that snippet, update the hash
+  # (src/security.test.ts fails until you do).
+  Content-Security-Policy: default-src 'none'; script-src 'self' 'sha256-LlcHBiiu1YgA136VdTcWNrSKFYcmen60OdhzX73xwuc=' 'report-sample'; style-src 'self'; style-src-attr 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src https://api.open-meteo.com https://geocoding-api.open-meteo.com https://nominatim.openstreetmap.org; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; require-trusted-types-for 'script'; upgrade-insecure-requests
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(self), camera=(), microphone=(), payment=(), usb=(), interest-cohort=(), browsing-topics=()
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Resource-Policy: same-origin
+
+# Vite fingerprints everything under /assets/, so it can be cached forever.
+# index.html keeps the default (max-age=0, must-revalidate) so deploys show up immediately.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable

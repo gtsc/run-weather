@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { preferences, updatePreferences } from '../lib/stores/preferences.svelte';
+  import { preferences, updatePreferences, TEMP_LIMITS } from '../lib/stores/preferences.svelte';
   import { lightDismiss } from '../lib/utils/lightDismiss';
 
   let dialog: HTMLDialogElement;
@@ -9,7 +9,9 @@
 
   function updateTemp(key: 'tempMin' | 'tempMax', e: Event) {
     const value = (e.currentTarget as HTMLInputElement).valueAsNumber;
-    if (!Number.isNaN(value)) updatePreferences({ [key]: Math.round(value) });
+    if (!Number.isNaN(value)) updatePreferences({ [key]: value });
+    // Reflect any clamping back into the field.
+    (e.currentTarget as HTMLInputElement).valueAsNumber = preferences[key];
   }
 </script>
 
@@ -95,8 +97,8 @@
             <span class="relative">
               <input
                 type="number"
-                min="-30"
-                max="50"
+                min={TEMP_LIMITS.min}
+                max={preferences.tempMax}
                 value={preferences.tempMin}
                 onchange={(e) => updateTemp('tempMin', e)}
                 class={inputClass}
@@ -113,8 +115,8 @@
             <span class="relative">
               <input
                 type="number"
-                min="-30"
-                max="50"
+                min={preferences.tempMin}
+                max={TEMP_LIMITS.max}
                 value={preferences.tempMax}
                 onchange={(e) => updateTemp('tempMax', e)}
                 class={inputClass}
