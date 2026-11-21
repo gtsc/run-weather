@@ -20,6 +20,8 @@ class WeatherStore {
   error = $state<string | null>(null);
   /** IANA time zone of the loaded forecast. */
   timezone = $state<string | undefined>(undefined);
+  /** When the shown forecast was fetched, if it came from the offline cache. */
+  cachedAt = $state<number | undefined>(undefined);
 
   /** Current wall-clock time at the forecast location ("YYYY-MM-DDTHH:MM"). */
   now = $derived(wallClock(this.timezone, new Date(this.#clock)));
@@ -55,6 +57,7 @@ class WeatherStore {
       });
       this.#rawHours = forecast.hours;
       this.timezone = forecast.timezone;
+      this.cachedAt = forecast.cachedAt;
       this.#clock = Date.now();
       this.#lastLoad = { location, at: Date.now() };
     } catch (e) {

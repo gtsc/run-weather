@@ -27,6 +27,8 @@ export interface Forecast {
   /** IANA time zone the hourly times are expressed in. */
   timezone: string;
   hours: HourData[];
+  /** Set when the service worker served a cached copy (offline): when it was fetched. */
+  cachedAt?: number;
 }
 
 export async function fetchForecast(
@@ -48,7 +50,10 @@ export async function fetchForecast(
   if (!res.ok) throw new Error(`Failed to fetch forecast (HTTP ${res.status})`);
   const data = (await res.json()) as { timezone: string; hourly: HourlyResponse };
 
-  return { timezone: data.timezone, hours: reshapeHourly(data.hourly) };
+  // `headers` is optional because the Scriptable widget's fetch shim has none.
+  const cachedAt = Number(res.headers?.get('x-sw-cached-at')) || undefined;
+
+  return { timezone: data.timezone, hours: reshapeHourly(data.hourly), cachedAt };
 }
 
 function reshapeHourly(hourly: HourlyResponse): HourData[] {

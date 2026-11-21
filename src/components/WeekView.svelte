@@ -62,6 +62,16 @@
   </div>
 {:else}
   <div class="flex flex-col gap-2">
+    {#if weather.cachedAt}
+      <p role="status" class="text-xs text-run-muted rounded-lg border border-run-border px-3 py-2">
+        You're offline. Showing the forecast from
+        {new Date(weather.cachedAt).toLocaleString('en-GB', {
+          weekday: 'short',
+          hour: '2-digit',
+          minute: '2-digit',
+        })}.
+      </p>
+    {/if}
     {#if shown}
       {@const day = dayOf(shown)}
       <Readout
